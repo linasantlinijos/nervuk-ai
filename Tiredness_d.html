@@ -1,0 +1,1561 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>What kind of tiredness is this? — nervuk.ai</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,500;0,7..72,600;1,7..72,400&family=Hanken+Grotesk:wght@500&display=swap" rel="stylesheet">
+<style>
+  /* ─── Design tokens ─── */
+  :root {
+    --accent:      #2a6654;
+    --accent-dim:  #3d8a70;
+    --ink:         #111111;
+    --ink-mid:     #3d3d3d;
+    --ink-faint:   #767672;
+    --paper:       #ffffff;
+    --paper-tint:  #f8f8f6;
+    --border:      #e0e0dc;
+    --tag-lands:   #2a6654;
+    --tag-quiet:   #4a6b7c;
+    --tag-notme:   #7a7a7a;
+    --tag-skip:    #7a5c3a;
+    --shadow:      0 4px 32px rgba(0,0,0,0.13);
+    --radius:      12px;
+    /* Single-family setting: both roles point at Literata.
+       The wordmark alone keeps Hanken Grotesk (locked mark). */
+    --serif:       'Literata', Georgia, serif;
+    --sans:        'Literata', Georgia, serif;
+    --mark:        'Hanken Grotesk', system-ui, sans-serif;
+    --transition:  0.22s ease;
+  }
+
+  /* ─── Reset & base ─── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { font-size: 16px; }
+  body {
+    font-family: var(--sans);
+    color: var(--ink);
+    background: transparent;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  html {
+    background: #111;
+  }
+
+  /* ─── Video background ─── */
+  #bg-video {
+    position: fixed;
+    inset: 0;
+    width: 100%; height: 100%;
+    object-fit: cover;
+    opacity: 1;
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  /* ─── Site header ─── */
+  .site-header {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 28px;
+    background: transparent;
+  }
+  .wordmark {
+    font-family: var(--mark);
+    font-weight: 500;
+    font-size: 1rem;
+    color: #111111;
+    text-decoration: none;
+    letter-spacing: 0;
+  }
+  .nav-back {
+    font-family: var(--mark);
+    font-size: 0.82rem;
+    color: rgba(17,17,17,0.6);
+    text-decoration: none;
+    transition: color var(--transition);
+  }
+  .nav-back:hover { color: #111111; }
+
+  @media (max-width: 680px) {
+    .site-header { position: absolute; }
+  }
+
+  /* ─── Stage / panel ─── */
+  .stage {
+    position: relative;
+    z-index: 10;
+    min-height: 100vh;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 90px 16px 60px;
+  }
+  .panel {
+    background: var(--paper);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    width: 100%;
+    max-width: 620px;
+    overflow: hidden;
+  }
+
+  /* ─── Screen system ─── */
+  .screen { display: none; }
+  .screen.active { display: block; }
+  .screen.rise {
+    animation: rise 0.38s cubic-bezier(0.22,1,0.36,1) both;
+  }
+  @keyframes rise {
+    from { opacity: 0; transform: translateY(18px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ─── Intro screen ─── */
+  .intro-body { padding: 48px 40px 40px; }
+  @media (max-width: 480px) { .intro-body { padding: 36px 24px 32px; } }
+
+  .intro-body h1 {
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: clamp(2.25rem, 8vw, 3.25rem);
+    line-height: 1.06;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+    margin-bottom: 28px;
+  }
+
+  .lead {
+    font-family: var(--sans);
+    font-size: 1rem;
+    line-height: 1.65;
+    color: var(--ink-mid);
+    margin-bottom: 20px;
+  }
+
+  .note {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 0.95rem;
+    line-height: 1.7;
+    color: var(--ink-faint);
+    border-left: 3px solid var(--accent);
+    padding-left: 16px;
+    margin-bottom: 24px;
+  }
+
+  .meta-row {
+    font-size: 0.83rem;
+    color: var(--ink-faint);
+    margin-bottom: 28px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 14px;
+    align-items: center;
+  }
+  .meta-row span { display: flex; align-items: center; gap: 5px; }
+  .meta-row .mdot {
+    display: inline-block;
+    width: 4px; height: 4px;
+    border-radius: 50%;
+    background: var(--accent);
+  }
+
+  .section-list-label {
+    font-family: var(--sans);
+    font-size: 0.82rem;
+    color: var(--ink-faint);
+    margin-bottom: 10px;
+  }
+  .section-list {
+    list-style: none;
+    margin-bottom: 32px;
+  }
+  .section-list li {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 0.975rem;
+    line-height: 1.3;
+    color: var(--ink-faint);
+    padding: 4px 0;
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+  }
+  .section-list li .snum {
+    font-family: var(--sans);
+    font-style: normal;
+    font-size: 0.8rem;
+    color: var(--accent);
+    min-width: 16px;
+    flex-shrink: 0;
+  }
+
+  .btn-begin {
+    display: inline-block;
+    background: var(--accent);
+    color: #fff;
+    font-family: var(--sans);
+    font-size: 0.92rem;
+    font-weight: 500;
+    padding: 13px 32px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    transition: background var(--transition);
+    text-decoration: none;
+  }
+  .btn-begin:hover { background: var(--accent-dim); }
+
+  /* ─── Somatic pause overlay ─── */
+  #pause {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(10,15,12,0.92);
+    z-index: 200;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    padding: 32px;
+    text-align: center;
+  }
+  #pause.show { display: flex; }
+
+  .breath-wrap {
+    margin-bottom: 32px;
+    position: relative;
+    width: 80px; height: 80px;
+  }
+  .breath-ring {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    border: 2px solid rgba(255,255,255,0.12);
+  }
+  .breath-dot {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%,-50%);
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    background: var(--accent);
+    animation: breathe 5s ease-in-out infinite;
+  }
+  @keyframes breathe {
+    0%,100% { transform: translate(-50%,-50%) scale(1);   opacity: 0.7; }
+    50%      { transform: translate(-50%,-50%) scale(2.2); opacity: 1;   }
+  }
+
+  .pause-kicker {
+    font-family: var(--sans);
+    font-size: 0.8rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.4);
+    margin-bottom: 12px;
+  }
+  .pause-text {
+    font-family: var(--serif);
+    font-style: italic;
+    font-weight: 400;
+    font-size: clamp(1.1rem, 3vw, 1.3rem);
+    line-height: 1.65;
+    color: rgba(255,255,255,0.88);
+    max-width: 480px;
+    margin-bottom: 40px;
+  }
+
+  #pauseContinue {
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.3);
+    color: rgba(255,255,255,0.75);
+    font-family: var(--sans);
+    font-size: 0.85rem;
+    padding: 10px 28px;
+    border-radius: 6px;
+    cursor: pointer;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.4s ease, border-color var(--transition), color var(--transition);
+  }
+  #pauseContinue.ready {
+    opacity: 1;
+    pointer-events: all;
+  }
+  #pauseContinue:hover {
+    border-color: rgba(255,255,255,0.7);
+    color: #fff;
+  }
+
+  /* ─── Question screen ─── */
+  .q-header {
+    padding: 28px 40px 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 16px;
+  }
+  @media (max-width: 480px) { .q-header { padding: 20px 24px 14px; } }
+
+  .section-label {
+    font-family: var(--sans);
+    font-size: 0.8rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+  }
+  .section-label strong { color: var(--accent); font-weight: 600; }
+
+  .dots {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+  }
+  .dots span {
+    display: block;
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--border);
+    transition: background 0.2s;
+  }
+  .dots span.filled { background: var(--accent); }
+
+  .q-body { padding: 32px 40px 28px; }
+  @media (max-width: 480px) { .q-body { padding: 24px 24px 20px; } }
+
+  .q-lead {
+    font-family: var(--sans);
+    font-size: 0.83rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    margin-bottom: 14px;
+  }
+
+  .q-text {
+    font-family: var(--serif);
+    font-weight: 500;
+    font-size: clamp(1.1rem, 2.6vw, 1.2rem);
+    line-height: 1.6;
+    color: var(--ink);
+    margin-bottom: 28px;
+    min-height: 60px;
+  }
+
+  /* ─── Resonance tags ─── */
+  /* Stacked, one per row — matches nervuk-energy's answer-option design. */
+  .tags {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+  .tag {
+    display: block;
+    width: 100%;
+    text-align: left;
+    font-family: var(--sans);
+    font-size: 0.95rem;
+    font-weight: 500;
+    padding: 13px 18px;
+    border-radius: 10px;
+    border: 1.5px solid var(--border);
+    background: var(--paper);
+    color: var(--ink-mid);
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+    user-select: none;
+  }
+  .tag:hover {
+    border-color: var(--ink-mid);
+    color: var(--ink);
+  }
+  .tag.on { color: #fff; border-color: transparent; background: var(--accent); }
+
+  /* ─── Question footer ─── */
+  .q-footer {
+    padding: 0 40px 28px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  @media (max-width: 480px) { .q-footer { padding: 0 24px 24px; } }
+
+  .btn-ghost {
+    font-family: var(--sans);
+    font-size: 0.82rem;
+    color: var(--ink-faint);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 8px 4px;
+    transition: color var(--transition);
+  }
+  .btn-ghost:hover { color: var(--ink); }
+
+  #goback {
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s;
+  }
+  #goback.show { opacity: 1; pointer-events: all; }
+
+  .spacer { flex: 1; }
+
+  #continue {
+    display: inline-block;
+    background: var(--accent);
+    color: #fff;
+    font-family: var(--sans);
+    font-size: 0.88rem;
+    font-weight: 500;
+    padding: 11px 26px;
+    border-radius: 7px;
+    border: none;
+    cursor: pointer;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s, background var(--transition);
+  }
+  #continue.show { opacity: 1; pointer-events: all; }
+  #continue:hover { background: var(--accent-dim); }
+
+  /* ─── Results screen ─── */
+  .results-body { padding: 44px 40px 40px; }
+  @media (max-width: 480px) { .results-body { padding: 32px 22px 32px; } }
+
+  .r-kicker {
+    font-family: var(--sans);
+    font-size: 0.8rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 14px;
+  }
+  .r-head {
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: clamp(1.6rem, 4.5vw, 2.1rem);
+    line-height: 1.22;
+    color: var(--ink);
+    margin-bottom: 18px;
+  }
+  .r-sub {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--ink-mid);
+    margin-bottom: 8px;
+  }
+  .r-sub p + p { margin-top: 14px; }
+
+  /* ─── Interpretation card ─── */
+  .rcard {
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--paper);
+    padding: 20px 22px;
+    margin-bottom: 18px;
+  }
+  .rcard .rc-theme {
+    font-family: var(--sans);
+    font-size: 0.83rem;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    margin-bottom: 9px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--ink);
+  }
+  .rcard .rc-dot {
+    width: 9px; height: 9px; border-radius: 2px; flex-shrink: 0;
+    display: inline-block; background: var(--accent);
+  }
+  .rcard .rc-body {
+    font-size: 0.92rem;
+    line-height: 1.65;
+    color: var(--ink-mid);
+  }
+  .rcard .rc-body b { color: var(--accent); font-weight: 600; }
+  .rcard .rc-body p + p { margin-top: 10px; }
+  .rcard .rc-link {
+    display: inline-block; font-family: var(--sans); font-weight: 600; font-size: 0.88rem;
+    color: var(--accent); text-decoration: none; border-bottom: 1.5px solid var(--accent);
+  }
+  .rcard .rc-link:hover { color: var(--ink); border-bottom-color: var(--ink); }
+  .rcard.medical .rc-theme { color: var(--tag-skip); }
+  .rcard.medical .rc-dot { background: var(--tag-skip); }
+
+  /* ─── Care card (crisis / heavy-load messaging) ─── */
+  .care-card {
+    border: 1px solid var(--border); border-radius: var(--radius); background: var(--paper);
+    padding: 26px 24px; margin-bottom: 22px;
+  }
+  .care-card .cc-kicker {
+    font-family: var(--sans); font-size: 0.8rem; letter-spacing: 0.09em; text-transform: uppercase;
+    margin-bottom: 12px; display: flex; align-items: center; gap: 8px; color: var(--ink);
+  }
+  .care-card .cc-kicker::before {
+    content: ""; width: 9px; height: 9px; border-radius: 2px; background: var(--accent); flex-shrink: 0; display: inline-block;
+  }
+  .care-card.crisis .cc-kicker { color: var(--tag-skip); }
+  .care-card.crisis .cc-kicker::before { background: var(--tag-skip); }
+  .care-card .cc-body { font-size: 0.96rem; line-height: 1.7; color: var(--ink-mid); }
+  .care-card .cc-body p + p { margin-top: 12px; }
+  .care-card .cc-link {
+    display: inline-block; margin-top: 16px; font-family: var(--sans); font-weight: 600; font-size: 0.88rem;
+    color: var(--accent); text-decoration: none; border-bottom: 1.5px solid var(--accent);
+  }
+  .care-card.crisis .cc-link { color: var(--tag-skip); border-bottom-color: var(--tag-skip); }
+
+  /* ─── Collapsible flagged sections ─── */
+  .flagged-section { margin-bottom: 20px; }
+  .flagged-toggle {
+    background: none;
+    border: none;
+    border-top: 1px solid var(--border);
+    width: 100%;
+    padding: 14px 0;
+    text-align: left;
+    cursor: pointer;
+    font-family: var(--sans);
+    font-size: 0.82rem;
+    font-weight: 500;
+    color: var(--ink-faint);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: color var(--transition);
+  }
+  .flagged-toggle:hover { color: var(--ink); }
+  .flagged-toggle .arrow { font-size: 1.9rem; transition: transform 0.2s; }
+  .flagged-toggle.open .arrow { transform: rotate(180deg); }
+  .flagged-items { display: none; padding-bottom: 8px; }
+  .flagged-items.open { display: block; }
+
+  .flagged-group:first-child .fg-title { padding-top: 0; }
+  .fg-title {
+    display: flex; align-items: center; gap: 7px; font-family: var(--sans); font-size: 0.78rem;
+    font-weight: 600; letter-spacing: 0.03em; text-transform: uppercase; color: var(--ink-faint);
+    padding-top: 16px;
+  }
+  .fg-swatch { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; background: var(--accent); }
+
+  .flagged-item {
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .flagged-item:last-child { border-bottom: none; }
+  .fi-text {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 0.93rem;
+    line-height: 1.6;
+    color: var(--ink);
+  }
+  .fi-note {
+    font-size: 0.82rem;
+    color: var(--ink-faint);
+    font-style: italic;
+    margin-top: 4px;
+  }
+
+  /* ─── Closing line ─── */
+  .closing {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 0.93rem;
+    line-height: 1.7;
+    color: var(--ink-faint);
+    margin-bottom: 36px;
+    padding-top: 8px;
+    border-top: 1px solid var(--border);
+  }
+
+  /* ─── Tip jar + share (ported from not-knowing) ─── */
+  .tipjar {
+    background: var(--paper-tint);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 26px 24px;
+    text-align: center;
+    margin-bottom: 24px;
+  }
+  .tipjar .t {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 1.02rem;
+    line-height: 1.65;
+    color: var(--ink-mid);
+    margin-bottom: 16px;
+  }
+  .tip-btn {
+    display: inline-block;
+    font-family: var(--sans);
+    font-weight: 600;
+    font-size: .9rem;
+    color: var(--accent);
+    background: transparent;
+    border: 1.5px solid var(--accent);
+    border-radius: var(--radius);
+    padding: 11px 26px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background var(--transition), color var(--transition);
+  }
+  .tip-btn:hover { background: var(--accent); color: #fff; }
+  .tipjar-divider { width: 100%; height: 1px; background: var(--border); margin: 20px 0; }
+  .tipjar-share-label {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: .9rem;
+    color: var(--ink-faint);
+    margin-bottom: 12px;
+  }
+  .share-instrument-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--sans);
+    font-weight: 500;
+    font-size: .875rem;
+    color: var(--ink-faint);
+    background: var(--paper);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 10px 22px;
+    cursor: pointer;
+    transition: border-color var(--transition), color var(--transition);
+  }
+  .share-instrument-btn:hover { border-color: var(--ink-mid); color: var(--ink-mid); }
+  .share-instrument-btn.copied { color: var(--accent); border-color: var(--accent); }
+
+  /* ─── Save results block ─── */
+  .check-other-block { text-align: center; margin-bottom: 26px; }
+  .check-other-link {
+    display: inline-block; font-family: var(--sans); font-weight: 500; font-size: 0.88rem;
+    color: var(--accent); text-decoration: none; border-bottom: 1.5px solid var(--accent);
+    padding-bottom: 1px; transition: color var(--transition), border-color var(--transition);
+  }
+  .check-other-link:hover { color: var(--ink); border-color: var(--ink); }
+
+  .save-block { margin-bottom: 24px; }
+  .save-label {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 0.95rem;
+    color: var(--ink-mid);
+    margin-bottom: 10px;
+  }
+  .save-hint {
+    font-family: var(--sans);
+    font-size: 0.83rem;
+    color: var(--ink-faint);
+    line-height: 1.5;
+    margin-bottom: 12px;
+  }
+  .save-note {
+    width: 100%;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 0.9rem;
+    color: var(--ink);
+    background: var(--paper-tint);
+    resize: none;
+    outline: none;
+    margin-bottom: 12px;
+    transition: border-color var(--transition);
+  }
+  .save-note:focus { border-color: var(--accent); }
+  .save-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+  .btn-save {
+    background: var(--accent);
+    color: #fff;
+    font-family: var(--sans);
+    font-size: 0.85rem;
+    font-weight: 500;
+    padding: 9px 20px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    transition: background var(--transition);
+  }
+  .btn-save:hover { background: var(--accent-dim); }
+  .btn-save-ghost {
+    background: transparent;
+    border: 1.5px solid var(--border);
+    color: var(--ink-faint);
+    font-family: var(--sans);
+    font-size: 0.85rem;
+    padding: 9px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: border-color var(--transition), color var(--transition);
+  }
+  .btn-save-ghost:hover { border-color: var(--ink-mid); color: var(--ink); }
+  .btn-save-ghost.copied { color: var(--accent); border-color: var(--accent); }
+
+  /* ─── Follow block ─── */
+  .follow-block { text-align: center; margin-bottom: 24px; }
+  .follow-label {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 0.9rem;
+    color: var(--ink-mid);
+    margin-bottom: 12px;
+  }
+  .follow-links {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+  }
+  .follow-links a {
+    font-family: var(--sans);
+    font-size: 0.83rem;
+    letter-spacing: 0.05em;
+    color: var(--ink-faint);
+    text-decoration: none;
+    padding: 2px 12px;
+    transition: color var(--transition);
+  }
+  .follow-links a:not(:last-child) { border-right: 1px solid var(--border); }
+  .follow-links a:hover { color: var(--accent); }
+
+  /* ─── Print-only elements ─── */
+  .print-only { display: none; }
+
+  /* ─── Print / Save-as-PDF ─── */
+  @media print {
+    #bg-video, .site-header, #pause, #shareOverlay, .tipjar, .save-block, .follow-block { display: none !important; }
+    html, body { background: #fff !important; }
+    .stage { padding: 0 !important; min-height: 0 !important; }
+    .panel { box-shadow: none !important; border-radius: 0 !important; max-width: 100% !important; }
+    .results-body { padding: 0 !important; }
+    .flagged-items { display: block !important; }
+    .flagged-toggle .arrow { display: none !important; }
+    .disclaimer { padding: 16px 0 0 !important; }
+    .print-only { display: block !important; margin-top: 18px; }
+    .pn-label { font-family: var(--sans); font-size: 0.83rem; letter-spacing: 0.09em; text-transform: uppercase; color: #555; margin-bottom: 6px; }
+    .pn-body { font-family: var(--serif); font-style: italic; font-size: 0.95rem; color: #222; white-space: pre-wrap; line-height: 1.6; }
+  }
+
+  /* ─── Disclaimer ─── */
+  .disclaimer {
+    font-size: 0.8rem;
+    color: var(--ink-faint);
+    line-height: 1.65;
+    padding: 0 40px 36px;
+    border-top: 1px solid var(--border);
+    padding-top: 20px;
+    margin-top: 4px;
+  }
+  @media (max-width: 480px) { .disclaimer { padding: 16px 24px 28px; } }
+  .disclaimer a { color: var(--ink-faint); }
+  .disclaimer a:hover { color: var(--ink); }
+
+  /* ─── Share card overlay ─── */
+  #shareOverlay {
+    display: none; position: fixed; inset: 0; background: rgba(10,15,12,0.86); z-index: 250;
+    align-items: flex-start; justify-content: center; padding: 40px 16px; overflow-y: auto;
+  }
+  #shareOverlay.show { display: flex; }
+  .share-card {
+    background: var(--paper); border-radius: var(--radius); max-width: 420px; width: 100%;
+    padding: 32px 28px 24px; position: relative;
+  }
+  .share-close {
+    position: absolute; top: 14px; right: 14px; background: none; border: none; cursor: pointer;
+    font-size: 1.2rem; color: var(--ink-faint); line-height: 1; padding: 6px;
+  }
+  .share-close:hover { color: var(--ink); }
+  .share-stamp { font-family: var(--mark); font-size: 0.8rem; color: var(--ink-faint); text-align: center; margin-top: 18px; letter-spacing: 0.03em; }
+  .share-headline { font-family: var(--serif); font-size: 1.2rem; line-height: 1.35; color: var(--ink); margin-bottom: 18px; }
+  .share-feature { font-family: var(--serif); font-style: italic; font-size: 0.95rem; color: var(--ink-mid); border-left: 3px solid var(--accent); padding-left: 12px; margin: 16px 0; display: none; }
+  .share-feature.show { display: block; }
+  .share-picks { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 18px; }
+  .share-pick {
+    font-family: var(--sans); font-size: 0.8rem; padding: 5px 10px; border-radius: 14px;
+    border: 1px solid var(--border); background: var(--paper-tint); color: var(--ink-faint); cursor: pointer;
+  }
+  .share-pick.on { background: var(--ink); color: #fff; border-color: transparent; }
+  .share-actions { display: flex; gap: 10px; margin-top: 16px; justify-content: center; flex-wrap: wrap; }
+
+  /* ─── Motion toggle (pause background video) ─── */
+  .motion-toggle {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    z-index: 40;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(17,17,17,0.45);
+    color: #f8f8f6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    padding: 0;
+    transition: background .18s;
+  }
+  .motion-toggle:hover { background: rgba(17,17,17,0.65); }
+  .motion-toggle svg { width: 15px; height: 15px; fill: currentColor; }
+  @media print {
+    .motion-toggle { display: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Background video -->
+<video id="bg-video" autoplay muted loop playsinline>
+  <source src="raw25.mp4" type="video/mp4">
+</video>
+<button id="motion-toggle" class="motion-toggle" type="button" aria-label="Pause background video" aria-pressed="false"></button>
+<script>
+(function() {
+  var video = document.getElementById('bg-video');
+  var btn = document.getElementById('motion-toggle');
+  if (!video || !btn) return;
+
+  var iconPause = '<svg viewBox="0 0 24 24"><rect x="6" y="5" width="4" height="14"></rect><rect x="14" y="5" width="4" height="14"></rect></svg>';
+  var iconPlay  = '<svg viewBox="0 0 24 24"><polygon points="7,5 19,12 7,19"></polygon></svg>';
+
+  var prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var stored = localStorage.getItem('nervuk-motion');
+  var paused = stored ? stored === 'paused' : prefersReduced;
+
+  function render() {
+    if (paused) {
+      video.pause();
+      btn.innerHTML = iconPlay;
+      btn.setAttribute('aria-label', 'Play background video');
+      btn.setAttribute('aria-pressed', 'true');
+    } else {
+      video.play().catch(function(){});
+      btn.innerHTML = iconPause;
+      btn.setAttribute('aria-label', 'Pause background video');
+      btn.setAttribute('aria-pressed', 'false');
+    }
+  }
+
+  btn.addEventListener('click', function() {
+    paused = !paused;
+    localStorage.setItem('nervuk-motion', paused ? 'paused' : 'playing');
+    render();
+  });
+
+  render();
+})();
+</script>
+
+
+<!-- Site header -->
+<header class="site-header">
+  <a href="/" class="wordmark">nervuk.ai</a>
+  <a href="/" class="nav-back">← All instruments</a>
+</header>
+
+<div class="stage">
+  <div class="panel">
+
+    <!-- ─── INTRO SCREEN ─── -->
+    <div id="screen-intro" class="screen active">
+      <div class="intro-body">
+        <h1>What kind of tiredness is this?</h1>
+        <p class="lead">Some tiredness comes from using your energy — you worked hard, you slept badly, your body wants rest. Some comes from a nervous system that stays on alert even when nothing is wrong. That uses energy too, quietly, all day. These questions help you see which one this is.</p>
+        <p class="note">Read each sentence and answer quickly. Don't think too long — just notice which ones feel true. This won't measure how tired you are, and it won't give you a score. It looks at one possible cause of tiredness, not all of them.</p>
+        <div class="meta-row">
+          <span><span class="mdot"></span> 5 areas, 25 short questions</span>
+        </div>
+        <p class="section-list-label">The five areas</p>
+        <ul class="section-list">
+          <li><span class="snum">1</span>What rest does</li>
+          <li><span class="snum">2</span>When you get tired</li>
+          <li><span class="snum">3</span>What your body is doing</li>
+          <li><span class="snum">4</span>How long it lasts</li>
+          <li><span class="snum">5</span>Other possible causes</li>
+        </ul>
+        <button class="btn-begin" onclick="startInstrument()">Begin</button>
+      </div>
+    </div>
+
+    <!-- ─── QUESTION SCREEN ─── -->
+    <div id="screen-q" class="screen">
+      <div class="q-header">
+        <div class="section-label" id="sectionLabel">—</div>
+        <div class="dots" id="dots"></div>
+      </div>
+      <div class="q-body">
+        <div class="q-lead">How true is this for you?</div>
+        <div class="q-text" id="qText"></div>
+        <div class="tags">
+          <button class="tag" data-v="lands" onclick="selectTag('lands')">Very true</button>
+          <button class="tag" data-v="quiet" onclick="selectTag('quiet')">Somewhat true</button>
+          <button class="tag" data-v="notme" onclick="selectTag('notme')">Not true</button>
+          <button class="tag" data-v="skip"  onclick="selectTag('skip')">I'd rather not answer</button>
+        </div>
+      </div>
+      <div class="q-footer">
+        <button class="btn-ghost" id="goback" onclick="goBack()">← Back</button>
+        <button class="btn-ghost" onclick="endHere()">Stop here</button>
+        <div class="spacer"></div>
+        <button id="continue" onclick="advance()">Continue →</button>
+      </div>
+    </div>
+
+    <!-- ─── RESULTS SCREEN ─── -->
+    <div id="screen-results" class="screen">
+      <div class="results-body">
+        <div id="careCard" style="display:none"></div>
+        <div class="r-kicker" id="rKicker"></div>
+        <h2 class="r-head" id="rHead"></h2>
+        <div class="r-sub" id="rSub"></div>
+        <div id="rCard"></div>
+        <div id="flaggedLands" class="flagged-section" style="display:none">
+          <button class="flagged-toggle" onclick="toggleFlagged('lands')">
+            This might need more attention <span class="arrow">▾</span>
+          </button>
+          <div class="flagged-items" id="flaggedLandsItems"></div>
+        </div>
+        <div id="flaggedSkip" class="flagged-section" style="display:none">
+          <button class="flagged-toggle" onclick="toggleFlagged('skip')">
+            What you chose not to answer <span class="arrow">▾</span>
+          </button>
+          <div class="flagged-items" id="flaggedSkipItems"></div>
+        </div>
+        <div class="closing" id="closing" style="display:none">
+          This is something to test against your own experience, not a conclusion. Give it time, and notice which parts still feel true.
+        </div>
+        <div id="printNote" class="print-only"></div>
+
+        <div class="check-other-block">
+          <a href="/" class="check-other-link">Check other instruments</a>
+        </div>
+
+        <div class="save-block">
+          <p class="save-label">Want to keep this?</p>
+          <p class="save-hint">If you want to compare this with a later check-in, write today's date in your note.</p>
+          <textarea class="save-note" id="resultNote" rows="2" placeholder="Write a note to yourself, if you like. It will be saved with your results."></textarea>
+          <div class="save-actions">
+            <button class="btn-save" onclick="window.print()">Save as PDF</button>
+            <button class="btn-save-ghost" id="copyResultsBtn" onclick="copyResults()">Copy as text</button>
+            <button class="btn-save-ghost" id="openShareBtn" onclick="openShareCard()">Share this card</button>
+          </div>
+        </div>
+        <div class="tipjar">
+          <p class="t">If something here landed, there's a tip jar. Only if it did.</p>
+          <a class="tip-btn" href="https://buymeacoffee.com/nervuk" target="_blank" rel="noopener">Leave a tip</a>
+          <div class="tipjar-divider"></div>
+          <p class="tipjar-share-label">Know someone who'd find this useful?</p>
+          <button class="share-instrument-btn" id="shareInstrumentBtn">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="11" cy="2.5" r="1.75" stroke="currentColor" stroke-width="1.25"/>
+              <circle cx="11" cy="11.5" r="1.75" stroke="currentColor" stroke-width="1.25"/>
+              <circle cx="3" cy="7" r="1.75" stroke="currentColor" stroke-width="1.25"/>
+              <line x1="4.7" y1="6.1" x2="9.3" y2="3.4" stroke="currentColor" stroke-width="1.25"/>
+              <line x1="4.7" y1="7.9" x2="9.3" y2="10.6" stroke="currentColor" stroke-width="1.25"/>
+            </svg>
+            Share this instrument
+          </button>
+        </div>
+        <div class="follow-block">
+          <p class="follow-label">New instruments come out from time to time. Follow along:</p>
+          <div class="follow-links">
+            <a href="https://njump.me/REPLACE_NPUB" target="_blank" rel="noopener">Nostr</a>
+            <a href="https://x.com/nervuk" target="_blank" rel="noopener">X</a>
+            <a href="https://instagram.com/nervuk" target="_blank" rel="noopener">Instagram</a>
+            <a href="https://linkedin.com/company/nervuk" target="_blank" rel="noopener">LinkedIn</a>
+            <a href="https://facebook.com/nervuk" target="_blank" rel="noopener">Facebook</a>
+          </div>
+        </div>
+      </div>
+      <div class="disclaimer">
+        This instrument is a self-inquiry tool, not a clinical assessment, diagnosis, or treatment. It is not medical or psychological advice. If you are experiencing significant distress, please reach out to a qualified professional or visit <a href="https://www.findahelpline.com" target="_blank">findahelpline.com</a>.<br><br>
+        This instrument looks at one possible source of tiredness — your nervous system. Persistent or worsening fatigue can have physical or mood-related causes a tool like this can't see; if that's you, please see a doctor.<br><br>
+        <a href="/legal">Disclaimer</a>
+      </div>
+    </div>
+
+  </div><!-- /panel -->
+</div><!-- /stage -->
+
+<!-- Somatic pause overlay -->
+<div id="pause">
+  <div class="breath-wrap">
+    <div class="breath-ring"></div>
+    <div class="breath-dot"></div>
+  </div>
+  <div class="pause-kicker" id="pauseKicker"></div>
+  <div class="pause-text" id="pauseText"></div>
+  <button id="pauseContinue" onclick="closePause()">Continue</button>
+</div>
+
+<!-- Share card overlay -->
+<div id="shareOverlay">
+  <div class="share-card">
+    <button class="share-close" onclick="closeShareCard()">✕</button>
+    <div class="share-headline" id="shareHeadline"></div>
+    <div class="share-feature" id="shareFeature"></div>
+    <div class="share-picks" id="sharePicks"></div>
+    <div class="share-actions">
+      <button class="btn-save-ghost" id="shareCopyLinkBtn" onclick="copyShareLink()">Copy link</button>
+    </div>
+    <div class="share-stamp">nervuk.ai — What kind of tiredness is this?</div>
+  </div>
+</div>
+
+<script>
+// ─── DATA ────────────────────────────────────────────────────────────────────
+
+const SECTIONS = [
+  {
+    theme: "What rest does",
+    kicker: "Before we start",
+    pause: "Notice how your body feels right now — tired, restless, heavy, fine. You don't need to change anything. Just notice.",
+    items: [
+      {t:"A full night of sleep doesn't make this tiredness go away.", f:"stuck"},
+      {t:"I can rest for days — a quiet weekend, a holiday — and still wake up tired.", f:"stuck"},
+      {t:"I feel tired and restless at the same time: no energy, but I can't calm down.", f:"stuck"},
+      {t:"This tiredness feels more like being empty or slow than like needing sleep.", f:"stuck"},
+      {t:"A good rest brings my energy back.", f:"deplete"},
+      {t:"When I'm tired, there's a clear reason: I slept badly, or I did a lot.", f:"deplete"},
+      {t:"After a hard period, a real break works — I can feel myself calm down.", f:"healthy"}
+    ]
+  },
+  {
+    theme: "When you get tired",
+    kicker: "Looking closer",
+    pause: "Let your shoulders drop, if they will. Notice whether that was easy, or whether they came back up on their own.",
+    items: [
+      {t:"I get very tired around certain people or situations, even without physical effort.", f:"stuck"},
+      {t:"Small, everyday things make me much more tired than they should.", f:"stuck"},
+      {t:"My energy disappears suddenly, not slowly.", f:"stuck"},
+      {t:"After something difficult, I get tired — and then I recover.", f:"healthy"},
+      {t:"How tired I feel matches how much I've done physically.", f:"deplete"},
+      {t:"Right now I have more work or responsibility than usual.", f:"deplete"},
+      {t:"Lately I've been sleeping less, or sleeping badly, for a clear reason.", f:"deplete"}
+    ]
+  },
+  {
+    theme: "What your body is doing",
+    kicker: "Into the body",
+    pause: "One slow breath. Notice where your body is tight — jaw, stomach, hands. You don't need to relax it.",
+    items: [
+      {t:"There's tension in my jaw, shoulders, or stomach that never fully goes away.", f:"stuck"},
+      {t:"Even when nothing is wrong, part of me stays alert, as if waiting for something.", f:"stuck"},
+      {t:"I notice that I hold my breath, or breathe very lightly, during normal moments.", f:"stuck"},
+      {t:"When I relax, I can feel my body soften. It isn't always tight.", f:"healthy"}
+    ]
+  },
+  {
+    theme: "How long it lasts",
+    kicker: "Stepping back",
+    pause: "Notice whether there's a difference for you between feeling sleepy and feeling empty.",
+    items: [
+      {t:"Hours after a stressful moment — a difficult meeting or conversation — my body is still tense. Sometimes until the next day.", f:"stuck"},
+      {t:"I get tense before situations that, afterwards, seem unimportant.", f:"stuck"},
+      {t:"I've felt this tired for so long that I can hardly remember feeling rested.", f:"stuck"},
+      {t:"After a stressful moment passes, my body calms down within about an hour, by itself.", f:"healthy"}
+    ]
+  },
+  {
+    theme: "Other possible causes",
+    kicker: "Take your time",
+    pause: "The last few are about your health, not about worrying you. Read them slowly.",
+    items: [
+      {t:"This tiredness is new. I haven't always felt like this.", f:"medical"},
+      {t:"Along with the tiredness, I have other physical symptoms — pain, weight change, feeling cold, or getting sick often.", f:"medical"},
+      {t:"Along with the tiredness, I've had no interest or enjoyment in most things for weeks.", f:"medical"}
+    ]
+  }
+];
+
+// ─── STATE ───────────────────────────────────────────────────────────────────
+
+const state = {}; // "si-qi" -> {val, note}
+let steps = [];   // flat list of {type:"pause"|"q", si, qi?}
+let idx = 0;
+let lastLandedItems = [];   // populated in showResults(); read by openShareCard()
+
+function buildSteps() {
+  steps = [];
+  SECTIONS.forEach((sec, si) => {
+    steps.push({type:"pause", si});
+    sec.items.forEach((_, qi) => steps.push({type:"q", si, qi}));
+  });
+}
+
+// ─── NAVIGATION ──────────────────────────────────────────────────────────────
+
+function startInstrument() {
+  buildSteps();
+  idx = 0;
+  showScreen('screen-q');
+  advanceToStep();
+}
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => {
+    s.classList.remove('active','rise');
+  });
+  const el = document.getElementById(id);
+  el.classList.add('active','rise');
+}
+
+function advanceToStep() {
+  const step = steps[idx];
+  if (!step) { showResults(); return; }
+  if (step.type === 'pause') {
+    openPause(step.si);
+  } else {
+    renderQuestion(step.si, step.qi);
+  }
+}
+
+function advance() {
+  idx++;
+  advanceToStep();
+}
+
+function goBack() {
+  // find previous q step
+  let i = idx - 1;
+  while (i >= 0 && steps[i].type !== 'q') i--;
+  if (i < 0) return;
+  idx = i;
+  advanceToStep();
+}
+
+function endHere() {
+  showResults();
+}
+
+// ─── PAUSE OVERLAY ───────────────────────────────────────────────────────────
+
+let pauseTimer = null;
+
+function openPause(si) {
+  const sec = SECTIONS[si];
+  document.getElementById('pauseKicker').textContent = sec.kicker;
+  document.getElementById('pauseText').textContent = sec.pause;
+  const btn = document.getElementById('pauseContinue');
+  btn.classList.remove('ready');
+  document.getElementById('pause').classList.add('show');
+  clearTimeout(pauseTimer);
+  pauseTimer = setTimeout(() => btn.classList.add('ready'), 3200);
+}
+
+function closePause() {
+  document.getElementById('pause').classList.remove('show');
+  idx++; // move past the pause step
+  advanceToStep();
+}
+
+// ─── QUESTION RENDER ─────────────────────────────────────────────────────────
+
+function renderQuestion(si, qi) {
+  const sec = SECTIONS[si];
+  const item = sec.items[qi];
+  const key = `${si}-${qi}`;
+
+  // section label
+  document.getElementById('sectionLabel').innerHTML =
+    `<strong>${si+1}/5</strong> &nbsp;${sec.theme}`;
+
+  // progress dots for this section
+  const dotsEl = document.getElementById('dots');
+  dotsEl.innerHTML = '';
+  sec.items.forEach((_, i) => {
+    const d = document.createElement('span');
+    if (i <= qi) d.classList.add('filled');
+    dotsEl.appendChild(d);
+  });
+
+  // question text
+  document.getElementById('qText').textContent = item.t;
+
+  // tags — reset first
+  document.querySelectorAll('.tag').forEach(t => {
+    t.classList.remove('on');
+    t.style.transition = 'none';
+  });
+  // force reflow
+  void document.querySelector('.tag').offsetWidth;
+  document.querySelectorAll('.tag').forEach(t => {
+    t.style.transition = '';
+  });
+
+  // restore saved answer
+  const saved = state[key];
+  if (saved && saved.val) {
+    const matchTag = document.querySelector(`.tag[data-v="${saved.val}"]`);
+    if (matchTag) matchTag.classList.add('on');
+  }
+
+  // buttons
+  document.getElementById('continue').classList.toggle('show', !!saved);
+  const hasPrev = idx > 0 && steps.slice(0, idx).some(s => s.type === 'q');
+  document.getElementById('goback').classList.toggle('show', hasPrev);
+}
+
+function selectTag(val) {
+  const step = steps[idx];
+  if (!step || step.type !== 'q') return;
+  const key = `${step.si}-${step.qi}`;
+
+  if (!state[key]) state[key] = {val: null, note: ''};
+  state[key].val = val;
+
+  // update tag UI
+  document.querySelectorAll('.tag').forEach(t => t.classList.remove('on'));
+  document.querySelector(`.tag[data-v="${val}"]`).classList.add('on');
+
+  document.getElementById('continue').classList.add('show');
+}
+
+// ─── RESULTS ENGINE ──────────────────────────────────────────────────────────
+
+const RCARD_STUCK = `
+  <div class="rcard">
+    <div class="rc-theme"><span class="rc-dot"></span>what this kind of tiredness is</div>
+    <div class="rc-body">
+      A nervous system that stays in defence mode uses energy all the time — watching, staying tense, staying ready — even when nothing is happening. You can't see that energy going, which is why the tiredness can feel like it has no cause. You didn't do anything. Your system did, quietly, all day.<br><br>
+      <!-- Future: link "what kind of support would suit you" to the therapy-orientation instrument when it ships -->
+      <b>What tends to help:</b> an old pattern like this rarely changes by managing the tiredness itself. It changes slowly, as the nervous system learns again that it's safe to relax. That takes time, and most people don't do it alone. If this feels true, it may be worth talking to someone who works at this level — and worth thinking about what kind of support would suit you.
+    </div>
+  </div>`;
+
+// Medical rule-out content. The care card is computed independently of the
+// interpretive branch below (ns/deplete/healthy) and, when it fires, is shown
+// above it rather than in place of it — the person still sees the full
+// interpretive result as well as the safety message.
+function medicalCareCardHtml(ns) {
+  const extra = ns >= 4
+    ? `<p>The rest of your answers, explained below, point more toward a nervous system pattern — but that conversation comes after the check-up, not instead of it.</p>`
+    : '';
+  return `<div class="care-card">
+    <div class="cc-kicker">Please read this first</div>
+    <div class="cc-body">
+      <p>Some of your answers — that this tiredness is new, that it comes with other physical symptoms, or that it comes with weeks of low mood — point to things this tool can't see and a doctor can. That's not a reason to worry. It's the sensible first step. Whatever your nervous system is doing, it's worth checking the physical side first.</p>
+      ${extra}
+    </div>
+  </div>`;
+}
+function medicalSoftNoteHtml() {
+  return `<div class="rcard medical">
+    <div class="rc-theme"><span class="rc-dot"></span>Worth mentioning to a doctor</div>
+    <div class="rc-body"><p>One of your answers is something a doctor should look at. If your tiredness is new, getting worse, or comes with other physical symptoms, it's worth a check-up as well.</p></div>
+  </div>`;
+}
+
+function showResults() {
+  // score families
+  const totals = {stuck:0, deplete:0, healthy:0, medical:0};
+  let medicalCount = 0; // lands or quiet on medical items
+  const landedItems = [];
+  const skippedItems = [];
+
+  SECTIONS.forEach((sec, si) => {
+    sec.items.forEach((item, qi) => {
+      const key = `${si}-${qi}`;
+      const s = state[key];
+      if (!s || !s.val || s.val === 'notme') return;
+
+      const pts = s.val === 'lands' ? 2 : s.val === 'quiet' ? 1 : s.val === 'skip' ? 1 : 0;
+      totals[item.f] += pts;
+
+      if (item.f === 'medical' && (s.val === 'lands' || s.val === 'quiet')) medicalCount++;
+
+      if (s.val === 'lands') landedItems.push({text: item.t, si});
+      if (s.val === 'skip')  skippedItems.push({text: item.t, si});
+    });
+  });
+
+  // Signal split: "stuck" is the nervous-system leak; deplete + healthy are both
+  // "not a leak" signals (ordinary depletion / a system that works).
+  const ns  = totals.stuck;
+  const not = totals.deplete + totals.healthy;
+  const nonMedical = ns + not;
+
+  // ── Care card (medical safety gate) ────────────────────────────────────────
+  // Computed independently of the interpretive branch below. When it fires it
+  // is shown above the interpretive result, not instead of it — the person
+  // always sees the full result this instrument would otherwise give them.
+  let careCardHtml = '';
+  const medicalGate = medicalCount >= 2 || (medicalCount >= 1 && nonMedical === 0);
+  if (medicalGate) {
+    careCardHtml = medicalCareCardHtml(ns);
+  }
+
+  // ── Interpretive branch ─────────────────────────────────────────────────────
+  // Always computed on the nervous-system vs. not-a-leak axis, independent of
+  // the care card above. "Nothing landed" is judged on this axis only (not on
+  // whether any medical items were marked), so it stays accurate even when the
+  // care card is also showing.
+  let kicker = '', head = '', sub = '', card = '', showClosing = false;
+
+  if (nonMedical === 0) {
+    // Branch 0 — nothing landed on this axis
+    kicker = '';
+    head = "Nothing here felt strongly true — that's information too.";
+    sub = `<p>Maybe today isn't the right day, or maybe this kind of tiredness isn't yours. Both are useful to know. You can come back another time and see if anything has changed.</p>`;
+  }
+  else {
+    // a single medical flag earns a gentle aside, never the headline
+    let medicalNote = (medicalCount === 1) ? medicalSoftNoteHtml() : '';
+
+    if (ns > 0 && (not === 0 || ns >= not * 1.6)) {
+      // Branch 2 — strong nervous-system lean
+      kicker = 'what your answers suggest';
+      head = 'A lot of your answers fit a nervous system that stays on alert.';
+      sub = `<p>This isn't the kind of tiredness that sleep repairs. It comes from a body that stays ready for danger long after the danger has gone. It looks less like today's demands and more like an old protection that is still running.</p>`;
+      card = RCARD_STUCK;
+    }
+    else if (ns > 0 && ns >= not * 0.6) {
+      // Branch 3 — mixed (both meaningfully present)
+      kicker = 'what your answers suggest';
+      head = 'Some of this is ordinary tiredness. Some of it is your nervous system.';
+      sub = `<p>Part of your answers look like a body that used its energy and needs rest. Part of them look like a system that stays tense even when it's safe. These two are worth separating — they need different things.</p>`;
+      card = RCARD_STUCK;
+    }
+    else if (totals.deplete >= totals.healthy) {
+      // Branch 4 — ordinary depletion dominates, little nervous-system signal
+      kicker = 'what your answers suggest';
+      head = 'This looks more like ordinary tiredness than nervous system load.';
+      sub = `<p>That's the more answerable kind. It usually responds to rest, sleep, and reducing what you're carrying right now. Less a hidden leak, more a real debt to repay.</p>`;
+    }
+    else {
+      // Branch 5 — healthy reactivity dominates, little nervous-system signal
+      kicker = 'what your answers suggest';
+      head = 'Your nervous system seems to be working normally.';
+      sub = `<p>It reacts when life asks something of you, and calms down again afterwards. That isn't a leak — it's a system that works. Whatever is tiring you is probably somewhere else.</p>`;
+    }
+
+    card += medicalNote;
+    showClosing = true;
+  }
+
+  // render
+  const kickerEl = document.getElementById('rKicker');
+  const headEl = document.getElementById('rHead');
+  kickerEl.textContent = kicker;
+  kickerEl.style.display = kicker ? '' : 'none';
+  headEl.textContent = head;
+  headEl.style.display = head ? '' : 'none';
+  document.getElementById('rSub').innerHTML = sub;
+  document.getElementById('rCard').innerHTML = card;
+
+  // Care card is shown whenever it has content — never conditionally hidden
+  // alongside other elements.
+  const careCardEl = document.getElementById('careCard');
+  careCardEl.innerHTML = careCardHtml;
+  careCardEl.style.display = careCardHtml ? 'block' : 'none';
+
+  const closingEl = document.getElementById('closing');
+  closingEl.style.display = showClosing ? 'block' : 'none';
+
+  // Share-card feature picks are drawn from "landed hard" items only — the
+  // strongest-signal pool, same pattern the rest of the design system uses.
+  lastLandedItems = landedItems;
+
+  // flagged items
+  buildFlaggedSection('flaggedLands', 'flaggedLandsItems', landedItems);
+  buildFlaggedSection('flaggedSkip',  'flaggedSkipItems',  skippedItems);
+
+  showScreen('screen-results');
+}
+
+function buildFlaggedSection(wrapId, listId, items) {
+  const wrap = document.getElementById(wrapId);
+  const list = document.getElementById(listId);
+  if (!items.length) { wrap.style.display = 'none'; return; }
+  wrap.style.display = 'block';
+
+  // Group by originating section, preserving the order sections appear in
+  // the instrument (not the order items were answered/skipped in).
+  const bySi = new Map();
+  items.forEach(it => {
+    if (!bySi.has(it.si)) bySi.set(it.si, []);
+    bySi.get(it.si).push(it);
+  });
+  const groups = [...bySi.keys()].sort((a, b) => a - b).map(si => ({
+    theme: SECTIONS[si].theme,
+    items: bySi.get(si)
+  }));
+
+  list.innerHTML = groups.map(g => `
+    <div class="flagged-group">
+      <div class="fg-title"><span class="fg-swatch"></span>${g.theme}</div>
+      ${g.items.map(it => `
+        <div class="flagged-item">
+          <div class="fi-text">${it.text}</div>
+        </div>`).join('')}
+    </div>`).join('');
+}
+
+function toggleFlagged(which) {
+  const wrapId = which === 'lands' ? 'flaggedLands' : 'flaggedSkip';
+  const listId = which === 'lands' ? 'flaggedLandsItems' : 'flaggedSkipItems';
+  const btn = document.querySelector(`#${wrapId} .flagged-toggle`);
+  const list = document.getElementById(listId);
+  const open = list.classList.toggle('open');
+  btn.classList.toggle('open', open);
+}
+
+// ─── SAVE / COPY RESULTS ──────────────────────────────────────────────────────
+
+function copyResults() {
+  const head = document.getElementById('rHead').textContent.trim();
+  const sub  = document.getElementById('rSub').innerText.trim();
+  const careEl = document.getElementById('careCard');
+  const careText = (careEl && careEl.style.display !== 'none') ? careEl.innerText.trim() : '';
+  const cardEl = document.getElementById('rCard');
+  const cardText = cardEl ? cardEl.innerText.trim() : '';
+  const note = (document.getElementById('resultNote').value || '').trim();
+  let txt = 'What kind of tiredness is this? — a self-inquiry at nervuk.ai';
+  if (careText) txt += '\n\n' + careText;
+  if (head) txt += '\n\n' + head;
+  if (sub) txt += '\n\n' + sub;
+  if (cardText) txt += '\n\n' + cardText;
+  const lands = [...document.querySelectorAll('#flaggedLandsItems .fi-text')].map(e => '• ' + e.textContent.trim());
+  if (lands.length) txt += '\n\nThis might need more attention:\n' + lands.join('\n');
+  const skip = [...document.querySelectorAll('#flaggedSkipItems .fi-text')].map(e => '• ' + e.textContent.trim());
+  if (skip.length) txt += '\n\nWhat you chose not to answer:\n' + skip.join('\n');
+  if (note) txt += '\n\nMy note: ' + note;
+  txt += '\n\nnervuk.ai/tiredness.html';
+
+  const btn = document.getElementById('copyResultsBtn');
+  const done = () => { btn.textContent = 'Copied ✓'; btn.classList.add('copied'); setTimeout(() => { btn.textContent = 'Copy as text'; btn.classList.remove('copied'); }, 2200); };
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(txt).then(done).catch(() => fallbackCopy(txt, done));
+  } else {
+    fallbackCopy(txt, done);
+  }
+}
+function fallbackCopy(txt, done) {
+  const ta = document.createElement('textarea');
+  ta.value = txt; ta.style.position = 'fixed'; ta.style.opacity = '0';
+  document.body.appendChild(ta); ta.select();
+  try { document.execCommand('copy'); done(); } catch (e) {}
+  document.body.removeChild(ta);
+}
+
+// ─── SHARE CARD ──────────────────────────────────────────────────────────────
+// Opened by the "Share this card" button in the save-actions row (distinct
+// from the existing "Share this instrument" link-copy button in the tip jar,
+// which is left as-is per instruction).
+let sharePicked = null;
+
+function openShareCard() {
+  const headText = document.getElementById('rHead').textContent.trim();
+  const careKicker = document.querySelector('#careCard .cc-kicker');
+  document.getElementById('shareHeadline').textContent = headText || (careKicker ? careKicker.textContent.trim() : '');
+
+  const picks = lastLandedItems.slice(0, 6).map(it => it.text);
+  const picksEl = document.getElementById('sharePicks');
+  const featureEl = document.getElementById('shareFeature');
+  sharePicked = null;
+  featureEl.classList.remove('show');
+  if (picks.length) {
+    picksEl.innerHTML = picks.map((p, i) => `<button class="share-pick" data-i="${i}" onclick="pickShareFeature(${i})">Feature a line</button>`).join('');
+    picksEl._picks = picks;
+  } else {
+    picksEl.innerHTML = '';
+  }
+
+  document.getElementById('shareOverlay').classList.add('show');
+}
+
+function pickShareFeature(i) {
+  const picksEl = document.getElementById('sharePicks');
+  const picks = picksEl._picks || [];
+  const featureEl = document.getElementById('shareFeature');
+  document.querySelectorAll('.share-pick').forEach(b => b.classList.remove('on'));
+  const btn = document.querySelector(`.share-pick[data-i="${i}"]`);
+  if (sharePicked === i) {
+    sharePicked = null;
+    featureEl.classList.remove('show');
+    return;
+  }
+  sharePicked = i;
+  if (btn) btn.classList.add('on');
+  featureEl.textContent = picks[i];
+  featureEl.classList.add('show');
+}
+
+function closeShareCard() {
+  document.getElementById('shareOverlay').classList.remove('show');
+}
+
+function copyShareLink() {
+  const url = 'https://nervuk.ai/tiredness.html';
+  const btn = document.getElementById('shareCopyLinkBtn');
+  const done = () => { btn.textContent = 'Copied ✓'; btn.classList.add('copied'); setTimeout(() => { btn.textContent = 'Copy link'; btn.classList.remove('copied'); }, 2200); };
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(url).then(done).catch(() => fallbackCopy(url, done));
+  } else {
+    fallbackCopy(url, done);
+  }
+}
+
+// The note lives in a hidden field on screen; inject it into the printed/PDF output.
+window.addEventListener('beforeprint', function () {
+  const n = (document.getElementById('resultNote').value || '').trim();
+  const el = document.getElementById('printNote');
+  if (!el) return;
+  el.innerHTML = '';
+  if (n) {
+    const lbl = document.createElement('div'); lbl.className = 'pn-label'; lbl.textContent = 'My note';
+    const body = document.createElement('div'); body.className = 'pn-body'; body.textContent = n;
+    el.appendChild(lbl); el.appendChild(body);
+  }
+});
+
+// ─── SHARE THIS INSTRUMENT (ported from not-knowing) ────────────────────────
+
+document.addEventListener("DOMContentLoaded", function () {
+  const btn = document.getElementById("shareInstrumentBtn");
+  if (!btn) return;
+  const ICON_SHARE = `<svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="11" cy="2.5" r="1.75" stroke="currentColor" stroke-width="1.25"/><circle cx="11" cy="11.5" r="1.75" stroke="currentColor" stroke-width="1.25"/><circle cx="3" cy="7" r="1.75" stroke="currentColor" stroke-width="1.25"/><line x1="4.7" y1="6.1" x2="9.3" y2="3.4" stroke="currentColor" stroke-width="1.25"/><line x1="4.7" y1="7.9" x2="9.3" y2="10.6" stroke="currentColor" stroke-width="1.25"/></svg>`;
+  const ICON_CHECK = `<svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><polyline points="2,7 5.5,10.5 12,3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+  btn.addEventListener("click", function () {
+    const url = "https://nervuk.ai/tiredness.html";
+    function done() {
+      btn.classList.add("copied");
+      btn.innerHTML = ICON_CHECK + " Link copied";
+      setTimeout(function () {
+        btn.classList.remove("copied");
+        btn.innerHTML = ICON_SHARE + " Share this instrument";
+      }, 2200);
+    }
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(url).then(done).catch(function () {
+        btn.textContent = "nervuk.ai/tiredness.html";
+        btn.style.userSelect = "all";
+      });
+    } else {
+      btn.textContent = "nervuk.ai/tiredness.html";
+      btn.style.userSelect = "all";
+    }
+  });
+});
+</script>
+</body>
+</html>

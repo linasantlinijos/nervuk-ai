@@ -1,0 +1,2846 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The bigger picture — nervuk.ai</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,500;0,7..72,600;1,7..72,400&family=Hanken+Grotesk:wght@500&display=swap" rel="stylesheet">
+<style>
+  /* ─── Design tokens (Mineral, ported verbatim from nervuk-tiredness.html) ─── */
+  :root {
+    --accent:      #2a6654;
+    --accent-dim:  #3d8a70;
+    --ink:         #111111;
+    --ink-mid:     #3d3d3d;
+    --ink-faint:   #767672;
+    --paper:       #ffffff;
+    --paper-tint:  #f8f8f6;
+    --border:      #e0e0dc;
+    --tag-lands:   #2a6654;
+    --tag-quiet:   #4a6b7c;
+    --tag-notme:   #7a7a7a;
+    --tag-skip:    #7a5c3a;
+    --tag-canttell:#8fa89e;
+    --shadow:      0 4px 32px rgba(0,0,0,0.13);
+    --radius:      12px;
+    --serif:       'Literata', Georgia, serif;
+    --sans:        'Literata', Georgia, serif;
+    --mark:        'Hanken Grotesk', system-ui, sans-serif;
+    --transition:  0.22s ease;
+    /* v6-specific: chronicity fill-stroke tints (addendum §10) */
+    --chron-season: #2a6654;
+    --chron-year:   #1f4d40;
+    --chron-always: #14362d;
+    --care:         #5c6f8a;
+    --area-behavior:    #96792f;
+    --area-experiences: #6b5a7a;
+  }
+
+  /* ─── Reset & base ─── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { font-size: 16px; background: #111; }
+  body {
+    font-family: var(--sans);
+    color: var(--ink);
+    background: transparent;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ─── Video background ─── */
+  #bg-video {
+    position: fixed; inset: 0;
+    width: 100%; height: 100%;
+    object-fit: cover;
+    opacity: 1; z-index: 0;
+    pointer-events: none;
+  }
+
+  /* ─── Site header ─── */
+  .site-header {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 18px 28px;
+    background: transparent;
+  }
+  .wordmark {
+    font-family: var(--mark); font-weight: 500; font-size: 1rem;
+    color: #111111; text-decoration: none;
+  }
+  .nav-back {
+    font-family: var(--mark); font-size: 0.82rem;
+    color: rgba(17,17,17,0.6); text-decoration: none;
+    transition: color var(--transition);
+  }
+  .nav-back:hover { color: #111111; }
+
+  @media (max-width: 680px) {
+    .site-header { position: absolute; }
+  }
+
+  /* ─── Stage / panel ─── */
+  .stage {
+    position: relative; z-index: 10; min-height: 100vh;
+    display: flex; align-items: flex-start; justify-content: center;
+    padding: 90px 16px 60px;
+  }
+  .panel {
+    background: var(--paper); border-radius: var(--radius);
+    box-shadow: var(--shadow); width: 100%; max-width: 620px;
+    overflow: hidden;
+  }
+
+  /* ─── Screen system ─── */
+  .screen { display: none; }
+  .screen.active { display: block; }
+  .screen.rise { animation: rise 0.38s cubic-bezier(0.22,1,0.36,1) both; }
+  @keyframes rise {
+    from { opacity: 0; transform: translateY(18px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .screen.noanim { animation: none !important; }
+
+  /* ─── Intro screen ─── */
+  .intro-body { padding: 48px 40px 40px; }
+  @media (max-width: 480px) { .intro-body { padding: 36px 24px 32px; } }
+
+  .panel-wordmark {
+    display: block; text-align: left; font-family: var(--mark); font-weight: 600;
+    font-size: 0.8rem; letter-spacing: 0.04em; color: var(--accent); text-decoration: none;
+    margin-bottom: 22px;
+  }
+
+  .instrument-meta {
+    font-family: var(--sans); font-size: 0.8rem; font-weight: 500;
+    letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-faint);
+    margin-bottom: 18px; display: flex; align-items: center; gap: 10px;
+  }
+  .instrument-meta .dot {
+    display: inline-block; width: 5px; height: 5px; border-radius: 50%;
+    background: var(--accent); flex-shrink: 0;
+  }
+  .intro-body h1 {
+    font-family: var(--serif); font-weight: 400;
+    font-size: clamp(2rem, 5vw, 2.6rem); line-height: 1.18;
+    color: var(--ink); margin-bottom: 28px;
+  }
+  .lead {
+    font-family: var(--sans); font-size: 1rem; line-height: 1.65;
+    color: var(--ink-mid); margin-bottom: 20px;
+  }
+  .note {
+    font-family: var(--serif); font-style: italic; font-size: 0.95rem;
+    line-height: 1.7; color: var(--ink-faint);
+    border-left: 3px solid var(--accent); padding-left: 16px; margin-bottom: 24px;
+  }
+  .meta-row {
+    font-size: 0.83rem; color: var(--ink-faint); margin-bottom: 28px;
+    display: flex; flex-wrap: wrap; gap: 6px 14px; align-items: center;
+  }
+  .meta-row span { display: flex; align-items: center; gap: 5px; }
+  .meta-row .mdot {
+    display: inline-block; width: 4px; height: 4px; border-radius: 50%;
+    background: var(--accent);
+  }
+  .section-list-label { font-family: var(--sans); font-size: 0.82rem; color: var(--ink-faint); margin-bottom: 10px; }
+  .section-list { list-style: none; margin-bottom: 32px; }
+  .section-list li {
+    font-family: var(--serif); font-style: italic; font-size: 0.88rem;
+    color: var(--ink-faint); padding: 3px 0; display: flex; align-items: baseline; gap: 10px;
+  }
+  .section-list li .snum { font-family: var(--sans); font-style: normal; font-size: 0.8rem; color: var(--accent); min-width: 16px; flex-shrink: 0; }
+
+  .btn-begin {
+    display: inline-block; background: var(--accent); color: #fff;
+    font-family: var(--sans); font-size: 0.92rem; font-weight: 500;
+    padding: 13px 32px; border-radius: 8px; border: none; cursor: pointer;
+    transition: background var(--transition); text-decoration: none;
+  }
+  .btn-begin:hover { background: var(--accent-dim); }
+  .btn-begin[disabled] { background: var(--border); color: var(--ink-faint); cursor: not-allowed; }
+
+  /* ─── Somatic pause overlay ─── */
+  #pause {
+    display: none; position: fixed; inset: 0;
+    background: rgba(10,15,12,0.92); z-index: 200;
+    align-items: center; justify-content: center; flex-direction: column;
+    padding: 32px; text-align: center;
+  }
+  #pause.show { display: flex; }
+  .breath-wrap { margin-bottom: 32px; position: relative; width: 80px; height: 80px; }
+  .breath-ring { position: absolute; inset: 0; border-radius: 50%; border: 2px solid rgba(255,255,255,0.12); }
+  .breath-dot {
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
+    width: 18px; height: 18px; border-radius: 50%; background: var(--accent);
+    animation: breathe 5s ease-in-out infinite;
+  }
+  @keyframes breathe {
+    0%,100% { transform: translate(-50%,-50%) scale(1);   opacity: 0.7; }
+    50%      { transform: translate(-50%,-50%) scale(2.2); opacity: 1;   }
+  }
+  .pause-kicker {
+    font-family: var(--sans); font-size: 0.8rem; letter-spacing: 0.1em; text-transform: uppercase;
+    color: rgba(255,255,255,0.4); margin-bottom: 12px;
+  }
+  .pause-text {
+    font-family: var(--serif); font-style: italic; font-weight: 400;
+    font-size: clamp(1.1rem, 3vw, 1.3rem); line-height: 1.65;
+    color: rgba(255,255,255,0.88); max-width: 480px; margin-bottom: 40px;
+  }
+  #pauseContinue {
+    background: transparent; border: 1px solid rgba(255,255,255,0.3);
+    color: rgba(255,255,255,0.75); font-family: var(--sans); font-size: 0.85rem;
+    padding: 10px 28px; border-radius: 6px; cursor: pointer;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.4s ease, border-color var(--transition), color var(--transition);
+  }
+  #pauseContinue.ready { opacity: 1; pointer-events: all; }
+  #pauseContinue:hover { border-color: rgba(255,255,255,0.7); color: #fff; }
+
+  /* ─── Hub screen ─── */
+  .hub-body { padding: 40px 40px 32px; }
+  @media (max-width: 480px) { .hub-body { padding: 28px 20px 24px; } }
+  .hub-kicker {
+    font-family: var(--sans); font-size: 0.8rem; letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--ink-faint); margin-bottom: 10px;
+  }
+  .hub-body h2 {
+    font-family: var(--serif); font-weight: 400; font-size: clamp(1.4rem, 4vw, 1.7rem);
+    line-height: 1.3; color: var(--ink); margin-bottom: 10px;
+  }
+  .hub-lead { font-size: 0.92rem; line-height: 1.6; color: var(--ink-mid); margin-bottom: 26px; }
+
+  .room-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 22px; }
+  @media (max-width: 480px) { .room-grid { grid-template-columns: 1fr; } }
+  .room-card {
+    text-align: left; background: var(--paper-tint); border: 1.5px solid var(--border);
+    border-radius: var(--radius); padding: 16px 16px; cursor: pointer;
+    transition: border-color var(--transition), background var(--transition);
+    display: flex; flex-direction: column; gap: 6px; font-family: var(--sans);
+  }
+  .room-card:hover { border-color: var(--accent-dim); }
+  .room-card .rc-name {
+    font-family: var(--serif); font-size: 1.02rem; color: var(--ink); line-height: 1.3;
+  }
+  .room-card .rc-state {
+    font-size: 0.8rem; letter-spacing: 0.04em; color: var(--ink-faint);
+    display: flex; align-items: center; gap: 6px;
+  }
+  .room-card .rc-state .rc-dot {
+    width: 6px; height: 6px; border-radius: 50%; background: var(--border); flex-shrink: 0;
+  }
+  .room-card.done { border-color: var(--accent); background: #f2f7f4; }
+  .room-card.done .rc-state .rc-dot { background: var(--accent); }
+  .room-card.done .rc-state { color: var(--accent); }
+  .room-card.partial .rc-state .rc-dot { background: var(--tag-quiet); }
+  .room-card.partial .rc-state { color: var(--tag-quiet); }
+
+  .hub-footer { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+  .hub-progress { font-size: 0.83rem; color: var(--ink-faint); }
+
+  /* ─── Room screen (felt gesture + markers share this shell) ─── */
+  .q-header {
+    padding: 28px 40px 0; display: flex; align-items: center; justify-content: space-between;
+    border-bottom: 1px solid var(--border); padding-bottom: 16px;
+  }
+  @media (max-width: 480px) { .q-header { padding: 20px 24px 14px; } }
+  .section-label { font-family: var(--sans); font-size: 0.8rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-faint); }
+  .section-label strong { color: var(--accent); font-weight: 600; }
+  .dots { display: flex; gap: 5px; align-items: center; }
+  .dots span { display: block; width: 6px; height: 6px; border-radius: 50%; background: var(--border); transition: background 0.2s; }
+  .dots span.filled { background: var(--accent); }
+
+  .q-body { padding: 32px 40px 28px; }
+  @media (max-width: 480px) { .q-body { padding: 24px 24px 20px; } }
+  .q-lead { font-family: var(--sans); font-size: 0.83rem; letter-spacing: 0.05em; text-transform: uppercase; color: var(--ink-faint); margin-bottom: 14px; }
+  .q-text {
+    font-family: var(--serif); font-weight: 500; font-size: clamp(1.1rem, 2.6vw, 1.2rem);
+    line-height: 1.6; color: var(--ink); margin-bottom: 28px; min-height: 60px;
+  }
+
+  /* ─── Resonance tags (markers) ─── */
+  /* Stacked, not a wrapping row — matches the energy instrument's answer design. */
+  .tags { display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; }
+  .tag {
+    display: block; width: 100%; text-align: left; box-sizing: border-box;
+    font-family: var(--sans); font-size: 0.95rem; font-weight: 500; padding: 13px 18px;
+    border-radius: 10px; border: 1.5px solid var(--border); background: var(--paper);
+    color: var(--ink-mid); cursor: pointer; transition: background 0.15s, color 0.15s, border-color 0.15s;
+    user-select: none;
+  }
+  .tag:hover { border-color: var(--ink-mid); color: var(--ink); }
+  .tag.on { color: #fff; border-color: transparent; background: var(--accent); }
+  .tag[data-v="canttell"].on { background: var(--tag-canttell); }
+
+  .skip-affordance {
+    background: none; border: none; font-family: var(--sans); font-size: 0.83rem;
+    color: var(--ink-faint); cursor: pointer; padding: 4px 0; text-decoration: underline;
+    text-decoration-color: var(--border); transition: color var(--transition);
+    margin-bottom: 18px; display: inline-block;
+  }
+  .skip-affordance:hover { color: var(--ink-mid); }
+  .skip-affordance.on { color: var(--tag-skip); text-decoration-color: var(--tag-skip); }
+
+  /* ─── Felt-gesture slider ─── */
+  .gesture-wrap { margin-bottom: 8px; }
+  .gesture-labels { display: flex; justify-content: space-between; font-family: var(--sans); font-size: 0.96rem; color: var(--ink-faint); margin-bottom: 12px; }
+  .gesture-track {
+    position: relative; width: 100%; height: 8px; background: var(--paper-tint);
+    border: 1px solid var(--border); border-radius: 5px; margin-bottom: 14px;
+    touch-action: none; cursor: pointer;
+  }
+  .gesture-fill { position: absolute; left: 0; top: 0; bottom: 0; width: 0%; background: var(--accent); border-radius: 5px; opacity: 0.35; pointer-events: none; }
+  .gesture-thumb {
+    position: absolute; top: 50%; left: 0%; width: 22px; height: 22px; border-radius: 50%;
+    background: var(--paper); border: 2.5px solid var(--accent); transform: translate(-50%,-50%);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.18); cursor: grab; opacity: 0.35;
+  }
+  .gesture-track.set .gesture-thumb { opacity: 1; }
+  .gesture-thumb:active { cursor: grabbing; }
+  .gesture-canttell-row { margin-bottom: 22px; }
+  .gesture-canttell {
+    background: none; border: 1.5px solid var(--border); border-radius: 20px; padding: 7px 14px;
+    font-family: var(--sans); font-size: 0.88rem; color: var(--ink-faint); cursor: pointer;
+    transition: border-color var(--transition), color var(--transition), background var(--transition);
+  }
+  .gesture-canttell:hover { border-color: var(--tag-canttell); color: var(--tag-canttell); }
+  .gesture-canttell.on { background: var(--tag-canttell); color: #fff; border-color: transparent; }
+
+  .q-footer { padding: 0 40px 28px; display: flex; align-items: center; gap: 12px; }
+  @media (max-width: 480px) { .q-footer { padding: 0 24px 24px; } }
+  .btn-ghost {
+    font-family: var(--sans); font-size: 0.82rem; color: var(--ink-faint); background: transparent;
+    border: none; cursor: pointer; padding: 8px 4px; transition: color var(--transition);
+  }
+  .btn-ghost:hover { color: var(--ink); }
+  #goback { opacity: 0; pointer-events: none; transition: opacity 0.2s; }
+  #goback.show { opacity: 1; pointer-events: all; }
+  .spacer { flex: 1; }
+  #continue {
+    display: inline-block; background: var(--accent); color: #fff; font-family: var(--sans);
+    font-size: 0.88rem; font-weight: 500; padding: 11px 26px; border-radius: 7px; border: none;
+    cursor: pointer; opacity: 0; pointer-events: none; transition: opacity 0.2s, background var(--transition);
+  }
+  #continue.show { opacity: 1; pointer-events: all; }
+  #continue:hover { background: var(--accent-dim); }
+
+  /* ─── Chronicity screen ─── */
+  /* Stacked full-width lines — same answer design as the statement cards. */
+  .chron-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 8px; }
+  .chron-chips { display: flex; flex-direction: column; gap: 8px; }
+  .chron-chip {
+    display: block; width: 100%; text-align: left; box-sizing: border-box;
+    font-family: var(--sans); font-size: 0.95rem; font-weight: 500; padding: 13px 18px;
+    border-radius: 10px; border: 1.5px solid var(--border); background: var(--paper);
+    color: var(--ink-mid); cursor: pointer; transition: background 0.15s, color 0.15s, border-color 0.15s;
+    user-select: none;
+  }
+  .chron-chip:hover { border-color: var(--ink-mid); color: var(--ink); }
+  .chron-chip.on { color: #fff; border-color: transparent; background: var(--accent); }
+
+  /* ─── Results screen ─── */
+  .results-body { padding: 44px 40px 40px; }
+  @media (max-width: 480px) { .results-body { padding: 32px 22px 32px; } }
+  .r-kicker { font-family: var(--sans); font-size: 0.8rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); margin-bottom: 14px; text-align: center; }
+  .r-head {
+    font-family: var(--serif); font-weight: 400; font-size: clamp(1.5rem, 4.2vw, 2rem);
+    line-height: 1.25; color: var(--ink); margin-bottom: 22px; text-align: center;
+  }
+  .r-sub { font-size: 1rem; line-height: 1.7; color: var(--ink-mid); margin-bottom: 8px; }
+  .r-sub p + p { margin-top: 14px; }
+
+  /* ─── Map / wheel ─── */
+  .map-wrap { margin: 6px -34px 6px; text-align: center; position: relative; }
+  @media (max-width: 480px) { .map-wrap { margin: 6px -18px 6px; } }
+  .map-wrap svg { width: 100%; max-width: 560px; height: auto; display: block; margin: 0 auto; }
+
+  /* Outside label ring (dot + leader stay in the SVG; the label text itself
+     is an HTML overlay so its size is constant across devices instead of
+     scaling with the wheel, and long words wrap instead of risking clipping
+     against the SVG's fixed viewBox. See buildWheelLabelOverlay. */
+  .wheel-label-overlay { position: absolute; inset: 0; pointer-events: none; }
+  .wl-label {
+    position: absolute; font-family: var(--mark); font-weight: 500; font-size: 0.9rem;
+    line-height: 1.25; max-width: 62px; color: var(--ink); pointer-events: none;
+    overflow-wrap: break-word; word-break: break-word;
+    -webkit-hyphens: auto; hyphens: auto;
+  }
+  .wl-label.faint { color: var(--ink-faint); }
+  .wl-label.wl-mid { max-width: 120px; transform: translate(-50%, -50%); text-align: center; }
+  .wl-label.wl-start { transform: translateY(-50%); text-align: left; }
+  .wl-label.wl-end { transform: translate(-100%, -50%); text-align: right; }
+  .map-wrap svg .wl-note { font-family: var(--sans); font-size: 14px; fill: var(--ink-faint); font-style: italic; }
+
+  /* Center label — same overlay, same reasoning: constant size and real
+     contrast instead of scaling down to near-illegibility on small screens.
+     The core circle's minimum radius (CORE_R_MIN) is sized to fit this. */
+  .wl-core {
+    position: absolute; transform: translate(-50%, -50%); text-align: center;
+    max-width: 74px; pointer-events: none;
+  }
+  .wl-core-kicker {
+    font-family: var(--mark); font-weight: 600; font-size: 0.78rem; letter-spacing: 0.1em;
+    color: var(--ink-mid); margin-bottom: 4px;
+  }
+  .wl-core-word {
+    font-family: var(--serif); font-style: italic; font-weight: 400; font-size: 1.05rem;
+    color: var(--ink); line-height: 1.22;
+    -webkit-hyphens: auto; hyphens: auto;
+  }
+
+  /* Interactive wedges */
+  .map-wrap svg .wedge, .map-wrap svg .core-hit { cursor: pointer; transition: fill-opacity 0.15s; outline: none; }
+  .map-wrap svg .wedge:hover, .map-wrap svg .core-hit:hover { fill-opacity: 0.98; }
+  .map-wrap svg .wedge:focus-visible, .map-wrap svg .core-hit:focus-visible { stroke: var(--ink); stroke-width: 3; }
+
+  /* Tap hint + detail panel below the wheel */
+  .wheel-hint { font-family: var(--sans); font-size: 0.91rem; color: var(--ink-mid); text-align: center; margin: 0 0 14px; }
+  .wheel-detail {
+    border: 1px solid var(--border); border-radius: var(--radius);
+    background: var(--paper); padding: 18px 20px; margin: 0 0 8px; text-align: left; min-height: 88px;
+  }
+  .wheel-detail .wd-name { font-family: var(--serif); font-weight: 600; font-size: 1.02rem; color: var(--ink); margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+  .wheel-detail .wd-swatch { width: 9px; height: 9px; border-radius: 2px; flex-shrink: 0; display: inline-block; opacity: 0.9; }
+  .wheel-detail .wd-sentence { font-family: var(--sans); font-size: 0.9rem; line-height: 1.6; color: var(--ink-mid); }
+  .wheel-detail .wd-step {
+    font-family: var(--serif); font-style: italic; font-size: 0.9rem; line-height: 1.6; color: var(--ink-mid);
+    margin-top: 14px; padding-left: 16px; border-left: 3px solid var(--accent);
+  }
+  .wheel-detail .wd-step .tip-lead { font-weight: 600; font-style: normal; color: var(--accent); }
+
+  /* Interpretive caption under the wheel (normal path) */
+  .insight-caption {
+    font-family: var(--serif); font-style: italic; font-size: 1.02rem; line-height: 1.5;
+    color: var(--ink); text-align: center; margin: 14px auto 22px; max-width: 30em;
+  }
+
+  /* Static legend (share card + print only) */
+  .map-legend { margin-top: 18px; text-align: left; max-width: 480px; margin-left: auto; margin-right: auto; }
+  .ml-row { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 4px 10px; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 0.85rem; }
+  .ml-row:last-child { border-bottom: none; }
+  .ml-swatch { width: 11px; height: 11px; border-radius: 3px; flex-shrink: 0; margin-top: 5px; }
+  .ml-name { font-family: var(--serif); color: var(--ink); flex: 1; min-width: 0; }
+  .ml-sentence { font-family: var(--sans); font-size: 0.8rem; color: var(--ink-mid); line-height: 1.4; flex-basis: 100%; }
+  .ml-note { font-size: 0.8rem; color: var(--ink-faint); margin-top: 12px; line-height: 1.5; font-family: var(--sans); }
+  .results-back { margin: 10px 0 14px; }
+  .q-desc { font-family: var(--sans); font-size: 1.03rem; line-height: 1.6; color: var(--ink-faint); margin: 0 0 26px; max-width: 34em; }
+
+  /* ─── Interpretation-style cards (medical / mismatch / connection / fog / time / lever) ─── */
+  .rcard {
+    border: 1px solid var(--border); border-radius: var(--radius);
+    background: var(--paper); padding: 20px 22px; margin-bottom: 18px;
+  }
+  .rcard .rc-theme {
+    font-family: var(--sans); font-size: 0.83rem; letter-spacing: 0.09em; text-transform: uppercase;
+    margin-bottom: 9px; display: flex; align-items: center; gap: 8px; color: var(--ink);
+  }
+  .rcard .rc-dot { width: 9px; height: 9px; border-radius: 2px; flex-shrink: 0; display: inline-block; background: var(--accent); }
+  .rcard .rc-body { font-size: 0.92rem; line-height: 1.65; color: var(--ink-mid); }
+  .rcard .rc-body b { color: var(--accent); font-weight: 600; }
+  .rcard .rc-body p + p { margin-top: 10px; }
+  .rcard .card-tip {
+    font-family: var(--serif); font-style: italic; font-size: 0.9rem; line-height: 1.6; color: var(--ink-mid);
+    margin-top: 14px; padding-left: 16px; border-left: 3px solid var(--accent);
+  }
+  .rcard .card-tip .tip-lead { font-weight: 600; font-style: normal; color: var(--accent); }
+  .rcard.medical .rc-theme { color: var(--tag-skip); }
+  .rcard.medical .rc-dot { background: var(--tag-skip); }
+  .rcard.lever { background: var(--accent); }
+  .rcard.lever .rc-theme { color: #ffffff; }
+  .rcard.lever .rc-dot { background: #ffffff; }
+  .rcard.lever .rc-body { color: rgba(255,255,255,0.92); }
+  .rcard .rc-link {
+    display: inline-block; font-family: var(--sans); font-weight: 600; font-size: 0.88rem;
+    color: var(--accent); text-decoration: none; border-bottom: 1.5px solid var(--accent);
+  }
+  .rcard .rc-link:hover { color: var(--ink); border-bottom-color: var(--ink); }
+  .rcard.lever .rc-link { color: #ffffff; border-bottom-color: rgba(255,255,255,0.6); }
+  .rcard.lever .rc-link:hover { color: rgba(255,255,255,0.8); border-bottom-color: rgba(255,255,255,0.8); }
+
+  /* ─── Care card (care path) ─── */
+  .care-card {
+    border: 1px solid var(--border); border-radius: var(--radius); background: var(--paper);
+    padding: 26px 24px; margin-bottom: 22px;
+  }
+  .care-card .cc-kicker {
+    font-family: var(--sans); font-size: 0.8rem; letter-spacing: 0.09em; text-transform: uppercase;
+    margin-bottom: 12px; display: flex; align-items: center; gap: 8px; color: var(--ink);
+  }
+  .care-card .cc-kicker::before {
+    content: ""; width: 9px; height: 9px; border-radius: 2px; background: var(--accent); flex-shrink: 0; display: inline-block;
+  }
+  .care-card.crisis .cc-kicker { color: var(--tag-skip); }
+  .care-card.crisis .cc-kicker::before { background: var(--tag-skip); }
+  .care-card .cc-body { font-size: 0.96rem; line-height: 1.7; color: var(--ink-mid); }
+  .care-card .cc-body p + p { margin-top: 12px; }
+  .care-card .cc-link {
+    display: inline-block; margin-top: 16px; font-family: var(--sans); font-weight: 600; font-size: 0.88rem;
+    color: var(--accent); text-decoration: none; border-bottom: 1.5px solid var(--accent);
+  }
+  .care-card.crisis .cc-link { color: var(--tag-skip); border-bottom-color: var(--tag-skip); }
+
+  /* ─── Collapsible flagged sections ─── */
+  .flagged-section { margin-bottom: 20px; }
+  .flagged-toggle {
+    background: none; border: none; border-top: 1px solid var(--border); width: 100%; padding: 14px 0;
+    text-align: left; cursor: pointer; font-family: var(--sans); font-size: 0.82rem; font-weight: 500;
+    color: var(--ink-faint); display: flex; justify-content: space-between; align-items: center;
+    transition: color var(--transition);
+  }
+  .flagged-toggle:hover { color: var(--ink); }
+  .flagged-toggle .arrow { transition: transform 0.2s; }
+  .flagged-toggle.open .arrow { transform: rotate(180deg); }
+  .flagged-items { display: none; padding-bottom: 8px; }
+  .flagged-items.open { display: block; }
+  .flagged-item { padding: 12px 0; border-bottom: 1px solid var(--border); }
+  .flagged-item:last-child { border-bottom: none; }
+  .flagged-group:first-child .fg-title { padding-top: 0; }
+  .fg-title {
+    display: flex; align-items: center; gap: 7px; font-family: var(--sans); font-size: 0.78rem;
+    font-weight: 600; letter-spacing: 0.03em; text-transform: uppercase; color: var(--ink-faint);
+    padding-top: 16px;
+  }
+  .fg-swatch { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .fi-text { font-family: var(--serif); font-style: italic; font-size: 0.93rem; line-height: 1.6; color: var(--ink); margin-bottom: 4px; }
+  .fi-tag {
+    display: inline-block; font-family: var(--sans); font-size: 0.78rem; font-weight: 600;
+    letter-spacing: 0.03em; text-transform: uppercase; color: var(--ink-faint); margin-bottom: 4px;
+  }
+
+  /* ─── Tip jar + share (ported) ─── */
+  .tipjar { background: var(--paper-tint); border: 1px solid var(--border); border-radius: var(--radius); padding: 26px 24px; text-align: center; margin-bottom: 24px; }
+  .tipjar .t { font-family: var(--serif); font-style: italic; font-size: 1.02rem; line-height: 1.65; color: var(--ink-mid); margin-bottom: 16px; }
+  .tip-btn {
+    display: inline-block; font-family: var(--sans); font-weight: 600; font-size: .9rem; color: var(--accent);
+    background: transparent; border: 1.5px solid var(--accent); border-radius: var(--radius); padding: 11px 26px;
+    cursor: pointer; text-decoration: none; transition: background var(--transition), color var(--transition);
+  }
+  .tip-btn:hover { background: var(--accent); color: #fff; }
+  .tipjar-divider { width: 100%; height: 1px; background: var(--border); margin: 20px 0; }
+  .tipjar-share-label { font-family: var(--serif); font-style: italic; font-size: .9rem; color: var(--ink-faint); margin-bottom: 12px; }
+  .share-instrument-btn {
+    display: inline-flex; align-items: center; gap: 8px; font-family: var(--sans); font-weight: 500; font-size: .875rem;
+    color: var(--ink-faint); background: var(--paper); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 10px 22px; cursor: pointer; transition: border-color var(--transition), color var(--transition);
+  }
+  .share-instrument-btn:hover { border-color: var(--ink-mid); color: var(--ink-mid); }
+  .share-instrument-btn.copied { color: var(--accent); border-color: var(--accent); }
+
+  /* ─── Save results block ─── */
+  .check-other-block { text-align: center; margin-bottom: 26px; }
+  .check-other-link {
+    display: inline-block; font-family: var(--sans); font-weight: 500; font-size: 0.88rem;
+    color: var(--accent); text-decoration: none; border-bottom: 1.5px solid var(--accent);
+    padding-bottom: 1px; transition: color var(--transition), border-color var(--transition);
+  }
+  .check-other-link:hover { color: var(--ink); border-color: var(--ink); }
+
+  .save-block { margin-bottom: 24px; }
+  .save-label { font-family: var(--serif); font-style: italic; font-size: 0.95rem; color: var(--ink-mid); margin-bottom: 10px; }
+  .save-hint { font-family: var(--sans); font-size: 0.83rem; color: var(--ink-faint); line-height: 1.5; margin-bottom: 12px; }
+  .save-note {
+    width: 100%; border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px;
+    font-family: var(--serif); font-style: italic; font-size: 0.9rem; color: var(--ink);
+    background: var(--paper-tint); resize: none; outline: none; margin-bottom: 12px;
+    transition: border-color var(--transition);
+  }
+  .save-note:focus { border-color: var(--accent); }
+  .save-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+  .btn-save { background: var(--accent); color: #fff; font-family: var(--sans); font-size: 0.85rem; font-weight: 500; padding: 9px 20px; border-radius: 6px; border: none; cursor: pointer; transition: background var(--transition); }
+  .btn-save:hover { background: var(--accent-dim); }
+  .btn-save-ghost { background: transparent; border: 1.5px solid var(--border); color: var(--ink-faint); font-family: var(--sans); font-size: 0.85rem; padding: 9px 20px; border-radius: 6px; cursor: pointer; transition: border-color var(--transition), color var(--transition); }
+  .btn-save-ghost:hover { border-color: var(--ink-mid); color: var(--ink); }
+  .btn-save-ghost.copied { color: var(--accent); border-color: var(--accent); }
+
+  /* ─── Follow block ─── */
+  .follow-block { text-align: center; margin-bottom: 24px; }
+  .follow-label { font-family: var(--serif); font-style: italic; font-size: 0.9rem; color: var(--ink-mid); margin-bottom: 12px; }
+  .follow-links { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; }
+  .follow-links a { font-family: var(--sans); font-size: 0.83rem; letter-spacing: 0.05em; color: var(--ink-faint); text-decoration: none; padding: 2px 12px; transition: color var(--transition); }
+  .follow-links a:not(:last-child) { border-right: 1px solid var(--border); }
+  .follow-links a:hover { color: var(--accent); }
+
+  /* ─── Disclaimer ─── */
+  .disclaimer { font-size: 0.8rem; color: var(--ink-faint); line-height: 1.65; padding: 0 40px 36px; border-top: 1px solid var(--border); padding-top: 20px; margin-top: 4px; }
+  @media (max-width: 480px) { .disclaimer { padding: 16px 24px 28px; } }
+  .disclaimer a { color: var(--ink-faint); }
+  .disclaimer a:hover { color: var(--ink); }
+
+  /* ─── Print-only elements / PDF ─── */
+  .print-only { display: none; }
+  @media print {
+    #bg-video, .site-header, #pause, .tipjar, .save-block, .follow-block, #shareOverlay { display: none !important; }
+    html, body { background: #fff !important; }
+    .stage { padding: 0 !important; min-height: 0 !important; }
+    .panel { box-shadow: none !important; border-radius: 0 !important; max-width: 100% !important; }
+    .results-body { padding: 0 !important; }
+    .flagged-items { display: block !important; }
+    .flagged-toggle .arrow { display: none !important; }
+    .wheel-hint, .wheel-detail { display: none !important; }
+    .disclaimer { padding: 16px 0 0 !important; }
+    .print-only { display: block !important; margin-top: 18px; }
+    .pn-label { font-family: var(--sans); font-size: 0.83rem; letter-spacing: 0.09em; text-transform: uppercase; color: #555; margin-bottom: 6px; }
+    .pn-body { font-family: var(--serif); font-style: italic; font-size: 0.95rem; color: #222; white-space: pre-wrap; line-height: 1.6; }
+  }
+
+  /* ─── Share card overlay ─── */
+  #shareOverlay {
+    display: none; position: fixed; inset: 0; background: rgba(10,15,12,0.86); z-index: 250;
+    align-items: flex-start; justify-content: center; padding: 40px 16px; overflow-y: auto;
+  }
+  #shareOverlay.show { display: flex; }
+  .share-card {
+    background: var(--paper); border-radius: var(--radius); max-width: 420px; width: 100%;
+    padding: 32px 28px 24px; position: relative;
+  }
+  .share-close {
+    position: absolute; top: 14px; right: 14px; background: none; border: none; cursor: pointer;
+    font-size: 1.2rem; color: var(--ink-faint); line-height: 1; padding: 6px;
+  }
+  .share-close:hover { color: var(--ink); }
+  .share-stamp { font-family: var(--mark); font-size: 0.8rem; color: var(--ink-faint); text-align: center; margin-top: 18px; letter-spacing: 0.03em; }
+  .share-headline { font-family: var(--serif); font-size: 1.2rem; line-height: 1.35; color: var(--ink); margin-bottom: 18px; }
+  .share-feature { font-family: var(--serif); font-style: italic; font-size: 0.95rem; color: var(--ink-mid); border-left: 3px solid var(--accent); padding-left: 12px; margin: 16px 0; display: none; }
+  .share-feature.show { display: block; }
+  .share-picks { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 18px; }
+  .share-pick {
+    font-family: var(--sans); font-size: 0.8rem; padding: 5px 10px; border-radius: 14px;
+    border: 1px solid var(--border); background: var(--paper-tint); color: var(--ink-faint); cursor: pointer;
+  }
+  .share-pick.on { background: var(--ink); color: #fff; border-color: transparent; }
+  .share-actions { display: flex; gap: 10px; margin-top: 16px; justify-content: center; flex-wrap: wrap; }
+
+  /* ─── Motion toggle (pause background video) ─── */
+  .motion-toggle {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    z-index: 40;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(17,17,17,0.45);
+    color: #f8f8f6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    padding: 0;
+    transition: background .18s;
+  }
+  .motion-toggle:hover { background: rgba(17,17,17,0.65); }
+  .motion-toggle svg { width: 15px; height: 15px; fill: currentColor; }
+  @media print {
+    .motion-toggle { display: none !important; }
+  }
+</style>
+</head>
+<body>
+<video id="bg-video" autoplay muted loop playsinline>
+  <source src="raw25.mp4" type="video/mp4">
+</video>
+<button id="motion-toggle" class="motion-toggle" type="button" aria-label="Pause background video" aria-pressed="false"></button>
+<script>
+(function() {
+  var video = document.getElementById('bg-video');
+  var btn = document.getElementById('motion-toggle');
+  if (!video || !btn) return;
+
+  var iconPause = '<svg viewBox="0 0 24 24"><rect x="6" y="5" width="4" height="14"></rect><rect x="14" y="5" width="4" height="14"></rect></svg>';
+  var iconPlay  = '<svg viewBox="0 0 24 24"><polygon points="7,5 19,12 7,19"></polygon></svg>';
+
+  var prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var stored = localStorage.getItem('nervuk-motion');
+  var paused = stored ? stored === 'paused' : prefersReduced;
+
+  function render() {
+    if (paused) {
+      video.pause();
+      btn.innerHTML = iconPlay;
+      btn.setAttribute('aria-label', 'Play background video');
+      btn.setAttribute('aria-pressed', 'true');
+    } else {
+      video.play().catch(function(){});
+      btn.innerHTML = iconPause;
+      btn.setAttribute('aria-label', 'Pause background video');
+      btn.setAttribute('aria-pressed', 'false');
+    }
+  }
+
+  btn.addEventListener('click', function() {
+    paused = !paused;
+    localStorage.setItem('nervuk-motion', paused ? 'paused' : 'playing');
+    render();
+  });
+
+  render();
+})();
+</script>
+
+
+<header class="site-header">
+  <a href="/" class="wordmark">nervuk.ai</a>
+  <a href="/" class="nav-back">← All instruments</a>
+</header>
+
+<div class="stage">
+  <div class="panel">
+
+    <!-- ─── INTRO SCREEN ─── -->
+    <div id="screen-intro" class="screen active">
+      <div class="intro-body">
+        <div class="instrument-meta">
+          <span class="dot"></span>
+          <span>09 &nbsp;·&nbsp; Self-inquiry</span>
+        </div>
+        <h1>A map of your capacity</h1>
+        <p class="lead">Your energy goes to six places: your mind and nervous system, your body, the people and situation around you, your daily habits, things from your past, and your relationship with yourself. You answer a few short questions about each one. At the end you get a simple picture of where most of your energy is going, and one clear thing you can do about it.</p>
+        <p class="note">There is no right order and no wrong answer. Go through the six areas in any order, answer what is true for you, and skip anything you would rather not look at today. It's not about today or even this week — look at the long term. There is no score and no test result. This only shows you what you told it.</p>
+        <div class="meta-row">
+          <span><span class="mdot"></span> 6 areas, 29 short questions</span>
+        </div>
+        <p class="section-list-label">The six areas</p>
+        <ul class="section-list" id="introRoomList"></ul>
+        <button class="btn-begin" onclick="startInstrument()">Begin</button>
+      </div>
+    </div>
+
+    <!-- ─── HUB SCREEN ─── -->
+    <div id="screen-hub" class="screen">
+      <div class="hub-body">
+        <div class="hub-kicker">Choose any order</div>
+        <h2>Where do you want to look?</h2>
+        <p class="hub-lead">Each area starts with one general question, then a few short statements. You come back to this screen after each area. You can do them in any order, and you can stop at any point.</p>
+        <div class="room-grid" id="roomGrid"></div>
+        <div class="hub-footer">
+          <button class="btn-ghost" id="hubBack" onclick="hubBack()">← Back</button>
+          <span class="hub-progress" id="hubProgress">0 of 6 done</span>
+          <div class="spacer"></div>
+          <button class="btn-ghost" id="hubEndHere" onclick="endHere()" style="display:none">Stop here and see results</button>
+          <button class="btn-begin" id="hubContinue" onclick="finishHub()" style="display:none">Continue →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── ROOM SCREEN (felt gesture + markers share this shell) ─── -->
+    <div id="screen-room" class="screen">
+      <div class="q-header">
+        <div class="section-label" id="sectionLabel">—</div>
+        <div class="dots" id="dots"></div>
+      </div>
+      <div class="q-body">
+        <div class="q-lead" id="qLead">Is this true of you?</div>
+        <div class="q-text" id="qText"></div>
+        <p class="q-desc" id="qDesc" style="display:none"></p>
+        <div id="qDynamic">
+          <div id="gestureBlock" style="display:none">
+            <div class="gesture-wrap">
+              <div class="gesture-labels"><span id="gLabelLo"></span><span id="gLabelHi"></span></div>
+              <div class="gesture-track" id="gestureTrack">
+                <div class="gesture-fill" id="gestureFill"></div>
+                <div class="gesture-thumb" id="gestureThumb"></div>
+              </div>
+            </div>
+            <div class="gesture-canttell-row">
+              <button class="gesture-canttell" id="gestureCanttellBtn" onclick="toggleGestureCanttell()">Not sure</button>
+            </div>
+          </div>
+          <div id="markerBlock" style="display:none">
+            <div class="tags" id="markerTags">
+              <button class="tag" data-v="notatall" onclick="selectTag('notatall')">Not at all</button>
+              <button class="tag" data-v="rarely" onclick="selectTag('rarely')">Rarely</button>
+              <button class="tag" data-v="sometimes" onclick="selectTag('sometimes')">Sometimes</button>
+              <button class="tag" data-v="often" onclick="selectTag('often')">Often</button>
+              <button class="tag" data-v="verymuch" onclick="selectTag('verymuch')">Very much</button>
+              <button class="tag" data-v="canttell" onclick="selectTag('canttell')">Not sure</button>
+            </div>
+            <button class="skip-affordance" id="skipMarkerBtn" onclick="toggleSkipMarker()">Skip this question</button>
+          </div>
+        </div>
+      </div>
+      <div class="q-footer">
+        <button class="btn-ghost" id="goback" onclick="goBack()">← Back</button>
+        <button class="btn-ghost" id="skipRoomBtn" onclick="skipRestOfRoom()">Skip the rest of this area</button>
+        <div class="spacer"></div>
+        <button id="continue" onclick="advance()">Continue →</button>
+      </div>
+    </div>
+
+    <!-- ─── CHRONICITY SCREEN (asked inline, right after the area it belongs to) ─── -->
+    <div id="screen-chron" class="screen">
+      <div class="q-header">
+        <div class="section-label" id="chronSectionLabel">—</div>
+      </div>
+      <div class="q-body">
+        <div class="q-text">Thinking about this whole area — is it mostly recent, or has it been with you a long time?</div>
+        <p class="hub-lead" style="margin-bottom:20px;">Optional. Choose what fits best, or leave it blank.</p>
+        <div class="chron-list" id="chronList"></div>
+      </div>
+      <div class="q-footer">
+        <button class="btn-ghost" onclick="chronBack()">← Back</button>
+        <div class="spacer"></div>
+        <button class="btn-begin" id="chronContinue" onclick="finishChronicity()">Continue →</button>
+      </div>
+    </div>
+
+    <!-- ─── RESULTS SCREEN ─── -->
+    <div id="screen-results" class="screen">
+      <div class="results-body">
+        <div class="r-kicker" id="rKicker"></div>
+        <h2 class="r-head" id="rHead"></h2>
+        <div class="r-sub" id="rSub" style="display:none"></div>
+
+        <div class="wheel-hint" id="wheelHint" style="display:none">Tap any area of the wheel to see what is driving it.</div>
+        <div class="map-wrap" id="mapWrap" style="display:none"></div>
+        <div class="wheel-detail" id="wheelDetail" style="display:none"></div>
+        <div class="map-legend-print print-only" id="mapLegendPrint"></div>
+        <p class="insight-caption" id="insightCaption" style="display:none"></p>
+
+        <div id="careCard" style="display:none"></div>
+        <div class="results-back"><button class="btn-ghost" onclick="resultsBack()">← Back to the areas</button></div>
+
+        <div id="nonCareReads">
+          <div id="medicalCard" style="display:none"></div>
+          <div id="mismatchCards"></div>
+          <div id="connectionCards"></div>
+          <div id="leakCard"></div>
+          <div id="fogCard" style="display:none"></div>
+          <div id="timeReadCard" style="display:none"></div>
+        </div>
+
+        <div id="flaggedLands" class="flagged-section" style="display:none">
+          <button class="flagged-toggle" onclick="toggleFlagged('lands')">What might need the most attention <span class="arrow">▾</span></button>
+          <div class="flagged-items" id="flaggedLandsItems"></div>
+        </div>
+        <div id="flaggedSkip" class="flagged-section" style="display:none">
+          <button class="flagged-toggle" onclick="toggleFlagged('skip')">What you skipped <span class="arrow">▾</span></button>
+          <div class="flagged-items" id="flaggedSkipItems"></div>
+        </div>
+
+        <div id="leverCard" style="display:none"></div>
+
+        <div id="printNote" class="print-only"></div>
+        <div class="check-other-block">
+          <a href="/" class="check-other-link">Check other instruments</a>
+        </div>
+        <div class="save-block">
+          <p class="save-label">Want to keep this?</p>
+          <p class="save-hint">If you want to compare this with a later check-in, write today's date in your note.</p>
+          <textarea class="save-note" id="resultNote" rows="2" placeholder="Write a note to your future self, if you like. It will be saved with your results."></textarea>
+          <div class="save-actions">
+            <button class="btn-save" onclick="window.print()">Save as PDF</button>
+            <button class="btn-save-ghost" id="copyResultsBtn" onclick="copyResults()">Copy as text</button>
+            <button class="btn-save-ghost" id="openShareBtn" onclick="openShareCard()">Share this card</button>
+          </div>
+        </div>
+        <div class="tipjar" id="tipjarBlock">
+          <p class="t">If something here helped, there's a tip jar. Only if it did.</p>
+          <a class="tip-btn" href="https://buymeacoffee.com/nervuk" target="_blank" rel="noopener">Leave a tip</a>
+          <div class="tipjar-divider"></div>
+          <p class="tipjar-share-label">Know someone who would find this useful?</p>
+          <button class="share-instrument-btn" id="shareInstrumentBtn">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="11" cy="2.5" r="1.75" stroke="currentColor" stroke-width="1.25"/>
+              <circle cx="11" cy="11.5" r="1.75" stroke="currentColor" stroke-width="1.25"/>
+              <circle cx="3" cy="7" r="1.75" stroke="currentColor" stroke-width="1.25"/>
+              <line x1="4.7" y1="6.1" x2="9.3" y2="3.4" stroke="currentColor" stroke-width="1.25"/>
+              <line x1="4.7" y1="7.9" x2="9.3" y2="10.6" stroke="currentColor" stroke-width="1.25"/>
+            </svg>
+            Share this instrument
+          </button>
+        </div>
+
+        <div class="follow-block">
+          <p class="follow-label">New tools appear now and then. You can follow along and send your ideas here:</p>
+          <div class="follow-links">
+            <a href="https://njump.me/REPLACE_NPUB" target="_blank" rel="noopener">Nostr</a>
+            <a href="https://x.com/nervuk" target="_blank" rel="noopener">X</a>
+            <a href="https://instagram.com/nervuk" target="_blank" rel="noopener">Instagram</a>
+            <a href="https://linkedin.com/company/nervuk" target="_blank" rel="noopener">LinkedIn</a>
+            <a href="https://facebook.com/nervuk" target="_blank" rel="noopener">Facebook</a>
+          </div>
+        </div>
+      </div>
+      <div class="disclaimer">
+        This instrument is a self-inquiry tool, not a clinical assessment, diagnosis, or treatment. It does not constitute medical or psychological advice. If you are experiencing significant distress, please reach out to a qualified professional or visit <a href="https://www.findahelpline.com" target="_blank">findahelpline.com</a>.<br><br>
+        It looks at six places capacity commonly goes, built from patterns with real evidence behind them — but it can't see your particular life. Physical symptoms deserve a doctor's eyes, not just this tool's.<br><br>
+        <a href="/legal">Disclaimer</a>
+      </div>
+    </div>
+
+  </div><!-- /panel -->
+</div><!-- /stage -->
+
+<!-- Somatic pause overlay -->
+<div id="pause">
+  <div class="breath-wrap">
+    <div class="breath-ring"></div>
+    <div class="breath-dot"></div>
+  </div>
+  <div class="pause-kicker" id="pauseKicker">Before we look</div>
+  <div class="pause-text" id="pauseText"></div>
+  <button id="pauseContinue" onclick="closePause()">Continue</button>
+</div>
+
+<!-- Share card overlay -->
+<div id="shareOverlay">
+  <div class="share-card">
+    <button class="share-close" onclick="closeShareCard()">✕</button>
+    <div class="share-headline" id="shareHeadline"></div>
+    <div class="map-wrap" id="shareMapWrap"></div>
+    <div class="share-feature" id="shareFeature"></div>
+    <div class="share-picks" id="sharePicks"></div>
+    <div class="share-actions">
+      <button class="btn-save-ghost" id="shareCopyLinkBtn" onclick="copyShareLink()">Copy link</button>
+    </div>
+    <div class="share-stamp">nervuk.ai — A map of your capacity</div>
+  </div>
+</div>
+
+<script>
+// ─── DATA MODEL — instrument 09 v6 ───────────────────────────────────────────
+// Marker ids are stable strings referenced directly by the results engine
+// (pathway preconditions, medical triggers, routing) rather than a generic
+// tag-lookup system — simpler to audit against the addendum's named markers.
+//
+// Language rule (v6.1): every item must be readable by a non-native English
+// speaker on first pass. No metaphor, no ellipsis-clauses, no compound images.
+// Plain verbs, concrete nouns, one idea per line.
+
+const ROOMS = [
+  {
+    id: "mind",
+    title: "Mind and nervous system",
+    short: "Mind and nerves",
+    desc: "How alert or switched-off you feel, how well rest works for you, how clearly you can think, and how quickly you calm down after something upsets you.",
+    gestureQ: "Over the last few months, how much of your energy has this area used up?",
+    loLabel: "Very little",
+    hiLabel: "A lot",
+    isCore: false,
+    suggestion: "One small step: build in a wind-down window before bed — even ten quiet minutes with no screen counts.",
+    markers: [
+      { id: "mind1", text: "I feel alert or on guard a lot of the time, even when nothing is wrong.", leak: "staying alert even when nothing is wrong" },
+      { id: "mind2", text: "I feel tired, but when I try to rest I cannot switch off.", leak: "not being able to switch off when you try to rest" },
+      { id: "mind3", text: "I often feel flat, foggy, or slow to start things.", leak: "feeling flat or slow to start things" },
+      { id: "mind4", text: "After something upsets me, it takes me a long time to feel normal again.", leak: "taking a long time to recover after something upsets you" }
+    ]
+  },
+  {
+    id: "body",
+    title: "Body",
+    short: "Body",
+    desc: "Physical tension, how well you sleep, any pain or illness, and whether you are doing the basics like eating, moving and resting.",
+    gestureQ: "Over the last few months, how much of your energy has this area used up?",
+    loLabel: "Very little",
+    hiLabel: "A lot",
+    isCore: false,
+    suggestion: "One small step: pick one basic — food, movement or rest — and protect it for a week before adding anything else.",
+    markers: [
+      { id: "body1", text: "My body often feels tense — for example my shoulders, jaw, neck or stomach.", leak: "physical tension" },
+      { id: "body2", text: "I sleep, but I wake up still tired.", leak: "sleep that does not restore you" },
+      { id: "body3", text: "Pain or a health problem gets in the way of my daily life.", leak: "a health problem or pain getting in the way of daily life" },
+      // Safety feeder, not a capacity load: excluded from this area's density
+      // (safetyOnly) so it never inflates the slice, but still read directly by
+      // the medical trigger via isLandsHard. Reworded to an impact/degree form so
+      // the shared five-point scale reads naturally.
+      { id: "body4", text: "I have physical symptoms I have been worried about but not had checked.", leak: "physical symptoms you have not had checked yet", safetyOnly: true },
+      { id: "body5", text: "I have been skipping basics like proper meals, movement or rest.", leak: "skipping basics like meals, movement or rest" }
+    ]
+  },
+  {
+    id: "environment",
+    title: "People and situation",
+    short: "People and situation",
+    desc: "The people and conditions around you — work, home, money, the news — and how much effort it takes to deal with them.",
+    gestureQ: "Over the last few months, how much of your energy has this area used up?",
+    loLabel: "Very little",
+    hiLabel: "A lot",
+    isCore: false,
+    suggestion: "One small step: name the one situation costing the most, and change one concrete thing about it, even a small one.",
+    markers: [
+      { id: "env1", text: "There is a person or place I feel tense or on guard around.", leak: "feeling tense around a particular person or place" },
+      { id: "env2", text: "I go over conversations with particular people in my head, before or after they happen.", leak: "replaying conversations with certain people" },
+      { id: "env3", text: "In some part of my life I have to act like I am fine when I am not.", leak: "having to act fine when you are not" },
+      { id: "env4", text: "Money, housing or the state of the world worries me in the background most days.", leak: "money, housing or the state of the world weighing on you in the background" },
+      { id: "env5", text: "Even around people I trust, I don't fully relax.", leak: "not being able to fully relax, even around people you trust" }
+    ]
+  },
+  {
+    id: "behavior",
+    title: "What you do day to day",
+    short: "Daily habits",
+    desc: "Your daily habits: what you put off, what you use to relax or numb out, what you say yes to, and how you keep yourself busy.",
+    gestureQ: "Over the last few months, how much of your energy have your habits used up?",
+    loLabel: "Very little",
+    hiLabel: "A lot",
+    isCore: false,
+    suggestion: "One small step: swap the habit you use to switch off for something that gives similar relief without the cost, even once this week.",
+    markers: [
+      { id: "behav1", text: "I put off things that matter to me, even when I have the time.", leak: "putting off things that matter to you" },
+      { id: "behav2", text: "I use something to switch off — for example scrolling, drinking, eating or gaming — more than I want to.", leak: "using something to switch off more than you want to" },
+      { id: "behav3", text: "I say yes when I want to say no.", leak: "saying yes when you want to say no" },
+      { id: "behav4", text: "I stay busy with small tasks so I do not have to stop or face bigger ones.", leak: "staying busy with small tasks to avoid bigger ones" },
+      { id: "behav5", text: "I feel I have little say over how I spend my time or energy.", leak: "having little say over your own time or energy" }
+    ]
+  },
+  {
+    id: "experiences",
+    title: "Things from your past",
+    short: "Your past",
+    desc: "Things that happened earlier and still affect you now — strong reactions, patterns that repeat, subjects you avoid, and moments when you do not feel like your current self.",
+    gestureQ: "Over the last few months, how much of your energy has this area used up?",
+    loLabel: "Very little",
+    hiLabel: "A lot",
+    isCore: false,
+    suggestion: "One small step: this kind of pattern usually responds better to the right support than to willpower alone — worth naming it to a therapist, even briefly.",
+    markers: [
+      { id: "exp1", text: "I sometimes react much more strongly than the situation needs.", leak: "reacting more strongly than situations call for" },
+      { id: "exp2", text: "The same kind of problem keeps happening to me, with different people.", leak: "the same kind of problem repeating with different people" },
+      { id: "exp3", text: "I avoid certain subjects, places or memories without deciding to.", leak: "avoiding certain subjects, places or memories" },
+      { id: "exp4", text: "In some situations I suddenly feel small or helpless, as if I were much younger than I am.", leak: "suddenly feeling much younger than you are" },
+      { id: "exp5", text: "I pull back or go blank when something starts to matter to me.", leak: "pulling back or going blank when something starts to matter" }
+    ]
+  },
+  {
+    id: "core",
+    title: "Your relationship with yourself",
+    short: "With yourself",
+    desc: "How well you can tell what you are feeling, whether you act on purpose or on autopilot, and how you speak to yourself.",
+    gestureQ: "Over the last few months, how steady have you felt inside yourself?",
+    loLabel: "Steady",
+    hiLabel: "Not steady",
+    isCore: true,
+    suggestion: "One small step: a few times a day, pause and name out loud what you are actually feeling — accuracy matters more than eloquence.",
+    markers: [
+      { id: "core1", text: "I often cannot tell what I am feeling.", leak: "not being able to tell what you are feeling" },
+      { id: "core2", text: "Whole days go by where I could not say what I actually felt.", leak: "days passing without contact with what you feel" },
+      { id: "core3", text: "I react first and think afterwards more than I used to.", leak: "reacting before you have had a chance to choose" },
+      { id: "core4", text: "I speak to myself more harshly than I would speak to anyone else.", leak: "speaking to yourself more harshly than you would to anyone else" },
+      // Reverse-coded steadiness anchor. Endorsing it strongly means LESS load,
+      // not more, so it is flagged reverse: excluded from density, from the
+      // lands/quiet leak fragments, and from the pathway self-contact counts
+      // (which enumerate core1–core4 explicitly). It exists to give the person
+      // one affirmative thing to answer, and to add a grounding note in the
+      // wheel detail when it is endorsed.
+      { id: "core5", text: "Underneath everything, I still mostly feel like myself.", leak: "still feeling like yourself underneath", reverse: true }
+    ]
+  }
+];
+
+// Rooms counted as the "five domains" for the care-gate broad-heaviness check
+// and for various room-density comparisons — core is excluded (it has its own
+// steadiness-based disarm mechanism). Addendum §5.
+const CARE_DOMAINS = ["mind", "body", "environment", "behavior", "experiences"];
+
+// Weights — five labeled points, evenly spaced. "Not sure" is a separate axis
+// (null = excluded from density), not a sixth point on this scale: being
+// unable to answer is itself a finding, not a midpoint value.
+const TAG_WEIGHT = { notatall: 0, rarely: 0.25, sometimes: 0.5, often: 0.75, verymuch: 1.0, canttell: null, skip: null };
+
+// Chronicity options — plan §3 chronicity pass / addendum §8.
+// Labels give a concrete time span rather than the word "season", which is
+// not clear to a global reader.
+const CHRON_OPTIONS = [
+  { id: "season", label: "Mostly the last few months" },
+  { id: "year", label: "Mostly the last year or two" },
+  { id: "always", label: "Most of my life" },
+  { id: "mixed", label: "A mix of these" },
+  { id: "canttell", label: "Hard to say" }
+];
+
+if (typeof module !== "undefined" && module.exports) {
+  module.exports = { ROOMS, CARE_DOMAINS, TAG_WEIGHT, CHRON_OPTIONS };
+} else {
+  (typeof self !== "undefined" ? self : this).BP6DATA = { ROOMS, CARE_DOMAINS, TAG_WEIGHT, CHRON_OPTIONS };
+}
+
+</script>
+<script>
+// ─── RESULTS ENGINE — instrument 09 v6 ───────────────────────────────────────
+// Pure functions only. No DOM access. Every function is referenced back to the
+// addendum section that pins its numbers so future edits can be checked
+// against the source of truth instead of against this file's memory of it.
+
+(function (root, factory) {
+  if (typeof module !== "undefined" && module.exports) {
+    module.exports = factory(require("./data.js"));
+  } else {
+    root.BP6 = factory(root.BP6DATA);
+  }
+})(typeof self !== "undefined" ? self : this, function (DATA) {
+  const ROOMS = DATA.ROOMS;
+  const CARE_DOMAINS = DATA.CARE_DOMAINS;
+  const TAG_WEIGHT = DATA.TAG_WEIGHT;
+
+  // "Strongly endorsed" tier for a 5-point scale = the top two points (Often,
+  // Very much). This is the direct successor to the old binary tag's single
+  // "lands" tier, and is what every pathway precondition, the medical
+  // triggers, and the flagged list treat as a real, specific match.
+  const LANDS_THRESHOLD = 0.75;
+  // "Softly endorsed" tier = the exact midpoint (Sometimes). "Rarely" sits
+  // below this and counts as no real signal, same as the old "notme" tier.
+  const QUIET_WEIGHT = 0.5;
+
+  function tagWeight(markerVals, roomId, markerId) {
+    const v = (markerVals || {})[roomId] && (markerVals || {})[roomId][markerId];
+    return TAG_WEIGHT[v];
+  }
+  function isLandsHard(markerVals, roomId, markerId) {
+    const w = tagWeight(markerVals, roomId, markerId);
+    return typeof w === "number" && w >= LANDS_THRESHOLD;
+  }
+  function isQuietTier(markerVals, roomId, markerId) {
+    return tagWeight(markerVals, roomId, markerId) === QUIET_WEIGHT;
+  }
+
+  const NUM_WORDS = ["zero", "one", "two", "three", "four", "five"];
+  function numWord(n) { return NUM_WORDS[n] || String(n); }
+
+  function roomById(id) { return ROOMS.find(r => r.id === id); }
+
+  // ── §1 Room density ────────────────────────────────────────────────────
+  function computeRoomStats(room, markerVals) {
+    const vals = markerVals || {};
+    let sum = 0, count = 0, canttell = 0;
+    const landsHard = [];
+    room.markers.forEach(m => {
+      // Reverse-coded anchors and safety-only feeders never contribute to an
+      // area's load. The safety feeder is still read directly by the medical
+      // trigger (via isLandsHard); the reverse anchor is read directly by the
+      // wheel detail. Neither belongs in the density that sizes the slice.
+      if (m.reverse || m.safetyOnly) return;
+      const v = vals[m.id];
+      if (v === "canttell") { canttell++; return; }
+      const w = TAG_WEIGHT[v];
+      if (typeof w === "number") {
+        sum += w; count++;
+        if (w >= LANDS_THRESHOLD) landsHard.push(m.id);
+      }
+      // "skip", undefined, or any unrecognised value: counts toward nothing.
+    });
+    const answeredCount = count;
+    const insufficient = answeredCount < 2;
+    const density = insufficient ? null : (sum / count);
+    const fogged = canttell >= 2;
+    return { density, answeredCount, canttellCount: canttell, landsHard, insufficient, fogged };
+  }
+
+  function computeAllRoomStats(state) {
+    const out = {};
+    ROOMS.forEach(r => { out[r.id] = computeRoomStats(r, (state.markers || {})[r.id]); });
+    return out;
+  }
+
+  // ── §1 / §2 Bands (display vocabulary only — never surfaced as numbers) ──
+  function densityBand(d) {
+    if (d == null) return null;
+    if (d < 0.25) return "quiet";
+    if (d < 0.5) return "some";
+    if (d < 0.75) return "heavy";
+    return "veryheavy";
+  }
+  function feltBand(f) {
+    if (f == null || f === "fog") return null;
+    if (f < 0.18) return "quiet";
+    if (f < 0.45) return "some";
+    if (f < 0.7) return "alot";
+    return "most";
+  }
+  const DENSITY_WORDS = { quiet: "quiet", some: "taking some", heavy: "heavy", veryheavy: "very heavy" };
+  const FELT_WORDS = { quiet: "barely", some: "some", alot: "a lot", most: "most of it" };
+
+  // ── §5 Care gate ───────────────────────────────────────────────────────
+  function computeCareGate(roomStats, felt) {
+    const heavyCount6 = ROOMS.filter(r => {
+      const d = roomStats[r.id].density;
+      return d != null && d >= 0.5;
+    }).length;
+    const triggerA = heavyCount6 >= 3;
+
+    const triggerB = CARE_DOMAINS.every(rid => {
+      const d = roomStats[rid].density;
+      if (d != null) return d >= 0.45;
+      const f = felt[rid];
+      return typeof f === "number" && f >= 0.45;
+    });
+
+    const fires = triggerA || triggerB;
+
+    const coreFelt = felt.core;
+    const coreDensity = roomStats.core.density;
+    const coreFogged = roomStats.core.fogged;
+    const coreSteadiness = (typeof coreFelt === "number") ? (1 - coreFelt) : null;
+    const disarm = fires && coreSteadiness != null && coreSteadiness >= 0.65 &&
+                   (coreDensity == null || coreDensity < 0.5) && !coreFogged;
+
+    const onCarePath = fires && !disarm;
+
+    // ── Crisis tier (a strict subset of the care path) ─────────────────────
+    // The care path is for a heavy map and is NOT, by itself, a reason to take
+    // the tip jar and share card away — carrying a lot is common and not
+    // dangerous. Suppression is reserved for the genuinely severe combination:
+    // nearly everything at once at the top of the scale, with the person also
+    // reporting they do not feel steady underneath. Only then is a tip prompt
+    // the wrong thing to show.
+    // Use marker density where we have it, otherwise fall back to the person's
+    // own slider for that area — mirroring triggerB, so a maxed-out slider set
+    // with few markers answered is still read as the heavy picture it is.
+    const heavyVal = rid => {
+      const d = roomStats[rid].density;
+      if (d != null) return d;
+      const f = felt[rid];
+      return (typeof f === "number") ? f : null;
+    };
+    const veryHeavyCount = CARE_DOMAINS.filter(rid => {
+      const v = heavyVal(rid);
+      return v != null && v >= 0.7;
+    }).length;
+    const allVeryHeavy = CARE_DOMAINS.every(rid => {
+      const v = heavyVal(rid);
+      return v != null && v >= 0.7;
+    });
+    const coreVeryShaky = coreSteadiness != null && coreSteadiness <= 0.2; // slider near "not steady"
+    const onCrisisPath = onCarePath && ((veryHeavyCount >= 4 && coreVeryShaky) || allVeryHeavy);
+
+    return { fires, disarm, onCarePath, onCrisisPath, triggerA, triggerB };
+  }
+
+  // ── §6 Medical triggers ────────────────────────────────────────────────
+  function computeMedical(roomStats, markerVals) {
+    const illnessLands = isLandsHard(markerVals, "body", "body3");
+    const signalsLands = isLandsHard(markerVals, "body", "body4");
+    const nrsLands = isLandsHard(markerVals, "body", "body2");
+    const hard = illnessLands || signalsLands;
+    const bodyDensity = roomStats.body.density;
+    const soft = !hard && ((bodyDensity != null && bodyDensity >= 0.5) || nrsLands);
+    return { hard, soft, illnessLands, signalsLands, nrsLands };
+  }
+
+  // ── §3 Mismatch reads (cap 2 total; reverse capped at 1) ──────────────
+  function computeMismatches(roomStats, felt) {
+    const candidates = [];
+    ROOMS.forEach(room => {
+      const rs = roomStats[room.id];
+      if (rs.fogged) return;          // fogged rooms excluded
+      if (rs.density == null) return; // insufficient rooms excluded
+      const f = felt[room.id];
+      const landsHardCount = rs.landsHard.length;
+
+      if (typeof f === "number") {
+        if ((rs.density - f) >= 0.35 && rs.density >= 0.5 && landsHardCount >= 2) {
+          candidates.push({ type: "habituated", roomId: room.id, gap: rs.density - f, landsHardCount });
+        }
+        if ((f - rs.density) >= 0.35 && f >= 0.6 && rs.answeredCount >= 3 && landsHardCount === 0) {
+          candidates.push({ type: "reverse", roomId: room.id, gap: f - rs.density, landsHardCount });
+        }
+      }
+      if (f === "fog" && rs.density >= 0.5) {
+        candidates.push({ type: "foggesture", roomId: room.id, gap: rs.density, landsHardCount });
+      }
+    });
+
+    candidates.sort((a, b) => b.gap - a.gap);
+    const result = [];
+    let reverseUsed = false;
+    for (const c of candidates) {
+      if (result.length >= 2) break;
+      if (c.type === "reverse") {
+        if (reverseUsed) continue;
+        reverseUsed = true;
+      }
+      result.push(c);
+    }
+    return result;
+  }
+
+  // ── §4 Fog (Channel E) ─────────────────────────────────────────────────
+  function computeFog(roomStats) {
+    const roomsFogged = ROOMS.filter(r => roomStats[r.id].fogged).map(r => r.id);
+    const totalCanttell = ROOMS.reduce((s, r) => s + roomStats[r.id].canttellCount, 0);
+    const globalFire = totalCanttell >= 4 || roomsFogged.length > 0;
+    return { roomsFogged, totalCanttell, globalFire };
+  }
+
+  // ── §7 Connection layer (pathways) ─────────────────────────────────────
+  function computePathways(markerVals, roomStats, chronicity, medical) {
+    const mv = markerVals || {};
+    const landsHard = (roomId, markerId) => isLandsHard(mv, roomId, markerId);
+
+    const nsHyperLands = landsHard("mind", "mind1") || landsHard("mind", "mind2");
+    const nsHypoLands = landsHard("mind", "mind3");
+    const experiencesLandsCount = ["exp1", "exp2", "exp3", "exp4", "exp5"].filter(id => landsHard("experiences", id)).length;
+    // Tied specifically to the experiences area's own timing answer — not any
+    // area's — so the "this is old" claim below is always backed by what the
+    // person actually said about that area, not a coincidental signal elsewhere.
+    const experiencesChronicityOld = (chronicity || {}).experiences === "always";
+    const coreSelfContactLandsCount = ["core1", "core2", "core3", "core4"].filter(id => landsHard("core", id)).length;
+    const nonCoreHeavyCount = CARE_DOMAINS.filter(rid => roomStats[rid].density != null && roomStats[rid].density >= 0.5).length;
+    const nsLoadHeavy = roomStats.mind.density != null && roomStats.mind.density >= 0.5;
+    const coreLoadHeavy = roomStats.core.density != null && roomStats.core.density >= 0.5;
+
+    const candidates = [];
+
+    const p1BodyQualifies = landsHard("body", "body1") || landsHard("body", "body2");
+    if (nsHyperLands && p1BodyQualifies) {
+      candidates.push({ id: 1, viaSleep: landsHard("body", "body2") });
+    }
+    if (experiencesLandsCount >= 2 && experiencesChronicityOld) {
+      candidates.push({ id: 2 });
+    }
+    if (landsHard("behavior", "behav2") && (nsHyperLands || nsHypoLands)) {
+      candidates.push({ id: 3, variant: nsHyperLands ? "hyper" : "hypo" });
+    }
+    if (landsHard("environment", "env3") && (nsLoadHeavy || coreLoadHeavy)) {
+      candidates.push({ id: 4 });
+    }
+    if (nsHypoLands && landsHard("behavior", "behav1")) {
+      candidates.push({ id: 5 });
+    }
+    if (coreSelfContactLandsCount >= 2 && nonCoreHeavyCount >= 2) {
+      candidates.push({ id: 6 });
+    }
+    if (medical.illnessLands && nsLoadHeavy) {
+      candidates.push({ id: 7 });
+    }
+
+    let pool = candidates;
+    if (medical.illnessLands) {
+      // §6: illness-lands state suppresses pathways 1 and 6 outright (body-touching).
+      pool = pool.filter(c => c.id !== 1 && c.id !== 6);
+    }
+
+    const PRIORITY = [7, 2, 1, 5, 3, 4, 6];
+    pool = pool.slice().sort((a, b) => PRIORITY.indexOf(a.id) - PRIORITY.indexOf(b.id));
+
+    let selected = pool.slice(0, 2);
+    if (medical.illnessLands) {
+      // Defensive: pathway 7 is already top-priority so this is normally a no-op,
+      // but guarantees its slot per §6 even if priority order changes later.
+      const p7 = pool.find(c => c.id === 7);
+      if (p7 && !selected.some(c => c.id === 7)) {
+        selected = [p7].concat(selected.filter(c => c.id !== 7)).slice(0, 2);
+      }
+    }
+    return selected;
+  }
+
+  // ── §8 Chronicity eligibility + time read ──────────────────────────────
+  function computeChronicityEligibility(roomStats, felt) {
+    return ROOMS.filter(r => {
+      const d = roomStats[r.id].density;
+      const f = felt[r.id];
+      const densityOk = d != null && d >= 0.25;
+      const feltOk = typeof f === "number" && f >= 0.45;
+      return densityOk || feltOk;
+    }).map(r => r.id);
+  }
+
+  function computeChronicityRead(eligibleRoomIds, chronicity) {
+    const answers = eligibleRoomIds.map(rid => (chronicity || {})[rid]).filter(v => v && v !== "skip");
+    const total = answers.length;
+    const oldCount = answers.filter(v => v === "year" || v === "always").length;
+    const seasonCount = answers.filter(v => v === "season").length;
+    const mixedCount = answers.filter(v => v === "mixed").length;
+    const canttellCount = answers.filter(v => v === "canttell").length;
+
+    let family = null;
+    if (total > 0) {
+      // A direct "a mix of both" answer for any area, or old- and
+      // recent-leaning areas both present, is itself the finding — it
+      // doesn't get forced to whichever side happens to have more areas.
+      if (mixedCount > 0 || (oldCount > 0 && seasonCount > 0)) family = "mixed";
+      else if (oldCount > 0) family = "old";
+      else if (seasonCount > 0) family = "situational";
+      else family = "mixed"; // only "hard to say" answers — no directional read
+    }
+    return { family, softNote: canttellCount >= 2, total, oldCount, seasonCount, mixedCount, canttellCount };
+  }
+
+  // ── §9 Routing / lever (single lever, single link, never a menu) ───────
+  function computeRouting(medical, pathwaySelection, fog, markerVals) {
+    const mv = markerVals || {};
+    const landsHard = (roomId, markerId) => isLandsHard(mv, roomId, markerId);
+    const pathwayIds = pathwaySelection.map(p => p.id);
+
+    if (medical.hard) return { type: "medical" };
+    if (pathwayIds.includes(2)) return { type: "doors" };
+
+    const nsHyperLands = landsHard("mind", "mind1") || landsHard("mind", "mind2");
+    const bodyAlertQualifies = landsHard("body", "body1") || landsHard("body", "body2");
+    if (nsHyperLands && bodyAlertQualifies) return { type: "tiredness" };
+
+    const dimmedLands = landsHard("mind", "mind3");
+    const behaviorDepletionQualifies = landsHard("behavior", "behav1") || landsHard("behavior", "behav2");
+    if (dimmedLands && behaviorDepletionQualifies) return { type: "energy" };
+
+    const coreSelfContactCount = ["core1", "core2", "core3", "core4"].filter(id => landsHard("core", id)).length;
+    if (fog.globalFire || coreSelfContactCount >= 2) return { type: "notknowing" };
+
+    return { type: "situational" };
+  }
+
+  // ── §10 Per-area leak: what specifically is driving this area's slice ──
+  // Independent of the cross-room mismatch cards (which are capped at two and
+  // ranked by gap size) — this runs for every area, every time, because the
+  // legend needs something to say about each slice regardless of whether it
+  // was the biggest or the smallest.
+  function computeRoomLeak(roomId, markerVals, stats, feltVal) {
+    const room = roomById(roomId);
+    const mv = markerVals || {};
+
+    const feltState = (typeof feltVal === "number") ? "known" : (feltVal === "fog" ? "fog" : "unanswered");
+
+    const scorable = room.markers.filter(m => !m.reverse && !m.safetyOnly);
+    const landsIds = scorable.filter(m => isLandsHard(mv, roomId, m.id)).map(m => m.id);
+    const quietIds = scorable.filter(m => isQuietTier(mv, roomId, m.id)).map(m => m.id);
+
+    let tier, chosenIds, moreCount;
+    if (landsIds.length > 0) {
+      tier = "lands"; chosenIds = landsIds.slice(0, 2); moreCount = Math.max(0, landsIds.length - 2);
+    } else if (quietIds.length > 0) {
+      tier = "quiet"; chosenIds = quietIds.slice(0, 2); moreCount = Math.max(0, quietIds.length - 2);
+    } else {
+      tier = "none"; chosenIds = []; moreCount = 0;
+    }
+
+    let mismatch = null;
+    if (!stats.insufficient && !stats.fogged) {
+      if (feltState === "known") {
+        if (feltVal >= 0.6 && tier === "none" && stats.answeredCount >= 3 && landsIds.length === 0) mismatch = "reverse";
+        else if (feltVal < 0.25 && landsIds.length >= 2) mismatch = "habituated";
+      } else if (feltState === "fog") {
+        if (stats.density !== null && stats.density >= 0.5) mismatch = "foggesture";
+      }
+    }
+
+    return { feltState, tier, chosenIds, moreCount, mismatch };
+  }
+
+  function computeAllRoomLeaks(state, roomStats) {
+    const felt = state.felt || {};
+    const markerVals = state.markers || {};
+    const out = {};
+    ROOMS.forEach(r => { out[r.id] = computeRoomLeak(r.id, markerVals, roomStats[r.id], felt[r.id]); });
+    return out;
+  }
+
+  // Which of the five outer domains is taking the most, by the person's own
+  // slider — not by marker count, since areas have different numbers of
+  // markers and a count-based ranking would systematically favour the ones
+  // with more items. Ties break on CARE_DOMAINS' fixed declared order.
+  function computeBiggestLeakArea(felt) {
+    let best = null, bestVal = -1;
+    CARE_DOMAINS.forEach(id => {
+      const v = (felt || {})[id];
+      if (typeof v === "number" && v > bestVal) { bestVal = v; best = id; }
+    });
+    return best;
+  }
+
+  // ── Top-level orchestration ────────────────────────────────────────────
+  function isNothingLanded(roomStats, felt) {
+    const anyAnswered = ROOMS.some(r => roomStats[r.id].answeredCount > 0);
+    const anyFelt = ROOMS.some(r => typeof felt[r.id] === "number" || felt[r.id] === "fog");
+    return !anyAnswered && !anyFelt;
+  }
+
+  function computeAll(state) {
+    const felt = state.felt || {};
+    const markerVals = state.markers || {};
+    const chronicity = state.chronicity || {};
+
+    const roomStats = computeAllRoomStats(state);
+    const nothingLanded = isNothingLanded(roomStats, felt);
+    const care = computeCareGate(roomStats, felt);
+    const medical = computeMedical(roomStats, markerVals);
+    // Computed unconditionally: the wheel's legend describes every area on
+    // every path, including the care path, so this cannot be gated the same
+    // way mismatches/pathways/fog are.
+    const leaks = computeAllRoomLeaks(state, roomStats);
+
+    let mismatches = [];
+    let pathways = [];
+    let fog = computeFog(roomStats);
+    let chronEligible = [];
+    let chronRead = { family: null, softNote: false, total: 0 };
+    let routing = { type: "situational" };
+    let biggestLeakArea = null;
+
+    if (!nothingLanded) {
+      mismatches = computeMismatches(roomStats, felt);
+      pathways = computePathways(markerVals, roomStats, chronicity, medical);
+      chronEligible = computeChronicityEligibility(roomStats, felt);
+      chronRead = computeChronicityRead(chronEligible, chronicity);
+      routing = computeRouting(medical, pathways, fog, markerVals);
+      biggestLeakArea = computeBiggestLeakArea(felt);
+    }
+
+    return {
+      roomStats, felt, nothingLanded, care, medical, mismatches, pathways, fog,
+      chronEligible, chronRead, routing, leaks, biggestLeakArea,
+      _chronicity: chronicity, _markers: markerVals
+    };
+  }
+
+  return {
+    ROOMS, CARE_DOMAINS, TAG_WEIGHT, LANDS_THRESHOLD, numWord, roomById,
+    tagWeight, isLandsHard, isQuietTier,
+    computeRoomStats, computeAllRoomStats,
+    densityBand, feltBand, DENSITY_WORDS, FELT_WORDS,
+    computeCareGate, computeMedical, computeMismatches, computeFog,
+    computePathways, computeChronicityEligibility, computeChronicityRead,
+    computeRouting, isNothingLanded, computeAll,
+    computeRoomLeak, computeAllRoomLeaks, computeBiggestLeakArea
+  };
+});
+
+</script>
+<script>
+// ─── COPY LAYER — instrument 09 v6.1 ─────────────────────────────────────────
+// String templates only, no DOM.
+// Language rule: plain, direct, readable by a non-native English speaker.
+// No metaphors, no "season", no em-dash poetry, no verdicts. Every read ends
+// with something the person can actually do.
+// Guardrails still in force: no heal/fix/cure, no compete/economy/optimise
+// framing, pattern-not-purpose for past experiences.
+
+(function (root, factory) {
+  if (typeof module !== "undefined" && module.exports) {
+    module.exports = factory(require("./engine.js"));
+  } else {
+    root.BP6COPY = factory(root.BP6);
+  }
+})(typeof self !== "undefined" ? self : this, function (BP6) {
+
+  const ROOM_NAME = {}; BP6.ROOMS.forEach(r => { ROOM_NAME[r.id] = r.short; });
+  const ROOM_NAME_LOWER = {}; BP6.ROOMS.forEach(r => { ROOM_NAME_LOWER[r.id] = r.short.charAt(0).toLowerCase() + r.short.slice(1); });
+
+  // Medical rule-out line kept because it is a safety line, reworded plainly.
+  const APNEA_LINE = " Sleep that never restores can also have simple physical causes, such as sleep apnea. These are easy for a doctor to check.";
+
+  // ── Mismatch reads ─────────────────────────────────────────────────────────
+  function reverseMismatchText(roomId) {
+    return `You said <b>${ROOM_NAME_LOWER[roomId]}</b> is using up a lot of your energy, but none of the specific items there matched you. That does not mean you are wrong. It usually means the real cause is something this list does not name. It is worth writing down, in your own words, what is actually heavy there.`;
+  }
+  function habituatedMismatchText(roomId) {
+    return `In <b>${ROOM_NAME_LOWER[roomId]}</b> you marked several specific things as true, but you said the area is not using much energy. Usually this means you have got used to it. Things you have lived with for a long time stop feeling like a cost, even when they still are one.`;
+  }
+  function fogGestureMismatchText(roomId) {
+    return `You could not say how much <b>${ROOM_NAME_LOWER[roomId]}</b> is taking from you, but several specific things there matched you. Not being able to answer the general question is common when an area is close or long-standing. The specific answers are the more reliable ones here.`;
+  }
+
+  // ── Leak lines: what specifically is behind each area's slice ──────────────
+  // One extra sentence per area, built from the person's own marker answers.
+  // Verb differs for the centre disc, since it is a self-relationship pattern
+  // rather than an energy sink.
+  const LEAK_VERB = { core: "shows up as" };
+  function leakVerb(roomId) { return LEAK_VERB[roomId] || "goes into"; }
+
+  function joinFragments(fragments, moreCount, tier) {
+    let joined = fragments.length === 2 ? `${fragments[0]} and ${fragments[1]}` : fragments[0];
+    if (moreCount > 0) joined += tier === "lands" ? ", and more" : ", among other things";
+    return joined;
+  }
+
+  function leakFragments(roomId, ids) {
+    const room = BP6.roomById(roomId);
+    return ids.map(id => room.markers.find(m => m.id === id).leak);
+  }
+
+  // Returns "" when there is nothing worth adding — a quiet or unanswered
+  // area should not be forced into a second sentence it has no content for.
+  function leakSentence(roomId, leak) {
+    if (leak.feltState === "unanswered") return "";
+
+    if (leak.feltState === "fog") {
+      if (leak.tier === "none") return "";
+      const frags = leakFragments(roomId, leak.chosenIds);
+      const joined = joinFragments(frags, leak.moreCount, leak.tier);
+      return `But specific things here did match: ${joined}. Worth trusting those over the general sense.`;
+    }
+
+    // feltState === "known"
+    if (leak.mismatch === "reverse") {
+      return "None of the specific things here matched, though — it may be something this list does not name.";
+    }
+    if (leak.tier === "lands") {
+      const frags = leakFragments(roomId, leak.chosenIds);
+      const joined = joinFragments(frags, leak.moreCount, leak.tier);
+      let s = `Most of it ${leakVerb(roomId)} ${joined}.`;
+      if (leak.mismatch === "habituated") s += " You may have got used to this.";
+      return s;
+    }
+    if (leak.tier === "quiet") {
+      const frags = leakFragments(roomId, leak.chosenIds);
+      const joined = joinFragments(frags, leak.moreCount, leak.tier);
+      return `A little of it ${roomId === "core" ? "shows up as" : "comes from"} ${joined}.`;
+    }
+    return "";
+  }
+
+  // Splits a "One small step: ..." suggestion into a bold, accent-colored
+  // lead-in plus the regular italic rest, for the tip-block pattern shared
+  // by the leak card and the wheel detail card.
+  function tipLeadHtml(suggestion) {
+    const idx = suggestion.indexOf(": ");
+    if (idx === -1) return suggestion;
+    return `<span class="tip-lead">${suggestion.slice(0, idx + 1)}</span> ${suggestion.slice(idx + 2)}`;
+  }
+
+  // ── Where most of your energy is going: the single biggest-leak card ───────
+  function energyLeakCardHtml(result) {
+    const areaId = result.biggestLeakArea;
+    if (!areaId) return "";
+    const room = BP6.roomById(areaId);
+    const leak = result.leaks[areaId];
+    const name = ROOM_NAME[areaId];
+    let body;
+
+    if (leak.mismatch === "reverse" || leak.tier === "none") {
+      body = `<b>${name}</b> is using up the most of your energy right now, though nothing specific stood out among the statements there. It may be something this list does not name — worth writing down, in your own words, what is actually heavy there.`;
+    } else {
+      const frags = leakFragments(areaId, leak.chosenIds);
+      const joined = joinFragments(frags, leak.moreCount, leak.tier);
+      body = `<b>${name}</b> is where most of your energy is going right now. Most of it goes into ${joined}.`;
+    }
+
+    const tip = room.suggestion ? `<div class="card-tip">${tipLeadHtml(room.suggestion)}</div>` : "";
+    return `<div class="rcard leak"><div class="rc-theme"><span class="rc-dot"></span>Where most of your energy is going</div><div class="rc-body"><p>${body}</p></div>${tip}</div>`;
+  }
+
+  // ── Pathways: two things that tend to go together ─────────────────────────
+  // Each is: what the pattern is, why the two connect, and what to do about it.
+  const PATHWAY_COPY = {
+    1: {
+      title: "Being on alert is showing up in your body",
+      body: c => {
+        let s = "When a nervous system stays alert for a long time, muscles stay tight and sleep gets lighter. That is why these two usually appear together. Working on the body directly often helps more than trying to think yourself calm: slow breathing with a long out-breath, regular walking, warmth, or seeing a physiotherapist about the tension.";
+        if (c.viaSleep) s += APNEA_LINE;
+        return s;
+      }
+    },
+    2: {
+      title: "A lot of this is older than your current situation",
+      body: () => "Several things you marked in your past experiences have been with you for a long time. Old patterns do not usually respond to advice or willpower, because they were useful once. They respond better to the right kind of support. Finding a therapy approach that fits the pattern matters more than trying harder on your own."
+    },
+    3: {
+      hyper: {
+        title: "The way you switch off is doing a job",
+        body: () => "Your system has trouble slowing down on its own, and the habit you use to switch off is doing that job for you. This is why simply removing the habit rarely works. It is more useful to add another way to come down first — movement, a long out-breath, a bath, company — and only then reduce the habit."
+      },
+      hypo: {
+        title: "The way you switch off is doing a job",
+        body: () => "Your system has been running low and flat, and the habit you use to switch off is the easiest comfort still within reach. That is not a character flaw, it is a reasonable choice by a tired system. Adding one small source of energy or contact usually works better than removing the habit first."
+      }
+    },
+    4: {
+      title: "Acting fine is expensive",
+      body: () => "You marked that you have to act like you are fine in some part of your life. Keeping that up uses real attention and energy every day, which is why it shows up alongside a tired mind. You do not have to drop the act everywhere. One place, or one person, where you do not have to keep it up is usually enough to change the cost."
+    },
+    5: {
+      title: "This is low energy, not laziness",
+      body: () => "You marked feeling flat or slow to start, and also putting things off. These are the same problem seen from two sides: when a system is running low, starting anything costs more than it should. Making the first step much smaller usually works better than trying to be more disciplined."
+    },
+    6: {
+      title: "You have lost contact with yourself while managing everything else",
+      body: () => "Several areas are heavy at the same time, and at the same time you are less able to tell what you feel or how you are treating yourself. This order is common: when there is a lot to manage, self-contact is the first thing that gets dropped. It is also the thing worth getting back first, because most other decisions depend on it."
+    },
+    7: {
+      title: "Your health problem and your stress load affect each other",
+      body: () => "Pain and illness use up energy, and a tired nervous system makes pain harder to carry. This works in both directions, which is why one is hard to treat while ignoring the other. It is worth telling your doctor about the stress side too, not only the physical symptoms."
+    }
+  };
+
+  const PATHWAY_HEADLINE = {
+    1: "You have been on alert for a long time, and your body is carrying it.",
+    2: "A lot of this started long before your current situation.",
+    3: {
+      hyper: "The habit you use to switch off is doing a real job for you.",
+      hypo: "The habit you use to switch off is the easiest comfort you have left."
+    },
+    4: "Acting like you are fine is using up a lot of your energy.",
+    5: "This looks like low energy, not laziness.",
+    6: "You have been managing everything except your relationship with yourself.",
+    7: "Your health and your stress load are affecting each other."
+  };
+
+  function pathwayTitleBody(candidate) {
+    if (candidate.id === 3) {
+      const c = PATHWAY_COPY[3][candidate.variant || "hypo"];
+      return { title: c.title, bodyText: c.body(candidate) };
+    }
+    return { title: PATHWAY_COPY[candidate.id].title, bodyText: PATHWAY_COPY[candidate.id].body(candidate) };
+  }
+
+  function headlineForPathway(candidate) {
+    if (candidate.id === 3) return PATHWAY_HEADLINE[3][candidate.variant || "hypo"];
+    return PATHWAY_HEADLINE[candidate.id];
+  }
+
+  // Fixed, literal title for the top of the results page. "Your capacity right
+  // now" is the main label on every path except the two that need something
+  // more specific said plainly up front (nothing landed / crisis) — those
+  // stay distinct on purpose. The care (non-crisis) and default paths share
+  // this same headline and put their differentiated message in the subtitle
+  // line underneath instead, so nothing is said twice on the page.
+  function resultsTitle(result) {
+    if (result.nothingLanded) return "Not much landed today.";
+    if (result.care.onCrisisPath) return "This is a heavy load to be carrying right now.";
+    return "Your capacity right now";
+  }
+
+  // Fixed text shown under the headline, before the wheel — on both the
+  // default path and the care (non-crisis) path, since both share the same
+  // "Your capacity right now" headline. Not shown on crisis (kept minimal
+  // on purpose) or nothingLanded (there is no wheel to describe there).
+  // Replaces three things that used to say parts of this separately: the
+  // interconnectedness subtitle, the print-only legend note about slice
+  // size, and the closing line that used to sit at the bottom of the page.
+  const RESULTS_INTRO = `<p>This is a picture of what you are carrying right now, not a picture of who you are.</p>
+    <p>The size of each slice is how much of your energy that area is taking, compared with others. It is a share of the whole, not a set amount.</p>
+    <p>All these areas affect one another. Changes in one area can boost your capacity in another.</p>`;
+
+  // The interpretive line — the single sharpest read the answers support. Shown
+  // as a caption beneath the wheel on the normal path, and on the share card.
+  // Not shown on the care/crisis path, where the care card does the talking.
+  // (The chronology read — recent vs. long-standing — lives only in the "How
+  // long this has been going on" card below; it used to also duplicate itself
+  // up here, saying almost the same thing twice on the same page.)
+  function headline(result) {
+    if (result.nothingLanded) return "Not much landed today, and that is worth noticing too.";
+    if (result.care.onCarePath) return "Several areas are heavy at the same time right now.";
+    if (result.pathways.length > 0) return headlineForPathway(result.pathways[0]);
+    return "Nothing here is asking loudly right now.";
+  }
+
+  function nothingLandedSub() {
+    return "Either today is not the day for this, or these six areas are not where your energy is going. Both are useful answers. You can come back another time and see whether anything has changed.";
+  }
+
+  // ── Care path ──────────────────────────────────────────────────────────────
+  // Two intensities. The heavy-load version acknowledges the load and points
+  // gently outward, but the page around it stays whole (map, tip, share all
+  // remain). The crisis version is for the genuinely severe combination and
+  // foregrounds reaching a person now.
+  function careCardHtml(isCrisis) {
+    if (isCrisis) {
+      return `<div class="care-card crisis">
+        <div class="cc-kicker">Please read this first</div>
+        <div class="cc-body">
+          <p>Almost everything you looked at came back heavy at once, and you said you do not feel steady underneath it. That is a lot for anyone to be carrying alone.</p>
+          <p>A map of it is not the useful thing right now. Reaching one person is — someone you trust, a doctor, or a therapist. You do not have to sort out which part is which before you do that.</p>
+          <p>If any of this feels like more than you can hold, you can talk to someone straight away, any time of day.</p>
+          <a class="cc-link" href="https://www.findahelpline.com" target="_blank" rel="noopener">findahelpline.com →</a>
+        </div>
+      </div>`;
+    }
+    return `<div class="care-card">
+      <div class="cc-kicker">Read this first</div>
+      <div class="cc-body">
+        <p>Several areas of your life feel heavy right now, all at once. That is a lot to carry. It does not mean something is wrong with you.</p>
+        <p>When this much is happening at once, telling one person usually helps more than trying to handle it alone. This can be someone you trust, a doctor, or a therapist.</p>
+        <p>If it ever feels like too much, you can talk to someone right away.</p>
+        <a class="cc-link" href="https://www.findahelpline.com" target="_blank" rel="noopener">findahelpline.com →</a>
+      </div>
+    </div>`;
+  }
+
+  // ── Medical ────────────────────────────────────────────────────────────────
+  function medicalHardCardHtml(med) {
+    let extra = "";
+    if (med.illnessLands && med.signalsLands) {
+      extra = " You marked two separate things that point the same way, so it is worth booking sooner rather than later.";
+    }
+    return `<div class="rcard medical">
+      <div class="rc-theme"><span class="rc-dot"></span>See a doctor about this</div>
+      <div class="rc-body"><p>Some of what you marked is medical. A tool like this cannot read pain, illness, or physical symptoms. A doctor can.${extra}</p>
+      <p>This is not a warning, it is the sensible order. Get the physical side checked before reading too much into the rest of this page.</p></div>
+    </div>`;
+  }
+  function medicalSoftNoteHtml(med) {
+    const line = med.nrsLands
+      ? "Waking up still tired is worth mentioning at a check-up. It often has simple physical causes, not only stress ones."
+      : "Your body came back heavy, though nothing specific enough to point at. If anything there is new or getting worse, mention it at a check-up.";
+    return `<div class="rcard medical"><div class="rc-theme"><span class="rc-dot"></span>Worth mentioning to a doctor</div><div class="rc-body"><p>${line}</p></div></div>`;
+  }
+
+  // ── Cards ──────────────────────────────────────────────────────────────────
+  function mismatchCardHtml(candidate) {
+    let text, theme;
+    if (candidate.type === "habituated") {
+      text = habituatedMismatchText(candidate.roomId);
+      theme = "You may have got used to this";
+    } else if (candidate.type === "foggesture") {
+      text = fogGestureMismatchText(candidate.roomId);
+      theme = "Hard to answer, and that matters";
+    } else {
+      text = reverseMismatchText(candidate.roomId);
+      theme = "Your answers do not match up here";
+    }
+    return `<div class="rcard"><div class="rc-theme"><span class="rc-dot"></span>${theme}</div><div class="rc-body"><p>${text}</p></div></div>`;
+  }
+
+  function pathwayCardHtml(candidate) {
+    const tb = pathwayTitleBody(candidate);
+    return `<div class="rcard"><div class="rc-theme"><span class="rc-dot"></span>Two things that connect</div><div class="rc-body"><p><b>${tb.title}.</b> ${tb.bodyText}</p></div></div>`;
+  }
+
+  function fogCardHtml() {
+    return `<div class="rcard fog"><div class="rc-theme"><span class="rc-dot"></span>A lot of "not sure"</div><div class="rc-body"><p>You answered "not sure" several times. That is not a problem with the questions. Not being able to tell what is going on inside you is common when you have been under load for a long time, and it makes most other decisions harder. It is usually the first thing worth getting back.</p></div></div>`;
+  }
+
+  function timeReadCardHtml(chronRead) {
+    let body = "";
+    if (chronRead.family === "old") {
+      body = "Most of what you marked has been with you for a long time. That changes what helps. Waiting for it to pass will not work, because it is not caused by your current situation.";
+    } else if (chronRead.family === "situational") {
+      body = "Most of what you marked started recently. That is the easier kind. Situations change, so it makes sense to treat this as circumstances rather than as something about you.";
+    } else if (chronRead.family === "mixed") {
+      body = "Some of what you marked is recent and some is long-standing. It helps to treat them differently: the recent part usually responds to changing the situation, the older part usually does not.";
+    } else {
+      return "";
+    }
+    if (chronRead.softNote) {
+      body += " You were not sure about the timing in a few places, so read this as a rough picture rather than a firm one.";
+    }
+    return `<div class="rcard"><div class="rc-theme"><span class="rc-dot"></span>How long this has been going on</div><div class="rc-body"><p>${body}</p></div></div>`;
+  }
+
+  // ── One next step ──────────────────────────────────────────────────────────
+  const LEVER_COPY = {
+    medical: { text: "Your next step is a doctor's appointment, not a breathing exercise. Everything else on this page comes after that.", href: null, label: null },
+    doors: { text: "Because a lot of this is long-standing, the type of support matters more than any single technique. This tool helps you work out which kind is likely to fit.", href: "/doors.html", label: "The door you haven't tried" },
+    tiredness: { text: "The pattern points towards a system that has been stuck on alert. This tool goes into that in more detail.", href: "/tiredness.html", label: "The tiredness underneath" },
+    energy: { text: "The pattern points towards low energy and the habits that tend to come with it. This tool goes into that in more detail.", href: "/energy.html", label: "Where your energy goes" },
+    notknowing: { text: "Getting back in contact with what you actually feel and want looks like the first useful step. This tool is built for that.", href: "/not-knowing.html", label: "Not knowing what I want" },
+    situational: { text: "None of the other tools here fit this particular pattern. The useful step is a direct one: tell one person, or change something about the situation itself.", href: null, label: null }
+  };
+
+  function leverCardHtml(routing) {
+    const c = LEVER_COPY[routing.type];
+    const link = c.href ? `<p><a class="rc-link" href="${c.href}">→ ${c.label}</a></p>` : "";
+    return `<div class="rcard lever"><div class="rc-theme"><span class="rc-dot"></span>One next step</div><div class="rc-body"><p>${c.text}</p>${link}</div></div>`;
+  }
+
+  return {
+    ROOM_NAME, ROOM_NAME_LOWER, APNEA_LINE,
+    headline, resultsTitle, nothingLandedSub, careCardHtml,
+    medicalHardCardHtml, medicalSoftNoteHtml,
+    mismatchCardHtml, pathwayCardHtml, pathwayTitleBody,
+    fogCardHtml, timeReadCardHtml, leverCardHtml,
+    leakSentence, energyLeakCardHtml,
+    RESULTS_INTRO, DENSITY_WORDS: BP6.DENSITY_WORDS
+  };
+});
+
+</script>
+<script>
+// ─── MAP — instrument 09 v7 ──────────────────────────────────────────────────
+// A pie chart. Capacity is treated as one finite whole, split five ways — each
+// area's slice size is the share of your total load it is taking, driven by the
+// slider you moved for that area. Your relationship with yourself sits in the
+// centre as the container holding all of it, not as a sixth competing slice.
+//
+// v7 changes:
+//   • Larger wheel (~70%): tighter, near-square viewBox and a much bigger outer
+//     radius. Area names moved from outside leader-lines to INSIDE each wedge.
+//   • Interactive: each wedge (and the centre) is a button. Tapping one loads
+//     that area's read below the wheel; there is no static legend list on the
+//     interactive screen. The static legend is retained only for the share card
+//     and the printed PDF, where nothing is tappable.
+//   • Single encoding still: slice size only. Colour marks which area is which,
+//     never how much.
+
+(function (root, factory) {
+  if (typeof module !== "undefined" && module.exports) {
+    module.exports = factory(require("./engine.js"), require("./copy.js"));
+  } else {
+    root.BP6MAP = factory(root.BP6, root.BP6COPY);
+  }
+})(typeof self !== "undefined" ? self : this, function (BP6, BP6COPY) {
+
+  // v7.1: labels moved from inside the wedges to a ring outside the circle.
+  // Inside labels either overflowed thin wedges or vanished under a minimum-
+  // sweep cutoff — neither is fixable without either measuring rendered text
+  // width (not available in a plain SVG string build) or capping how thin a
+  // slice can look, which would misrepresent the data. Outside labels don't
+  // depend on wedge width at all, so every area gets a legible label, always,
+  // regardless of how small its slice is.
+  const VB_W = 600, VB_H = 520;
+  const CX = 300, CY = 260;
+  const OUTER_R = 170;
+  const CORE_R_MIN = 92, CORE_R_MAX = 112;
+  const LABEL_GAP = 26;   // circle edge → label dot
+  const TEXT_GAP = 8;     // label dot → text start
+  const WEDGES = BP6.CARE_DOMAINS;  // five, fixed order
+
+  const WHEEL_LABEL = {
+    mind: "Mind & nerves",
+    body: "Body",
+    environment: "People & situation",
+    behavior: "Daily habits",
+    experiences: "Your past"
+  };
+
+  const AREA_COLOR = {
+    mind: "var(--tag-lands)",
+    body: "var(--tag-skip)",
+    environment: "var(--tag-quiet)",
+    behavior: "var(--area-behavior)",
+    experiences: "var(--area-experiences)",
+    core: "var(--care)"
+  };
+
+  const FLOOR = 0.08; // minimum visible share so "very little" still reads as present
+
+  function pol(cx, cy, r, deg) {
+    const a = (deg - 90) * Math.PI / 180;
+    return [cx + r * Math.cos(a), cy + r * Math.sin(a)];
+  }
+  function wedgePath(startDeg, endDeg) {
+    const [x1, y1] = pol(CX, CY, OUTER_R, startDeg);
+    const [x2, y2] = pol(CX, CY, OUTER_R, endDeg);
+    const large = (endDeg - startDeg) > 180 ? 1 : 0;
+    return `M ${CX} ${CY} L ${x1.toFixed(1)} ${y1.toFixed(1)} A ${OUTER_R} ${OUTER_R} 0 ${large} 1 ${x2.toFixed(1)} ${y2.toFixed(1)} Z`;
+  }
+  function esc(s) { return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
+  // Splits a "One small step: ..." suggestion into a bold, accent-colored
+  // lead-in plus the regular italic rest — same pattern as BP6COPY's
+  // tipLeadHtml, duplicated here since this module escapes its own strings.
+  function tipLeadHtml(suggestion) {
+    const idx = suggestion.indexOf(": ");
+    if (idx === -1) return esc(suggestion);
+    return `<span class="tip-lead">${esc(suggestion.slice(0, idx + 1))}</span> ${esc(suggestion.slice(idx + 2))}`;
+  }
+
+  // ── Shared read of the five sliders ───────────────────────────────────────
+  function wheelData(result) {
+    const felt = result.felt || {};
+    const chron = result._chronicity || {};
+    let anyKnown = false;
+    const rows = WEDGES.map(id => {
+      const v = felt[id];
+      const known = typeof v === "number";
+      if (known) anyKnown = true;
+      const value = known ? v : 0;
+      const weight = Math.max(value, FLOOR);
+      return { id, known, value, weight, older: chron[id] === "always" || chron[id] === "year" };
+    });
+    const total = rows.reduce((s, r) => s + r.weight, 0);
+    return { rows, total, anyKnown };
+  }
+
+  function amountWord(known, value) {
+    if (!known) return null;
+    if (value < 0.2) return "barely any";
+    if (value < 0.45) return "a little";
+    if (value < 0.7) return "a fair amount";
+    return "a lot";
+  }
+  function steadinessWord(known, felt) {
+    if (!known) return null;
+    const s = 1 - felt;
+    if (s >= 0.7) return "steady";
+    if (s >= 0.4) return "somewhat steady";
+    if (s >= 0.15) return "not very steady";
+    return "shaky";
+  }
+
+  // ── Shared sentence per area (used by interactive detail, legend, print) ───
+  function areaSentence(result, id) {
+    const wd = wheelData(result);
+    const row = wd.rows.find(r => r.id === id);
+    let sentence;
+    if (!row.known) {
+      sentence = "You did not answer enough here to show.";
+    } else {
+      sentence = `Using up ${amountWord(true, row.value)} of your energy.`;
+      if (row.older) sentence += " You said this has been going on for a long time.";
+      else if ((result._chronicity || {})[id] === "mixed") sentence += " You said some of this is recent and some is longer-standing.";
+    }
+    const leak = result.leaks && result.leaks[id];
+    if (leak) {
+      const leakLine = BP6COPY.leakSentence(id, leak);
+      if (leakLine) sentence += " " + leakLine;
+    }
+    return sentence;
+  }
+
+  function coreSentence(result) {
+    const coreFelt = result.felt ? result.felt.core : undefined;
+    const coreKnown = typeof coreFelt === "number";
+    const coreWord = steadinessWord(coreKnown, coreFelt);
+    let sentence = coreKnown
+      ? `You feel ${coreWord} inside yourself right now.`
+      : "You did not answer enough here to show.";
+    const coreLeak = result.leaks && result.leaks.core;
+    if (coreLeak) {
+      const line = BP6COPY.leakSentence("core", coreLeak);
+      if (line) sentence += " " + line;
+    }
+    // Affirmative anchor: if the person endorsed "still feel like myself"
+    // strongly, say so — it belongs here and nowhere in the load figures.
+    const mv = result._markers && result._markers.core;
+    const anchor = mv && mv.core5;
+    if (anchor === "often" || anchor === "verymuch") {
+      sentence += " And underneath it, you said you still mostly feel like yourself.";
+    }
+    return sentence;
+  }
+
+  // ── Interactive detail panel (below the wheel) ─────────────────────────────
+  // The tap target for each area. Names the area, gives its read, and ends with
+  // the one small step for that area — the "where to look next" the tool exists
+  // to offer.
+  function areaDetailHtml(result, id) {
+    if (id === "core") {
+      const room = BP6.roomById("core");
+      const sentence = coreSentence(result);
+      return `<div class="wd-inner"><div class="wd-name">Your relationship with yourself</div>`
+        + `<div class="wd-sentence">${esc(sentence)}</div>`
+        + `<div class="wd-step">${tipLeadHtml(room.suggestion)}</div></div>`;
+    }
+    const room = BP6.roomById(id);
+    const wd = wheelData(result);
+    const row = wd.rows.find(r => r.id === id);
+    const sentence = areaSentence(result, id);
+    let step = "";
+    if (row.known && room.suggestion) step = `<div class="wd-step">${tipLeadHtml(room.suggestion)}</div>`;
+    return `<div class="wd-inner"><div class="wd-name"><span class="wd-swatch" style="background:${AREA_COLOR[id]}"></span>${esc(WHEEL_LABEL[id] || room.short)}</div>`
+      + `<div class="wd-sentence">${esc(sentence)}</div>${step}</div>`;
+  }
+
+  // ── SVG ────────────────────────────────────────────────────────────────────
+  function buildMapSVG(result, selectedId) {
+    const wd = wheelData(result);
+    let wedges = "", labels = "", selOutline = "";
+    let angle = 0;
+
+    wd.rows.forEach(row => {
+      const sweep = 360 * (row.weight / wd.total);
+      const start = angle, end = angle + sweep, mid = start + sweep / 2;
+      angle = end;
+      const isSel = row.id === selectedId;
+
+      const fill = row.known ? AREA_COLOR[row.id] : "url(#notSure)";
+      const op = row.known ? (isSel ? 0.98 : 0.88) : 1;
+      wedges += `<path class="wedge" data-area="${row.id}" role="button" tabindex="0" `
+        + `aria-label="${esc(WHEEL_LABEL[row.id])}" d="${wedgePath(start, end)}" fill="${fill}" fill-opacity="${op}"/>`;
+      // white separators
+      wedges += `<path d="${wedgePath(start, end)}" fill="none" stroke="#ffffff" stroke-width="3" pointer-events="none"/>`;
+      if (isSel) {
+        selOutline = `<path d="${wedgePath(start, end)}" fill="none" stroke="var(--ink)" stroke-width="3.5" stroke-linejoin="round" pointer-events="none"/>`;
+      }
+
+      // Outside label: a short leader line and a colour dot — never gated on
+      // slice width, so it never disappears. The label TEXT itself renders
+      // as an HTML overlay (buildWheelLabelOverlay), not inline SVG here.
+      const dot = pol(CX, CY, OUTER_R + LABEL_GAP, mid);
+      const leaderStart = pol(CX, CY, OUTER_R + 2, mid);
+      const dotOp = row.known ? 1 : 0.35;
+      const lineOp = row.known ? 0.55 : 0.28;
+
+      labels += `<line x1="${leaderStart[0].toFixed(1)}" y1="${leaderStart[1].toFixed(1)}" x2="${dot[0].toFixed(1)}" y2="${dot[1].toFixed(1)}" stroke="${AREA_COLOR[row.id]}" stroke-width="1.3" opacity="${lineOp}" pointer-events="none"/>`;
+      labels += `<circle cx="${dot[0].toFixed(1)}" cy="${dot[1].toFixed(1)}" r="3.5" fill="${AREA_COLOR[row.id]}" opacity="${dotOp}" pointer-events="none"/>`;
+    });
+
+    // Core: the container, not a sixth slice. The kicker + steadiness word
+    // render as an HTML overlay (buildWheelLabelOverlay), not inline SVG —
+    // same reasoning as the outer labels: constant, legible size regardless
+    // of device, and the min circle radius above is sized to fit it.
+    const coreFelt = result.felt ? result.felt.core : undefined;
+    const coreKnown = typeof coreFelt === "number";
+    const coreR = coreKnown ? CORE_R_MIN + coreFelt * (CORE_R_MAX - CORE_R_MIN) : CORE_R_MIN;
+    const coreSel = selectedId === "core";
+
+    let core = `<circle cx="${CX}" cy="${CY}" r="${coreR + 9}" fill="#ffffff" pointer-events="none"/>`;
+    core += `<circle class="core-hit" data-area="core" role="button" tabindex="0" aria-label="Your relationship with yourself" `
+      + `cx="${CX}" cy="${CY}" r="${coreR}" fill="var(--care)" fill-opacity="${coreKnown ? 0.5 : 0}" `
+      + `stroke="var(--ink)" stroke-width="${coreSel ? 3.5 : 1.5}" ${coreKnown ? "" : 'stroke-dasharray="4 4"'}/>`;
+
+    const fallbackNote = !wd.anyKnown
+      ? `<text x="${CX}" y="${VB_H - 16}" text-anchor="middle" class="wl-note" pointer-events="none">You did not answer enough to show a real shape yet</text>`
+      : "";
+
+    return `<svg viewBox="0 0 ${VB_W} ${VB_H}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="A circle split into five areas, sized by how much of your energy each one is using. Your relationship with yourself sits in the centre. Tap an area for detail.">
+      <defs>
+        <pattern id="notSure" width="8" height="8" patternTransform="rotate(45)" patternUnits="userSpaceOnUse">
+          <rect width="8" height="8" fill="var(--paper-tint)"/>
+          <line x1="0" y1="0" x2="0" y2="8" stroke="var(--ink-faint)" stroke-width="1.6" stroke-opacity="0.55"/>
+        </pattern>
+      </defs>
+      ${wedges}${selOutline}${core}${labels}${fallbackNote}
+    </svg>`;
+  }
+
+  // ── Wheel label overlay ──────────────────────────────────────────────────
+  // Renders the area names as absolutely-positioned HTML, laid over the SVG
+  // at the same points the leader-line dots sit at (converted to percentages
+  // of the viewBox, so it tracks the SVG's own responsive scaling). Doing
+  // this in HTML rather than inline SVG text means the font size is set once
+  // in CSS and stays that size on every device — it no longer grows or
+  // shrinks with the wheel — and long words wrap using the browser's own
+  // text layout instead of a fixed-width guess that can clip.
+  function buildWheelLabelOverlay(result) {
+    const wd = wheelData(result);
+    let angle = 0;
+    let html = "";
+    wd.rows.forEach(row => {
+      const sweep = 360 * (row.weight / wd.total);
+      const start = angle, end = angle + sweep, mid = start + sweep / 2;
+      angle = end;
+
+      const dot = pol(CX, CY, OUTER_R + LABEL_GAP, mid);
+      const dx = dot[0] - CX;
+      const topPct = (dot[1] / VB_H) * 100;
+      let leftPct, posCls;
+      if (Math.abs(dx) < 16) {
+        leftPct = (dot[0] / VB_W) * 100; posCls = "wl-mid";
+      } else if (dx > 0) {
+        leftPct = ((dot[0] + TEXT_GAP) / VB_W) * 100; posCls = "wl-start";
+      } else {
+        leftPct = ((dot[0] - TEXT_GAP) / VB_W) * 100; posCls = "wl-end";
+      }
+      const cls = "wl-label " + posCls + (row.known ? "" : " faint");
+      html += `<div class="${cls}" style="left:${leftPct.toFixed(2)}%; top:${topPct.toFixed(2)}%;">${esc(WHEEL_LABEL[row.id])}</div>`;
+    });
+
+    // Center: "INNER SELF" kicker + the steadiness word, same reasoning as
+    // the outer labels above — HTML instead of SVG so size and contrast are
+    // set once in CSS, not scaled down by the wheel's own viewBox.
+    const coreFelt = result.felt ? result.felt.core : undefined;
+    const coreKnown = typeof coreFelt === "number";
+    const coreWordRaw = steadinessWord(coreKnown, coreFelt) || "not answered";
+    const coreWordCap = coreWordRaw.charAt(0).toUpperCase() + coreWordRaw.slice(1);
+    const coreLeftPct = (CX / VB_W) * 100;
+    const coreTopPct = (CY / VB_H) * 100;
+    html += `<div class="wl-core" style="left:${coreLeftPct.toFixed(2)}%; top:${coreTopPct.toFixed(2)}%;">`
+      + `<div class="wl-core-kicker">INNER SELF</div>`
+      + `<div class="wl-core-word">${esc(coreWordCap)}</div>`
+      + `</div>`;
+
+    return `<div class="wheel-label-overlay">${html}</div>`;
+  }
+
+  // ── Static legend (share card + printed PDF only; nothing tappable there) ──
+  function buildLegend(result) {
+    const wd = wheelData(result);
+    let rows = "";
+    wd.rows.forEach(row => {
+      const room = BP6.ROOMS.find(r => r.id === row.id);
+      const sentence = areaSentence(result, row.id);
+      rows += `<div class="ml-row"><span class="ml-swatch" style="background:${AREA_COLOR[row.id]}; opacity:${row.known ? 0.88 : 0.25}"></span><span class="ml-name">${esc(room.short)}</span><span class="ml-sentence">${esc(sentence)}</span></div>`;
+    });
+    const coreKnown = typeof (result.felt ? result.felt.core : undefined) === "number";
+    rows += `<div class="ml-row core"><span class="ml-swatch" style="background:var(--care); opacity:${coreKnown ? 0.6 : 0.2}"></span><span class="ml-name">Your relationship with yourself</span><span class="ml-sentence">${esc(coreSentence(result))}</span></div>`;
+
+    let note = `<div class="ml-note">The size of each slice is how much of your energy that area is taking, compared with the others. It is a share of the whole, not a set amount.</div>`;
+    if (wd.rows.some(r => !r.known)) note += `<div class="ml-note">Striped slices are areas you did not answer.</div>`;
+    return `<div class="map-legend">${rows}${note}</div>`;
+  }
+
+  return { buildMapSVG, buildWheelLabelOverlay, buildLegend, areaDetailHtml, areaSentence, coreSentence, AREA_COLOR, CX, CY, OUTER_R };
+});
+
+</script>
+<script>
+// ─── APP — DOM wiring for instrument 09 v6 ──────────────────────────────────
+// Assumes BP6 (engine), BP6COPY (copy), BP6MAP (map) globals are already
+// defined by earlier inline scripts on the page.
+
+const APP_ROOMS = BP6.ROOMS;
+
+// ─── STATE ───────────────────────────────────────────────────────────────────
+const state = {
+  markers: {},     // roomId -> { markerId: 'notatall'|'rarely'|'sometimes'|'often'|'verymuch'|'canttell'|'skip' }
+  felt: {},        // roomId -> number(0..1) | 'fog'
+  chronicity: {},  // roomId -> 'season'|'year'|'always'|'canttell'|'skip'
+  note: ""
+};
+APP_ROOMS.forEach(r => { state.markers[r.id] = {}; });
+
+let visited = {}; // roomId -> true once a room's flow has been completed or skipped
+let currentRoomId = null;
+let stepIndex = 0; // 0 = gesture step, 1..N = marker steps
+
+// ─── SCREEN HELPERS ──────────────────────────────────────────────────────────
+function showScreen(id, noAnim) {
+  document.querySelectorAll(".screen").forEach(s => s.classList.remove("active", "rise", "noanim"));
+  const el = document.getElementById(id);
+  el.classList.add("active");
+  if (noAnim) el.classList.add("noanim"); else el.classList.add("rise");
+}
+
+// ─── INTRO ───────────────────────────────────────────────────────────────────
+function renderIntroList() {
+  const ul = document.getElementById("introRoomList");
+  ul.innerHTML = APP_ROOMS.map((r, i) => `<li><span class="snum">${i + 1}</span>${r.title}</li>`).join("");
+}
+
+function startInstrument() {
+  showScreen("screen-hub");
+  renderHub();
+}
+
+// ─── HUB ─────────────────────────────────────────────────────────────────────
+function renderHub() {
+  const grid = document.getElementById("roomGrid");
+  grid.innerHTML = APP_ROOMS.map(r => {
+    const done = !!visited[r.id];
+    return `<button class="room-card${done ? " done" : ""}" onclick="enterRoom('${r.id}')">
+      <span class="rc-name">${r.title}</span>
+      <span class="rc-state"><span class="rc-dot"></span>${done ? "Done" : "Not started"}</span>
+    </button>`;
+  }).join("");
+
+  const count = APP_ROOMS.filter(r => visited[r.id]).length;
+  document.getElementById("hubProgress").textContent = `${count} of ${APP_ROOMS.length} done`;
+  document.getElementById("hubEndHere").style.display = count > 0 ? "inline-block" : "none";
+  document.getElementById("hubContinue").style.display = count === APP_ROOMS.length ? "inline-block" : "none";
+}
+
+function finishHub() { proceedFromHub(); }
+function endHere() { proceedFromHub(); }
+
+// Back is available on every screen except the first one.
+function hubBack() { showScreen("screen-intro"); }
+function chronBack() { showScreen("screen-hub"); renderHub(); }
+function resultsBack() { showScreen("screen-hub"); renderHub(); }
+
+function proceedFromHub() {
+  // Chronicity (when relevant) is now asked inline right after each area, so
+  // by the time the hub's Continue/Stop-here is pressed it has already been
+  // collected — nothing left to gate on here.
+  openPause();
+}
+
+// Shown right after a room is finished or skipped: if that one room qualifies
+// for the timing question, ask it now, in context, instead of batching it
+// into a separate screen at the end. Same eligibility rule as before
+// (BP6.computeChronicityEligibility), just evaluated per-room and per-moment.
+function maybeAskChronThenHub() {
+  const eligible = BP6.computeChronicityEligibility(BP6.computeAllRoomStats(state), state.felt);
+  if (eligible.includes(currentRoomId)) {
+    showScreen("screen-chron");
+    renderChron(currentRoomId);
+  } else {
+    showScreen("screen-hub");
+    renderHub();
+  }
+}
+
+// ─── ROOM FLOW (felt gesture + markers) ─────────────────────────────────────
+function enterRoom(roomId) {
+  currentRoomId = roomId;
+  stepIndex = 0;
+  showScreen("screen-room");
+  renderRoomStep();
+}
+
+function currentRoom() { return APP_ROOMS.find(r => r.id === currentRoomId); }
+function totalSteps() { return 1 + currentRoom().markers.length; }
+
+function renderRoomStep() {
+  const room = currentRoom();
+  const total = totalSteps();
+
+  document.getElementById("sectionLabel").innerHTML = `<strong>${stepIndex + 1}/${total}</strong> &nbsp;${room.title}`;
+  const dotsEl = document.getElementById("dots");
+  dotsEl.innerHTML = "";
+  for (let i = 0; i < total; i++) {
+    const d = document.createElement("span");
+    if (i <= stepIndex) d.classList.add("filled");
+    dotsEl.appendChild(d);
+  }
+
+  const gestureBlock = document.getElementById("gestureBlock");
+  const markerBlock = document.getElementById("markerBlock");
+  const goback = document.getElementById("goback");
+  goback.classList.add("show"); // always available: step 0 goes back to hub
+
+  const qDesc = document.getElementById("qDesc");
+  if (stepIndex === 0) {
+    document.getElementById("qLead").textContent = "About this area";
+    document.getElementById("qText").textContent = room.gestureQ;
+    // The description explains what the area covers, so the general question
+    // is answerable without guessing what it means.
+    qDesc.textContent = room.desc;
+    qDesc.style.display = "block";
+    gestureBlock.style.display = "block";
+    markerBlock.style.display = "none";
+    renderGestureStep(room);
+  } else {
+    const marker = room.markers[stepIndex - 1];
+    document.getElementById("qLead").textContent = "How much does this sound like you?";
+    document.getElementById("qText").textContent = marker.text;
+    qDesc.style.display = "none";
+    gestureBlock.style.display = "none";
+    markerBlock.style.display = "block";
+    renderMarkerStep(room, marker);
+  }
+}
+
+function goBack() {
+  if (stepIndex > 0) { stepIndex--; renderRoomStep(); return; }
+  // step 0 -> back to hub, room stays unvisited
+  showScreen("screen-hub");
+  renderHub();
+}
+
+function skipRestOfRoom() {
+  visited[currentRoomId] = true;
+  maybeAskChronThenHub();
+}
+
+function advance() {
+  const room = currentRoom();
+  if (stepIndex >= room.markers.length) {
+    // finished last marker
+    visited[currentRoomId] = true;
+    maybeAskChronThenHub();
+    return;
+  }
+  stepIndex++;
+  renderRoomStep();
+}
+
+// ─── GESTURE SLIDER (commit-on-move, not pointerdown) ───────────────────────
+let gestureDrag = null;
+
+function initGestureTrack() {
+  const track = document.getElementById("gestureTrack");
+  if (!track || track._wired) return;
+  track._wired = true;
+
+  function valueFromEvent(e) {
+    const rect = track.getBoundingClientRect();
+    const clientX = (e.touches && e.touches[0]) ? e.touches[0].clientX : e.clientX;
+    let x = clientX - rect.left;
+    x = Math.max(0, Math.min(rect.width, x));
+    return rect.width > 0 ? x / rect.width : 0;
+  }
+
+  track.addEventListener("pointerdown", function (e) {
+    if (track.setPointerCapture) { try { track.setPointerCapture(e.pointerId); } catch (err) {} }
+    gestureDrag = { moved: false };
+  });
+  track.addEventListener("pointermove", function (e) {
+    if (!gestureDrag) return;
+    gestureDrag.moved = true;
+    setGestureValue(valueFromEvent(e));
+  });
+  track.addEventListener("pointerup", function (e) {
+    if (gestureDrag && !gestureDrag.moved) setGestureValue(valueFromEvent(e));
+    gestureDrag = null;
+  });
+  track.addEventListener("pointercancel", function () { gestureDrag = null; });
+
+  track.addEventListener("keydown", function (e) {
+    const cur = typeof state.felt[currentRoomId] === "number" ? state.felt[currentRoomId] : 0.5;
+    if (e.key === "ArrowRight" || e.key === "ArrowUp") { setGestureValue(Math.min(1, cur + 0.05)); e.preventDefault(); }
+    if (e.key === "ArrowLeft" || e.key === "ArrowDown") { setGestureValue(Math.max(0, cur - 0.05)); e.preventDefault(); }
+  });
+}
+
+function setGestureValue(v) {
+  state.felt[currentRoomId] = v;
+  const track = document.getElementById("gestureTrack");
+  track.classList.add("set");
+  document.getElementById("gestureFill").style.width = (v * 100) + "%";
+  document.getElementById("gestureThumb").style.left = (v * 100) + "%";
+  document.getElementById("gestureCanttellBtn").classList.remove("on");
+  document.getElementById("continue").classList.add("show");
+}
+
+function toggleGestureCanttell() {
+  const btn = document.getElementById("gestureCanttellBtn");
+  const isOn = btn.classList.contains("on");
+  if (isOn) {
+    btn.classList.remove("on");
+    state.felt[currentRoomId] = undefined;
+    document.getElementById("continue").classList.remove("show");
+  } else {
+    btn.classList.add("on");
+    state.felt[currentRoomId] = "fog";
+    document.getElementById("gestureTrack").classList.remove("set");
+    document.getElementById("continue").classList.add("show");
+  }
+}
+
+function renderGestureStep(room) {
+  document.getElementById("gLabelLo").textContent = room.loLabel;
+  document.getElementById("gLabelHi").textContent = room.hiLabel;
+  initGestureTrack();
+  const existing = state.felt[room.id];
+  const track = document.getElementById("gestureTrack");
+  const canttellBtn = document.getElementById("gestureCanttellBtn");
+  track.classList.remove("set");
+  canttellBtn.classList.remove("on");
+  if (typeof existing === "number") {
+    setGestureValue(existing);
+  } else if (existing === "fog") {
+    canttellBtn.classList.add("on");
+    document.getElementById("continue").classList.add("show");
+  } else {
+    document.getElementById("gestureFill").style.width = "0%";
+    document.getElementById("gestureThumb").style.left = "0%";
+    document.getElementById("continue").classList.remove("show");
+  }
+}
+
+// ─── MARKER TAGS ─────────────────────────────────────────────────────────────
+function renderMarkerStep(room, marker) {
+  document.querySelectorAll("#markerTags .tag").forEach(t => t.classList.remove("on"));
+  const skipBtn = document.getElementById("skipMarkerBtn");
+  skipBtn.classList.remove("on");
+  const existing = state.markers[room.id][marker.id];
+  if (existing === "skip") {
+    skipBtn.classList.add("on");
+  } else if (existing) {
+    const el = document.querySelector(`#markerTags .tag[data-v="${existing}"]`);
+    if (el) el.classList.add("on");
+  }
+  document.getElementById("continue").classList.toggle("show", !!existing);
+}
+
+function selectTag(val) {
+  const room = currentRoom();
+  const marker = room.markers[stepIndex - 1];
+  state.markers[room.id][marker.id] = val;
+  document.querySelectorAll("#markerTags .tag").forEach(t => t.classList.remove("on"));
+  document.querySelector(`#markerTags .tag[data-v="${val}"]`).classList.add("on");
+  document.getElementById("skipMarkerBtn").classList.remove("on");
+  document.getElementById("continue").classList.add("show");
+}
+
+function toggleSkipMarker() {
+  const room = currentRoom();
+  const marker = room.markers[stepIndex - 1];
+  const btn = document.getElementById("skipMarkerBtn");
+  const isOn = btn.classList.contains("on");
+  if (isOn) {
+    btn.classList.remove("on");
+    delete state.markers[room.id][marker.id];
+    document.getElementById("continue").classList.remove("show");
+  } else {
+    btn.classList.add("on");
+    document.querySelectorAll("#markerTags .tag").forEach(t => t.classList.remove("on"));
+    state.markers[room.id][marker.id] = "skip";
+    document.getElementById("continue").classList.add("show");
+  }
+}
+
+// ─── CHRONICITY SCREEN (single room, asked right after that room) ────────────
+function renderChron(roomId) {
+  const room = APP_ROOMS.find(r => r.id === roomId);
+  document.getElementById("chronSectionLabel").innerHTML = `<strong>One more thing</strong> &nbsp;${room.title}`;
+  const chips = CHRON_OPTIONS.map(opt => {
+    const on = state.chronicity[roomId] === opt.id ? " on" : "";
+    return `<button class="chron-chip${on}" data-room="${roomId}" data-opt="${opt.id}" onclick="selectChronChip('${roomId}','${opt.id}')">${opt.label}</button>`;
+  }).join("");
+  document.getElementById("chronList").innerHTML = `<div class="chron-chips">${chips}</div>`;
+}
+
+function selectChronChip(roomId, optId) {
+  state.chronicity[roomId] = optId;
+  document.querySelectorAll(`.chron-chip[data-room="${roomId}"]`).forEach(c => c.classList.remove("on"));
+  document.querySelector(`.chron-chip[data-room="${roomId}"][data-opt="${optId}"]`).classList.add("on");
+}
+
+// Returns to the hub, same as skipping the question — timing is optional and
+// this is no longer the last screen before results.
+function finishChronicity() { showScreen("screen-hub"); renderHub(); }
+
+// ─── SOMATIC PAUSE ───────────────────────────────────────────────────────────
+let pauseTimer = null;
+function openPause() {
+  document.getElementById("pauseKicker").textContent = "One moment";
+  document.getElementById("pauseText").textContent = "Take one slow breath before you look at the result.";
+  const btn = document.getElementById("pauseContinue");
+  btn.classList.remove("ready");
+  document.getElementById("pause").classList.add("show");
+  clearTimeout(pauseTimer);
+  pauseTimer = setTimeout(() => btn.classList.add("ready"), 3200);
+}
+function closePause() {
+  document.getElementById("pause").classList.remove("show");
+  showResults();
+}
+
+// ─── RESULTS RENDERING ───────────────────────────────────────────────────────
+let lastResult = null;
+
+let selectedArea = null; // currently focused wheel area on the results screen
+
+function showResults() {
+  const result = BP6.computeAll(state);
+  lastResult = result;
+
+  const rKicker = document.getElementById("rKicker");
+  const rHead = document.getElementById("rHead");
+  const rSub = document.getElementById("rSub");
+  const mapWrap = document.getElementById("mapWrap");
+  const wheelHint = document.getElementById("wheelHint");
+  const wheelDetail = document.getElementById("wheelDetail");
+  const mapLegendPrint = document.getElementById("mapLegendPrint");
+  const insightCaption = document.getElementById("insightCaption");
+  const careCard = document.getElementById("careCard");
+  const nonCareReads = document.getElementById("nonCareReads");
+  const tipjarBlock = document.getElementById("tipjarBlock");
+
+  // Fixed, literal title — always says plainly what the page is.
+  rHead.textContent = BP6COPY.resultsTitle(result);
+
+  const isCrisis = result.care.onCrisisPath;
+  const isCare = result.care.onCarePath;
+
+  // Reset dynamic blocks
+  wheelHint.style.display = "none";
+  wheelDetail.style.display = "none";
+  wheelDetail.innerHTML = "";
+  mapLegendPrint.innerHTML = "";
+  insightCaption.style.display = "none";
+
+  if (result.nothingLanded) {
+    rKicker.textContent = "";
+    rSub.style.display = "block";
+    rSub.innerHTML = `<p>${BP6COPY.nothingLandedSub()}</p>`;
+    mapWrap.style.display = "none";
+    careCard.style.display = "none";
+    nonCareReads.style.display = "none";
+    tipjarBlock.style.display = "block"; // tip + share stay
+  } else if (isCare) {
+    // Heavy load (and, as a strict subset, crisis). The wheel, tip, and share
+    // all remain for the heavy-but-not-dangerous case; only the crisis subset
+    // takes tip + share away. The interpretive cards below the care card are
+    // restored here too (medical, mismatch, connection, leak, fog, timing,
+    // lever) — same rendering as the default path, now that computeAll
+    // computes real data for this path instead of leaving it blank.
+    // Crisis stays minimal on purpose — just the kicker and headline before
+    // the wheel. The non-crisis care path gets the same fixed intro text as
+    // the default path, since both share the "Your capacity right now"
+    // headline.
+    rKicker.textContent = isCrisis ? "Please read this first" : "";
+    if (isCrisis) {
+      rSub.style.display = "none";
+    } else {
+      rSub.style.display = "block";
+      rSub.innerHTML = BP6COPY.RESULTS_INTRO;
+    }
+    mapWrap.style.display = "block";
+    renderWheel(result, result.biggestLeakArea || "core");
+    mapLegendPrint.innerHTML = BP6MAP.buildLegend(result);
+    careCard.style.display = "block";
+    careCard.innerHTML = BP6COPY.careCardHtml(isCrisis);
+
+    nonCareReads.style.display = "block";
+    renderNonCareReads(result);
+
+    tipjarBlock.style.display = isCrisis ? "none" : "block";
+  } else {
+    rKicker.textContent = "";
+    rSub.style.display = "block";
+    rSub.innerHTML = BP6COPY.RESULTS_INTRO;
+    mapWrap.style.display = "block";
+    renderWheel(result, result.biggestLeakArea || "core");
+    mapLegendPrint.innerHTML = BP6MAP.buildLegend(result);
+    // Interpretive one-liner as a caption under the wheel.
+    insightCaption.textContent = BP6COPY.headline(result);
+    insightCaption.style.display = "block";
+    careCard.style.display = "none";
+    nonCareReads.style.display = "block";
+    tipjarBlock.style.display = "block";
+    renderNonCareReads(result);
+  }
+
+  renderFlagged(result);
+
+  showScreen("screen-results", isCare); // skip reveal animation on the care/crisis path
+}
+
+// ─── INTERACTIVE WHEEL ───────────────────────────────────────────────────────
+function renderWheel(result, initialArea) {
+  const mapWrap = document.getElementById("mapWrap");
+  const wheelHint = document.getElementById("wheelHint");
+  const wheelDetail = document.getElementById("wheelDetail");
+  selectedArea = initialArea;
+  mapWrap.innerHTML = BP6MAP.buildMapSVG(result, selectedArea) + BP6MAP.buildWheelLabelOverlay(result);
+  wheelHint.style.display = "block";
+  wheelDetail.style.display = "block";
+  wheelDetail.innerHTML = BP6MAP.areaDetailHtml(result, selectedArea);
+}
+
+function selectWheelArea(areaId) {
+  if (!lastResult || !areaId) return;
+  selectedArea = areaId;
+  document.getElementById("mapWrap").innerHTML = BP6MAP.buildMapSVG(lastResult, areaId) + BP6MAP.buildWheelLabelOverlay(lastResult);
+  const wheelDetail = document.getElementById("wheelDetail");
+  wheelDetail.innerHTML = BP6MAP.areaDetailHtml(lastResult, areaId);
+  wheelDetail.style.display = "block";
+}
+
+// Delegated interaction — survives the innerHTML swap on every selection.
+(function wireWheelInteraction() {
+  const wrap = document.getElementById("mapWrap");
+  if (!wrap) return;
+  function areaFrom(e) {
+    const el = e.target.closest("[data-area]");
+    return el ? el.getAttribute("data-area") : null;
+  }
+  wrap.addEventListener("click", function (e) {
+    const id = areaFrom(e);
+    if (id) selectWheelArea(id);
+  });
+  wrap.addEventListener("keydown", function (e) {
+    if (e.key !== "Enter" && e.key !== " ") return;
+    const id = areaFrom(e);
+    if (id) { e.preventDefault(); selectWheelArea(id); }
+  });
+})();
+
+function renderNonCareReads(result) {
+  const medicalCard = document.getElementById("medicalCard");
+  if (result.medical.hard) {
+    medicalCard.style.display = "block";
+    medicalCard.innerHTML = BP6COPY.medicalHardCardHtml(result.medical);
+  } else if (result.medical.soft) {
+    medicalCard.style.display = "block";
+    medicalCard.innerHTML = BP6COPY.medicalSoftNoteHtml(result.medical);
+  } else {
+    medicalCard.style.display = "none";
+    medicalCard.innerHTML = "";
+  }
+
+  document.getElementById("mismatchCards").innerHTML = result.mismatches.map(BP6COPY.mismatchCardHtml).join("");
+  document.getElementById("connectionCards").innerHTML = result.pathways.map(BP6COPY.pathwayCardHtml).join("");
+  document.getElementById("leakCard").innerHTML = BP6COPY.energyLeakCardHtml(result);
+
+  const fogCard = document.getElementById("fogCard");
+  if (result.fog.globalFire) {
+    fogCard.style.display = "block";
+    fogCard.innerHTML = BP6COPY.fogCardHtml();
+  } else {
+    fogCard.style.display = "none";
+    fogCard.innerHTML = "";
+  }
+
+  const timeReadCard = document.getElementById("timeReadCard");
+  const timeHtml = BP6COPY.timeReadCardHtml(result.chronRead);
+  if (timeHtml) {
+    timeReadCard.style.display = "block";
+    timeReadCard.innerHTML = timeHtml;
+  } else {
+    timeReadCard.style.display = "none";
+    timeReadCard.innerHTML = "";
+  }
+
+  const leverCard = document.getElementById("leverCard");
+  leverCard.style.display = "block";
+  leverCard.innerHTML = BP6COPY.leverCardHtml(result.routing);
+}
+
+// ─── FLAGGED ITEMS ───────────────────────────────────────────────────────────
+function renderFlagged(result) {
+  const landed = [];
+  const skipped = [];
+  APP_ROOMS.forEach(room => {
+    const landedItems = [];
+    const skippedItems = [];
+    room.markers.forEach(m => {
+      const v = state.markers[room.id][m.id];
+      if (BP6.isLandsHard(state.markers, room.id, m.id)) {
+        // isLandsHard covers both "Often" and "Very much" (the top two points
+        // on the 5-point scale) — show which one was actually chosen rather
+        // than flattening both into one label.
+        landedItems.push({ text: m.text, tag: v === "verymuch" ? "Very much" : "Often" });
+      }
+      if (v === "skip") skippedItems.push({ text: m.text });
+    });
+    if (landedItems.length) landed.push({ roomId: room.id, roomName: room.short, items: landedItems });
+    if (skippedItems.length) skipped.push({ roomId: room.id, roomName: room.short, items: skippedItems });
+  });
+
+  buildFlaggedSection("flaggedLands", "flaggedLandsItems", landed, "lands");
+  buildFlaggedSection("flaggedSkip", "flaggedSkipItems", skipped, "skip");
+}
+
+function buildFlaggedSection(wrapId, listId, groups, tagClass) {
+  const wrap = document.getElementById(wrapId);
+  const list = document.getElementById(listId);
+  if (!groups.length) { wrap.style.display = "none"; return; }
+  wrap.style.display = "block";
+  list.innerHTML = groups.map(g => `
+    <div class="flagged-group">
+      <div class="fg-title"><span class="fg-swatch" style="background:${tagClass === "lands" ? "var(--accent)" : BP6MAP.AREA_COLOR[g.roomId]}"></span>${g.roomName}</div>
+      ${g.items.map(it => `<div class="flagged-item"><div class="fi-text">${it.text}</div>${tagClass === "lands" ? `<span class="fi-tag lands">${it.tag}</span>` : '<span class="fi-tag skip">Skipped</span>'}</div>`).join("")}
+    </div>`).join("");
+}
+
+function toggleFlagged(which) {
+  const wrapId = which === "lands" ? "flaggedLands" : "flaggedSkip";
+  const listId = which === "lands" ? "flaggedLandsItems" : "flaggedSkipItems";
+  const btn = document.querySelector(`#${wrapId} .flagged-toggle`);
+  const list = document.getElementById(listId);
+  const open = list.classList.toggle("open");
+  btn.classList.toggle("open", open);
+}
+
+// ─── COPY / PRINT ────────────────────────────────────────────────────────────
+function collectFlaggedText(listId) {
+  const groups = [...document.querySelectorAll(`#${listId} .flagged-group`)];
+  return groups.map(g => {
+    const title = g.querySelector(".fg-title").textContent.trim();
+    const items = [...g.querySelectorAll(".fi-text")].map(e => "  • " + e.textContent.trim());
+    return title + "\n" + items.join("\n");
+  }).join("\n\n");
+}
+
+function copyResults() {
+  const head = document.getElementById("rHead").textContent.trim();
+  const careEl = document.getElementById("careCard");
+  const nonCareEl = document.getElementById("nonCareReads");
+  let body = "";
+  if (careEl.style.display !== "none") body += careEl.innerText.trim();
+  if (nonCareEl.style.display !== "none") {
+    const t = nonCareEl.innerText.trim();
+    if (t) body += (body ? "\n\n" : "") + t;
+  }
+  const note = (document.getElementById("resultNote").value || "").trim();
+  let txt = "A map of your capacity — a self-inquiry at nervuk.ai\n\n" + head;
+  if (body) txt += "\n\n" + body;
+  const lands = collectFlaggedText("flaggedLandsItems");
+  if (lands) txt += "\n\nWhat might need the most attention:\n" + lands;
+  const skip = collectFlaggedText("flaggedSkipItems");
+  if (skip) txt += "\n\nWhat I skipped:\n" + skip;
+  if (note) txt += "\n\nMy note: " + note;
+  txt += "\n\nnervuk.ai/bigger-picture.html";
+
+  const btn = document.getElementById("copyResultsBtn");
+  const done = () => { btn.textContent = "Copied ✓"; btn.classList.add("copied"); setTimeout(() => { btn.textContent = "Copy as text"; btn.classList.remove("copied"); }, 2200); };
+  if (navigator.clipboard) { navigator.clipboard.writeText(txt).then(done).catch(() => fallbackCopy(txt, done)); }
+  else { fallbackCopy(txt, done); }
+}
+function fallbackCopy(txt, done) {
+  const ta = document.createElement("textarea");
+  ta.value = txt; ta.style.position = "fixed"; ta.style.opacity = "0";
+  document.body.appendChild(ta); ta.select();
+  try { document.execCommand("copy"); done(); } catch (e) {}
+  document.body.removeChild(ta);
+}
+
+window.addEventListener("beforeprint", function () {
+  const n = (document.getElementById("resultNote").value || "").trim();
+  const el = document.getElementById("printNote");
+  if (!el) return;
+  el.innerHTML = "";
+  if (n) {
+    const lbl = document.createElement("div"); lbl.className = "pn-label"; lbl.textContent = "My note";
+    const bodyEl = document.createElement("div"); bodyEl.className = "pn-body"; bodyEl.textContent = n;
+    el.appendChild(lbl); el.appendChild(bodyEl);
+  }
+});
+
+// ─── SHARE CARD ──────────────────────────────────────────────────────────────
+let sharePicked = null;
+
+function openShareCard() {
+  const result = lastResult || BP6.computeAll(state);
+  document.getElementById("shareHeadline").textContent = BP6COPY.headline(result);
+  document.getElementById("shareMapWrap").innerHTML = BP6MAP.buildMapSVG(result) + BP6MAP.buildWheelLabelOverlay(result) + BP6MAP.buildLegend(result);
+
+  const landed = [];
+  APP_ROOMS.forEach(room => room.markers.forEach(m => {
+    if (BP6.isLandsHard(state.markers, room.id, m.id)) landed.push(m.text);
+  }));
+  const picks = landed.slice(0, 6);
+  const picksEl = document.getElementById("sharePicks");
+  const featureEl = document.getElementById("shareFeature");
+  sharePicked = null;
+  featureEl.classList.remove("show");
+  if (picks.length) {
+    picksEl.innerHTML = picks.map((p, i) => `<button class="share-pick" data-i="${i}" onclick="pickShareFeature(${i})">Feature a line</button>`).join("");
+    picksEl._picks = picks;
+  } else {
+    picksEl.innerHTML = "";
+  }
+
+  document.getElementById("shareOverlay").classList.add("show");
+}
+function pickShareFeature(i) {
+  const picksEl = document.getElementById("sharePicks");
+  const picks = picksEl._picks || [];
+  const featureEl = document.getElementById("shareFeature");
+  document.querySelectorAll(".share-pick").forEach(b => b.classList.remove("on"));
+  const btn = document.querySelector(`.share-pick[data-i="${i}"]`);
+  if (sharePicked === i) {
+    sharePicked = null;
+    featureEl.classList.remove("show");
+    return;
+  }
+  sharePicked = i;
+  if (btn) btn.classList.add("on");
+  featureEl.textContent = picks[i];
+  featureEl.classList.add("show");
+}
+function closeShareCard() {
+  document.getElementById("shareOverlay").classList.remove("show");
+}
+function copyShareLink() {
+  const url = "https://nervuk.ai/bigger-picture.html";
+  const btn = document.getElementById("shareCopyLinkBtn");
+  const done = () => { btn.textContent = "Copied ✓"; btn.classList.add("copied"); setTimeout(() => { btn.textContent = "Copy link"; btn.classList.remove("copied"); }, 2200); };
+  if (navigator.clipboard) { navigator.clipboard.writeText(url).then(done).catch(() => fallbackCopy(url, done)); }
+  else { fallbackCopy(url, done); }
+}
+
+// ─── SHARE THIS INSTRUMENT (ported from tiredness) ──────────────────────────
+
+document.addEventListener("DOMContentLoaded", function () {
+  const btn = document.getElementById("shareInstrumentBtn");
+  if (!btn) return;
+  const ICON_SHARE = `<svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="11" cy="2.5" r="1.75" stroke="currentColor" stroke-width="1.25"/><circle cx="11" cy="11.5" r="1.75" stroke="currentColor" stroke-width="1.25"/><circle cx="3" cy="7" r="1.75" stroke="currentColor" stroke-width="1.25"/><line x1="4.7" y1="6.1" x2="9.3" y2="3.4" stroke="currentColor" stroke-width="1.25"/><line x1="4.7" y1="7.9" x2="9.3" y2="10.6" stroke="currentColor" stroke-width="1.25"/></svg>`;
+  const ICON_CHECK = `<svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><polyline points="2,7 5.5,10.5 12,3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+  btn.addEventListener("click", function () {
+    const url = "https://nervuk.ai/bigger-picture.html";
+    function done() {
+      btn.classList.add("copied");
+      btn.innerHTML = ICON_CHECK + " Link copied";
+      setTimeout(function () {
+        btn.classList.remove("copied");
+        btn.innerHTML = ICON_SHARE + " Share this instrument";
+      }, 2200);
+    }
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(url).then(done).catch(function () {
+        btn.textContent = "nervuk.ai/bigger-picture.html";
+        btn.style.userSelect = "all";
+      });
+    } else {
+      btn.textContent = "nervuk.ai/bigger-picture.html";
+      btn.style.userSelect = "all";
+    }
+  });
+});
+
+// ─── BOOT ────────────────────────────────────────────────────────────────────
+document.addEventListener("DOMContentLoaded", function () {
+  renderIntroList();
+});
+
+// ─── TEST HOOK (read/write access for the jsdom suite; no UI behavior change) ─
+window.__BP6TEST__ = {
+  state, showResults, startInstrument, enterRoom, advance, goBack,
+  selectTag, toggleSkipMarker, setGestureValue, toggleGestureCanttell,
+  finishHub, selectChronChip, finishChronicity, openPause, closePause,
+  renderHub, renderRoomStep, skipRestOfRoom, maybeAskChronThenHub, renderChron,
+  get visited() { return visited; },
+  get currentRoomId() { return currentRoomId; },
+  get lastResult() { return lastResult; }
+};
+
+</script>
+</body>
+</html>

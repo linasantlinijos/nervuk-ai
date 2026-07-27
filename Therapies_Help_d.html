@@ -1,0 +1,1874 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The kind of help you haven't tried — nervuk.ai</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,500;0,7..72,600;1,7..72,400&family=Hanken+Grotesk:wght@500&display=swap" rel="stylesheet">
+<style>
+  /* ─── Design tokens ─── */
+  :root {
+    --accent:      #2a6654;
+    --accent-dim:  #3d8a70;
+    --ink:         #111111;
+    --ink-mid:     #3d3d3d;
+    --ink-faint:   #767672;
+    --paper:       #ffffff;
+    --paper-tint:  #f8f8f6;
+    --border:      #e0e0dc;
+    --tag-lands:   #2a6654;
+    --tag-quiet:   #4a6b7c;
+    --tag-notme:   #7a7a7a;
+    --tag-skip:    #2a6654;
+    --shadow:      0 4px 32px rgba(0,0,0,0.13);
+    --radius:      12px;
+    --serif:       'Literata', Georgia, serif;
+    --sans:        'Literata', Georgia, serif;
+    --mark:        'Hanken Grotesk', system-ui, sans-serif;
+    --transition:  0.22s ease;
+  }
+
+  /* ─── Reset & base ─── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { font-size: 16px; }
+  body {
+    font-family: var(--sans);
+    color: var(--ink);
+    background: transparent;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  html {
+    background: #111;
+  }
+
+  /* ─── Video background ─── */
+  #bg-video {
+    position: fixed;
+    inset: 0;
+    width: 100%; height: 100%;
+    object-fit: cover;
+    opacity: 1;
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  /* ─── Site header ─── */
+  .site-header {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 28px;
+    background: transparent;
+  }
+  .wordmark {
+    font-family: var(--mark);
+    font-weight: 500;
+    font-size: 1rem;
+    color: #111111;
+    text-decoration: none;
+    letter-spacing: 0;
+  }
+  .nav-back {
+    font-family: var(--mark);
+    font-size: 0.82rem;
+    color: rgba(17,17,17,0.6);
+    text-decoration: none;
+    transition: color var(--transition);
+  }
+  .nav-back:hover { color: #111111; }
+
+  @media (max-width: 680px) {
+    .site-header { position: absolute; }
+  }
+
+  /* ─── Stage / panel ─── */
+  .stage {
+    position: relative;
+    z-index: 10;
+    min-height: 100vh;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 90px 16px 60px;
+  }
+  .panel {
+    background: var(--paper);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    width: 100%;
+    max-width: 620px;
+    overflow: hidden;
+  }
+
+  /* ─── Screen system ─── */
+  .screen { display: none; }
+  .screen.active { display: block; }
+  .screen.rise {
+    animation: rise 0.38s cubic-bezier(0.22,1,0.36,1) both;
+  }
+  @keyframes rise {
+    from { opacity: 0; transform: translateY(18px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ─── Intro screen ─── */
+  .intro-body { padding: 48px 40px 40px; }
+  @media (max-width: 480px) { .intro-body { padding: 36px 24px 32px; } }
+
+  .intro-body h1 {
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: clamp(2.25rem, 8vw, 3.25rem);
+    line-height: 1.06;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+    margin-bottom: 28px;
+  }
+  .intro-body h1 em {
+    font-style: italic;
+    color: var(--ink);
+  }
+
+  .lead {
+    font-family: var(--sans);
+    font-size: 1rem;
+    line-height: 1.65;
+    color: var(--ink-mid);
+    margin-bottom: 20px;
+  }
+
+  .note {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 0.95rem;
+    line-height: 1.7;
+    color: var(--ink-faint);
+    border-left: 3px solid var(--accent);
+    padding-left: 16px;
+    margin-bottom: 24px;
+  }
+
+  .meta-row {
+    font-size: 0.83rem;
+    color: var(--ink-faint);
+    margin-bottom: 28px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 14px;
+    align-items: center;
+  }
+  .meta-row span { display: flex; align-items: center; gap: 5px; }
+  .meta-row .mdot {
+    display: inline-block;
+    width: 4px; height: 4px;
+    border-radius: 50%;
+    background: var(--accent);
+  }
+
+  .section-list-label {
+    font-family: var(--sans);
+    font-size: 0.82rem;
+    color: var(--ink-faint);
+    margin-bottom: 10px;
+  }
+  .section-list {
+    list-style: none;
+    margin-bottom: 32px;
+  }
+  .section-list li {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 0.975rem;
+    line-height: 1.3;
+    color: var(--ink-faint);
+    padding: 4px 0;
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+  }
+  .section-list li .snum {
+    font-family: var(--sans);
+    font-style: normal;
+    font-size: 0.8rem;
+    color: var(--accent);
+    min-width: 16px;
+    flex-shrink: 0;
+  }
+
+  .btn-begin {
+    display: inline-block;
+    background: var(--accent);
+    color: #fff;
+    font-family: var(--sans);
+    font-size: 0.92rem;
+    font-weight: 500;
+    padding: 13px 32px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    transition: background var(--transition);
+    text-decoration: none;
+  }
+  .btn-begin:hover { background: var(--accent-dim); }
+
+  /* ─── Somatic pause overlay ─── */
+  #pause {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(10,15,12,0.92);
+    z-index: 200;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    padding: 32px;
+    text-align: center;
+  }
+  #pause.show { display: flex; }
+
+  .breath-wrap {
+    margin-bottom: 32px;
+    position: relative;
+    width: 80px; height: 80px;
+  }
+  .breath-ring {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    border: 2px solid rgba(255,255,255,0.12);
+  }
+  .breath-dot {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%,-50%);
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    background: var(--accent);
+    animation: breathe 5s ease-in-out infinite;
+  }
+  @keyframes breathe {
+    0%,100% { transform: translate(-50%,-50%) scale(1);   opacity: 0.7; }
+    50%      { transform: translate(-50%,-50%) scale(2.2); opacity: 1;   }
+  }
+
+  .pause-kicker {
+    font-family: var(--sans);
+    font-size: 0.8rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.4);
+    margin-bottom: 12px;
+  }
+  .pause-text {
+    font-family: var(--serif);
+    font-style: italic;
+    font-weight: 400;
+    font-size: clamp(1.1rem, 3vw, 1.3rem);
+    line-height: 1.65;
+    color: rgba(255,255,255,0.88);
+    max-width: 480px;
+    margin-bottom: 40px;
+  }
+
+  #pauseContinue {
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.3);
+    color: rgba(255,255,255,0.75);
+    font-family: var(--sans);
+    font-size: 0.85rem;
+    padding: 10px 28px;
+    border-radius: 6px;
+    cursor: pointer;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.4s ease, border-color var(--transition), color var(--transition);
+  }
+  #pauseContinue.ready {
+    opacity: 1;
+    pointer-events: all;
+  }
+  #pauseContinue:hover {
+    border-color: rgba(255,255,255,0.7);
+    color: #fff;
+  }
+
+  /* ─── Question screen ─── */
+  .q-header {
+    padding: 28px 40px 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 16px;
+  }
+  @media (max-width: 480px) { .q-header { padding: 20px 24px 14px; } }
+
+  .section-label {
+    font-family: var(--sans);
+    font-size: 0.8rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+  }
+  .section-label strong { color: var(--accent); font-weight: 600; }
+
+  .dots {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+  }
+  .dots span {
+    display: block;
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--border);
+    transition: background 0.2s;
+  }
+  .dots span.done { background: var(--accent); opacity: 0.45; }
+  .dots span.on { background: var(--accent); }
+
+  .q-body { padding: 32px 40px 28px; }
+  @media (max-width: 480px) { .q-body { padding: 24px 24px 20px; } }
+
+  .q-lead {
+    font-family: var(--sans);
+    font-size: 0.83rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    margin-bottom: 14px;
+  }
+
+  .q-text {
+    font-family: var(--serif);
+    font-weight: 500;
+    font-size: clamp(1.1rem, 2.6vw, 1.2rem);
+    line-height: 1.6;
+    color: var(--ink);
+    margin-bottom: 28px;
+    min-height: 60px;
+  }
+
+  /* ─── Frequency scale ─── */
+  .q-frame {
+    font-family: var(--sans);
+    font-size: 0.78rem;
+    color: var(--ink-faint);
+    margin-bottom: 10px;
+  }
+  .tags {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+  .tag {
+    font-family: var(--sans);
+    font-size: 0.94rem;
+    font-weight: 500;
+    text-align: left;
+    width: 100%;
+    padding: 13px 16px;
+    border-radius: 10px;
+    border: 1.5px solid var(--border);
+    background: var(--paper);
+    color: var(--ink-mid);
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+    user-select: none;
+  }
+  .tag:hover {
+    border-color: var(--ink-mid);
+    color: var(--ink);
+  }
+  .tag.on { color: #fff; border-color: transparent; background: var(--accent); }
+  .tag-skip-row {
+    display: flex;
+    justify-content: flex-start;
+    margin-top: 4px;
+    padding-top: 12px;
+    border-top: 1px solid var(--border);
+  }
+  .tag-skip {
+    font-family: var(--sans);
+    font-size: 0.82rem;
+    font-weight: 500;
+    padding: 7px 14px;
+    border-radius: 20px;
+    border: 1.5px solid var(--border);
+    background: transparent;
+    color: var(--ink-faint);
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+  }
+  .tag-skip:hover { border-color: var(--tag-skip); color: var(--tag-skip); }
+  .tag-skip.on { background: var(--tag-skip); border-color: transparent; color: #fff; }
+
+  /* ─── Journal field ─── */
+  .journal-wrap { margin-bottom: 24px; }
+  .journal-wrap label {
+    display: block;
+    font-size: 0.75rem;
+    color: var(--ink-faint);
+    margin-bottom: 6px;
+    font-style: italic;
+    font-family: var(--serif);
+  }
+  .journal {
+    width: 100%;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 10px 14px;
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 0.9rem;
+    color: var(--ink);
+    resize: none;
+    rows: 2;
+    background: var(--paper-tint);
+    outline: none;
+    transition: border-color var(--transition);
+    display: none;
+  }
+  .journal.show { display: block; }
+  .journal:focus { border-color: var(--accent); }
+
+  /* ─── Question footer ─── */
+  .q-footer {
+    padding: 0 40px 28px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  @media (max-width: 480px) { .q-footer { padding: 0 24px 24px; } }
+
+  .btn-ghost {
+    font-family: var(--sans);
+    font-size: 0.82rem;
+    color: var(--ink-faint);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 8px 4px;
+    transition: color var(--transition);
+  }
+  .btn-ghost:hover { color: var(--ink); }
+
+  #goback {
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s;
+  }
+  #goback.show { opacity: 1; pointer-events: all; }
+
+  .spacer { flex: 1; }
+
+  #continue {
+    display: inline-block;
+    background: var(--accent);
+    color: #fff;
+    font-family: var(--sans);
+    font-size: 0.88rem;
+    font-weight: 500;
+    padding: 11px 26px;
+    border-radius: 7px;
+    border: none;
+    cursor: pointer;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s, background var(--transition);
+  }
+  #continue.show { opacity: 1; pointer-events: all; }
+  #continue:hover { background: var(--accent-dim); }
+
+  /* ─── Results screen ─── */
+  .results-body { padding: 44px 40px 40px; }
+  @media (max-width: 480px) { .results-body { padding: 32px 22px 32px; } }
+
+  .r-kicker {
+    font-family: var(--sans);
+    font-size: 0.8rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 14px;
+  }
+  .r-head {
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: clamp(1.6rem, 4.5vw, 2.1rem);
+    line-height: 1.22;
+    color: var(--ink);
+    margin-bottom: 18px;
+  }
+  .r-sub {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--ink-mid);
+    margin-bottom: 8px;
+  }
+  .r-sub p + p { margin-top: 14px; }
+
+  /* ─── Interpretation card ─── */
+  .rcard {
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--paper);
+    padding: 20px 22px;
+    margin-bottom: 18px;
+  }
+  .rcard .rc-theme {
+    font-family: var(--sans);
+    font-size: 0.83rem;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    margin-bottom: 9px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--ink);
+  }
+  .rcard .rc-dot {
+    width: 9px; height: 9px; border-radius: 2px; flex-shrink: 0;
+    display: inline-block; background: var(--accent);
+  }
+  .rcard .rc-body {
+    font-size: 0.92rem;
+    line-height: 1.65;
+    color: var(--ink-mid);
+  }
+  .rcard .rc-body b { color: var(--accent); font-weight: 600; }
+  .rcard .rc-body p + p { margin-top: 10px; }
+  .rcard .rc-link {
+    display: inline-block; font-family: var(--sans); font-weight: 600; font-size: 0.88rem;
+    color: var(--accent); text-decoration: none; border-bottom: 1.5px solid var(--accent);
+  }
+  .rcard .rc-link:hover { color: var(--ink); border-bottom-color: var(--ink); }
+
+  /* ─── Care card (crisis / heavy-load messaging) ─── */
+  .care-card {
+    border: 1px solid var(--border); border-radius: var(--radius); background: var(--paper);
+    padding: 26px 24px; margin-bottom: 22px;
+  }
+  .care-card .cc-kicker {
+    font-family: var(--sans); font-size: 0.8rem; letter-spacing: 0.09em; text-transform: uppercase;
+    margin-bottom: 12px; display: flex; align-items: center; gap: 8px; color: var(--ink);
+  }
+  .care-card .cc-kicker::before {
+    content: ""; width: 9px; height: 9px; border-radius: 2px; background: var(--accent); flex-shrink: 0; display: inline-block;
+  }
+  .care-card.crisis .cc-kicker { color: var(--tag-skip); }
+  .care-card.crisis .cc-kicker::before { background: var(--tag-skip); }
+  .care-card .cc-body { font-size: 0.96rem; line-height: 1.7; color: var(--ink-mid); }
+  .care-card .cc-body p + p { margin-top: 12px; }
+  .care-card .cc-link {
+    display: inline-block; margin-top: 16px; font-family: var(--sans); font-weight: 600; font-size: 0.88rem;
+    color: var(--accent); text-decoration: none; border-bottom: 1.5px solid var(--accent);
+  }
+  .care-card.crisis .cc-link { color: var(--tag-skip); border-bottom-color: var(--tag-skip); }
+
+  /* ─── Collapsible flagged sections ─── */
+  .flagged-section { margin-bottom: 20px; }
+  .flagged-toggle {
+    background: none;
+    border: none;
+    border-top: 1px solid var(--border);
+    width: 100%;
+    padding: 14px 0;
+    text-align: left;
+    cursor: pointer;
+    font-family: var(--sans);
+    font-size: 0.82rem;
+    font-weight: 500;
+    color: var(--ink-faint);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: color var(--transition);
+  }
+  .flagged-toggle:hover { color: var(--ink); }
+  .flagged-toggle .arrow { font-size: 1.9rem; transition: transform 0.2s; }
+  .flagged-toggle.open .arrow { transform: rotate(180deg); }
+  .flagged-items { display: none; padding-bottom: 8px; }
+  .flagged-items.open { display: block; }
+
+  .flagged-group:first-child .fg-title { padding-top: 0; }
+  .fg-title {
+    display: flex; align-items: center; gap: 7px; font-family: var(--sans); font-size: 0.78rem;
+    font-weight: 600; letter-spacing: 0.03em; text-transform: uppercase; color: var(--ink-faint);
+    padding-top: 16px;
+  }
+  .fg-swatch { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; background: var(--accent); }
+
+  .flagged-item {
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .flagged-item:last-child { border-bottom: none; }
+  .fi-text {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 0.93rem;
+    line-height: 1.6;
+    color: var(--ink);
+    margin-bottom: 4px;
+  }
+  .fi-tag {
+    display: inline-block;
+    font-size: 0.8rem;
+    padding: 2px 8px;
+    border-radius: 12px;
+    color: #fff;
+    margin-bottom: 4px;
+  }
+  .fi-tag.lands { background: var(--tag-lands); }
+  .fi-tag.quiet { background: var(--tag-quiet); }
+  .fi-tag.skip  { background: var(--tag-lands); }
+  .fi-note {
+    font-size: 0.82rem;
+    color: var(--ink-faint);
+    font-style: italic;
+    margin-top: 4px;
+  }
+
+  /* ─── Closing line ─── */
+  .closing {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 0.93rem;
+    line-height: 1.7;
+    color: var(--ink-faint);
+    margin-bottom: 36px;
+    padding-top: 8px;
+    border-top: 1px solid var(--border);
+  }
+
+  /* ─── Tip jar ─── */
+  .tipjar {
+    background: var(--paper-tint);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 26px 24px;
+    text-align: center;
+    margin-bottom: 24px;
+  }
+  .tipjar .t {
+    font-family: var(--serif); font-style: italic; font-size: 1.02rem; line-height: 1.65;
+    color: var(--ink-mid); margin-bottom: 16px;
+  }
+  .tip-btn {
+    display: inline-block; font-family: var(--sans); font-weight: 600; font-size: .9rem; color: var(--accent);
+    background: transparent; border: 1.5px solid var(--accent); border-radius: var(--radius); padding: 11px 26px;
+    cursor: pointer; text-decoration: none; transition: background var(--transition), color var(--transition);
+  }
+  .tip-btn:hover { background: var(--accent); color: #fff; }
+  .tipjar-divider { width: 100%; height: 1px; background: var(--border); margin: 20px 0; }
+  .tipjar-share-label { font-family: var(--serif); font-style: italic; font-size: .9rem; color: var(--ink-faint); margin-bottom: 12px; }
+  .share-instrument-btn {
+    display: inline-flex; align-items: center; gap: 8px; font-family: var(--sans); font-weight: 500; font-size: .875rem;
+    color: var(--ink-faint); background: var(--paper); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 10px 22px; cursor: pointer; transition: border-color var(--transition), color var(--transition);
+  }
+  .share-instrument-btn:hover { border-color: var(--ink-mid); color: var(--ink-mid); }
+  .share-instrument-btn.copied { color: var(--accent); border-color: var(--accent); }
+
+  /* ─── Save results block ─── */
+  .check-other-block { text-align: center; margin-bottom: 26px; }
+  .check-other-link {
+    display: inline-block; font-family: var(--sans); font-weight: 500; font-size: 0.88rem;
+    color: var(--accent); text-decoration: none; border-bottom: 1.5px solid var(--accent);
+    padding-bottom: 1px; transition: color var(--transition), border-color var(--transition);
+  }
+  .check-other-link:hover { color: var(--ink); border-color: var(--ink); }
+
+  .save-block { margin-bottom: 24px; }
+  .save-label {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 0.95rem;
+    color: var(--ink-mid);
+    margin-bottom: 10px;
+  }
+  .save-hint {
+    font-family: var(--sans);
+    font-size: 0.83rem;
+    color: var(--ink-faint);
+    line-height: 1.5;
+    margin-bottom: 12px;
+  }
+  .save-note {
+    width: 100%;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 0.9rem;
+    color: var(--ink);
+    background: var(--paper-tint);
+    resize: none;
+    outline: none;
+    margin-bottom: 12px;
+    transition: border-color var(--transition);
+  }
+  .save-note:focus { border-color: var(--accent); }
+  .save-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+  .btn-save {
+    background: var(--accent);
+    color: #fff;
+    font-family: var(--sans);
+    font-size: 0.85rem;
+    font-weight: 500;
+    padding: 9px 20px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    transition: background var(--transition);
+  }
+  .btn-save:hover { background: var(--accent-dim); }
+  .btn-save-ghost {
+    background: transparent;
+    border: 1.5px solid var(--border);
+    color: var(--ink-faint);
+    font-family: var(--sans);
+    font-size: 0.85rem;
+    padding: 9px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: border-color var(--transition), color var(--transition);
+  }
+  .btn-save-ghost:hover { border-color: var(--ink-mid); color: var(--ink); }
+  .btn-save-ghost.copied { color: var(--accent); border-color: var(--accent); }
+
+  /* ─── Follow block ─── */
+  .follow-block { text-align: center; margin-bottom: 24px; }
+  .follow-label {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 0.9rem;
+    color: var(--ink-mid);
+    margin-bottom: 12px;
+  }
+  .follow-links {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+  }
+  .follow-links a {
+    font-family: var(--sans);
+    font-size: 0.83rem;
+    letter-spacing: 0.05em;
+    color: var(--ink-faint);
+    text-decoration: none;
+    padding: 2px 12px;
+    transition: color var(--transition);
+  }
+  .follow-links a:not(:last-child) { border-right: 1px solid var(--border); }
+  .follow-links a:hover { color: var(--accent); }
+
+  /* ─── Print-only elements ─── */
+  .print-only { display: none; }
+
+  /* ─── Print / Save-as-PDF ─── */
+  @media print {
+    #bg-video, .site-header, #pause, #shareOverlay, .tipjar, .save-block, .follow-block { display: none !important; }
+    html, body { background: #fff !important; }
+    .stage { padding: 0 !important; min-height: 0 !important; }
+    .panel { box-shadow: none !important; border-radius: 0 !important; max-width: 100% !important; }
+    .results-body { padding: 0 !important; }
+    .flagged-items { display: block !important; }
+    .flagged-toggle .arrow { display: none !important; }
+    .disclaimer { padding: 16px 0 0 !important; }
+    .print-only { display: block !important; margin-top: 18px; }
+    .pn-label { font-family: var(--sans); font-size: 0.83rem; letter-spacing: 0.09em; text-transform: uppercase; color: #555; margin-bottom: 6px; }
+    .pn-body { font-family: var(--serif); font-style: italic; font-size: 0.95rem; color: #222; white-space: pre-wrap; line-height: 1.6; }
+  }
+
+  /* ─── Share card overlay ─── */
+  #shareOverlay {
+    display: none; position: fixed; inset: 0; background: rgba(10,15,12,0.86); z-index: 250;
+    align-items: flex-start; justify-content: center; padding: 40px 16px; overflow-y: auto;
+  }
+  #shareOverlay.show { display: flex; }
+  .share-card {
+    background: var(--paper); border-radius: var(--radius); max-width: 420px; width: 100%;
+    padding: 32px 28px 24px; position: relative;
+  }
+  .share-close {
+    position: absolute; top: 14px; right: 14px; background: none; border: none; cursor: pointer;
+    font-size: 1.2rem; color: var(--ink-faint); line-height: 1; padding: 6px;
+  }
+  .share-close:hover { color: var(--ink); }
+  .share-stamp { font-family: var(--mark); font-size: 0.8rem; color: var(--ink-faint); text-align: center; margin-top: 18px; letter-spacing: 0.03em; }
+  .share-headline { font-family: var(--serif); font-size: 1.2rem; line-height: 1.35; color: var(--ink); margin-bottom: 18px; }
+  .share-feature { font-family: var(--serif); font-style: italic; font-size: 0.95rem; color: var(--ink-mid); border-left: 3px solid var(--accent); padding-left: 12px; margin: 16px 0; display: none; }
+  .share-feature.show { display: block; }
+  .share-picks { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 18px; }
+  .share-pick {
+    font-family: var(--sans); font-size: 0.8rem; padding: 5px 10px; border-radius: 14px;
+    border: 1px solid var(--border); background: var(--paper-tint); color: var(--ink-faint); cursor: pointer;
+  }
+  .share-pick.on { background: var(--ink); color: #fff; border-color: transparent; }
+  .share-actions { display: flex; gap: 10px; margin-top: 16px; justify-content: center; flex-wrap: wrap; }
+
+  /* ─── Disclaimer ─── */
+  .disclaimer {
+    font-size: 0.8rem;
+    color: var(--ink-faint);
+    line-height: 1.65;
+    padding: 0 40px 36px;
+    border-top: 1px solid var(--border);
+    padding-top: 20px;
+    margin-top: 4px;
+  }
+  @media (max-width: 480px) { .disclaimer { padding: 16px 24px 28px; } }
+  .disclaimer a { color: var(--ink-faint); }
+  .disclaimer a:hover { color: var(--ink); }
+  /* choice questions (factual axis: history, complexity) */
+  .q-prompt {
+    display: none;
+    font-family: var(--serif); font-weight: 300;
+    font-size: clamp(1.15rem, 3.2vw, 1.4rem); line-height: 1.45;
+    color: var(--ink); margin-bottom: 8px;
+  }
+  .q-prompt.show { display: block; }
+  .q-hint { font-family: var(--sans); font-size: 0.76rem; color: var(--ink-faint); margin-bottom: 18px; }
+  .choices { display: none; flex-direction: column; gap: 10px; }
+  .choices.show { display: flex; }
+  .choice {
+    text-align: left; font-family: var(--sans); font-size: 0.92rem; line-height: 1.4;
+    color: var(--ink-mid); background: var(--paper);
+    border: 1.5px solid var(--border); border-radius: 10px;
+    padding: 13px 16px; cursor: pointer; user-select: none;
+    transition: border-color .15s, background .15s, color .15s;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .choice:hover { border-color: var(--ink-mid); color: var(--ink); }
+  .choice.on { border-color: var(--accent); background: #eef4f1; color: var(--ink); }
+  .choice .box {
+    width: 19px; height: 19px; flex-shrink: 0; border: 1.5px solid var(--border);
+    border-radius: 6px; display: flex; align-items: center; justify-content: center;
+    font-size: 0.72rem; color: #fff; line-height: 1;
+  }
+  .choice.single .box { border-radius: 50%; }
+  .choice.on .box { background: var(--accent); border-color: var(--accent); }
+
+  /* ─── Motion toggle (pause background video) ─── */
+  .motion-toggle {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    z-index: 40;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(17,17,17,0.45);
+    color: #f8f8f6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    padding: 0;
+    transition: background .18s;
+  }
+  .motion-toggle:hover { background: rgba(17,17,17,0.65); }
+  .motion-toggle svg { width: 15px; height: 15px; fill: currentColor; }
+  @media print {
+    .motion-toggle { display: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Background video -->
+<video id="bg-video" autoplay muted loop playsinline>
+  <source src="raw25.mp4" type="video/mp4">
+</video>
+<button id="motion-toggle" class="motion-toggle" type="button" aria-label="Pause background video" aria-pressed="false"></button>
+<script>
+(function() {
+  var video = document.getElementById('bg-video');
+  var btn = document.getElementById('motion-toggle');
+  if (!video || !btn) return;
+
+  var iconPause = '<svg viewBox="0 0 24 24"><rect x="6" y="5" width="4" height="14"></rect><rect x="14" y="5" width="4" height="14"></rect></svg>';
+  var iconPlay  = '<svg viewBox="0 0 24 24"><polygon points="7,5 19,12 7,19"></polygon></svg>';
+
+  var prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var stored = localStorage.getItem('nervuk-motion');
+  var paused = stored ? stored === 'paused' : prefersReduced;
+
+  function render() {
+    if (paused) {
+      video.pause();
+      btn.innerHTML = iconPlay;
+      btn.setAttribute('aria-label', 'Play background video');
+      btn.setAttribute('aria-pressed', 'true');
+    } else {
+      video.play().catch(function(){});
+      btn.innerHTML = iconPause;
+      btn.setAttribute('aria-label', 'Pause background video');
+      btn.setAttribute('aria-pressed', 'false');
+    }
+  }
+
+  btn.addEventListener('click', function() {
+    paused = !paused;
+    localStorage.setItem('nervuk-motion', paused ? 'paused' : 'playing');
+    render();
+  });
+
+  render();
+})();
+</script>
+
+
+<!-- Site header -->
+<header class="site-header">
+  <a href="/" class="wordmark">nervuk.ai</a>
+  <a href="/" class="nav-back">← All instruments</a>
+</header>
+
+<div class="stage">
+  <div class="panel">
+
+    <!-- ─── INTRO SCREEN ─── -->
+    <div id="screen-intro" class="screen active">
+      <div class="intro-body">
+        <h1>The kind of help<br> you haven't tried</h1>
+        <p class="lead">Some problems do not get better, no matter how hard you work on them. That is usually not your fault. It often means the help came in through the wrong door, or came in the wrong order. There are a few different ways into the same nervous system. This tool helps you see which one your problem points to, and what you could look into next.</p>
+        <p class="note">Read each sentence and choose the answer that fits you. Do not think for long — go with your first reaction. This tool does not diagnose you and does not give you a score. It shows which kinds of help usually fit a pattern like yours, names approaches you can read about yourself, and gives you better questions to ask a professional.</p>
+        <div class="meta-row">
+          <span><span class="mdot"></span> 4 areas, 19 short questions</span>
+        </div>
+        <p class="section-list-label">The four areas</p>
+        <ul class="section-list">
+          <li><span class="snum">1</span>How it feels</li>
+          <li><span class="snum">2</span>What helps and what doesn't</li>
+          <li><span class="snum">3</span>What you have already tried</li>
+          <li><span class="snum">4</span>Right now</li>
+        </ul>
+        <button class="btn-begin" onclick="startInstrument()">Begin</button>
+      </div>
+    </div>
+
+    <!-- ─── QUESTION SCREEN ─── -->
+    <div id="screen-q" class="screen">
+      <div class="q-header">
+        <div class="section-label" id="sectionLabel">—</div>
+        <div class="dots" id="dots"></div>
+      </div>
+      <div class="q-body">
+        <div class="q-lead" id="qLead">How much does this sound like you?</div>
+        <div class="q-prompt" id="qPrompt"></div>
+        <div class="q-text" id="qText"></div>
+        <div class="q-frame" id="qFrame"></div>
+        <div class="tags" id="tags">
+          <button class="tag" data-v="never"     onclick="selectTag('never')">Never</button>
+          <button class="tag" data-v="rarely"    onclick="selectTag('rarely')">Rarely</button>
+          <button class="tag" data-v="sometimes" onclick="selectTag('sometimes')">Sometimes</button>
+          <button class="tag" data-v="often"     onclick="selectTag('often')">Often</button>
+          <button class="tag" data-v="always"    onclick="selectTag('always')">Almost always</button>
+          <div class="tag-skip-row">
+            <button class="tag-skip" data-v="skip" onclick="selectTag('skip')">Skip this one</button>
+          </div>
+        </div>
+        <div class="choices" id="choices"></div>
+      </div>
+      <div class="q-footer">
+        <button class="btn-ghost" id="goback" onclick="goBack()">← Back</button>
+        <button class="btn-ghost" onclick="endHere()">End here</button>
+        <div class="spacer"></div>
+        <button id="continue" onclick="advance()">Continue →</button>
+      </div>
+    </div>
+
+    <!-- ─── RESULTS SCREEN ─── -->
+    <div id="screen-results" class="screen">
+      <div class="results-body">
+        <div id="careCard" style="display:none"></div>
+        <div class="r-kicker" id="rKicker"></div>
+        <h2 class="r-head" id="rHead"></h2>
+        <div class="r-sub" id="rSub"></div>
+        <div id="rCard"></div>
+        <div id="flaggedLands" class="flagged-section" style="display:none">
+          <button class="flagged-toggle" onclick="toggleFlagged('lands')">
+            What you marked most strongly <span class="arrow">▾</span>
+          </button>
+          <div class="flagged-items" id="flaggedLandsItems"></div>
+        </div>
+        <div id="flaggedSkip" class="flagged-section" style="display:none">
+          <button class="flagged-toggle" onclick="toggleFlagged('skip')">
+            What you skipped <span class="arrow">▾</span>
+          </button>
+          <div class="flagged-items" id="flaggedSkipItems"></div>
+        </div>
+        <div class="closing" id="closing" style="display:none">
+          This is an idea to test against yourself. It is not a final answer about you, and it is not a referral. A door that opens here is a place where help might get in. It is not the cause of what is hard. What you marked could come from trauma, long-term stress, neurodivergence, early relationships, or a mix of these. Let it sit for a few days. Notice which door you keep coming back to. Then bring the question, not the answer, to someone who can help you walk through it.
+        </div>
+        <div id="printNote" class="print-only"></div>
+        <div class="check-other-block" id="checkOtherBlock">
+          <a href="/" class="check-other-link">Check other instruments</a>
+        </div>
+        <div class="save-block" id="saveBlock">
+          <p class="save-label">Want to keep this?</p>
+          <p class="save-hint">If you want to compare this with a later check-in, write today's date in your note.</p>
+          <textarea class="save-note" id="resultNote" rows="2" placeholder="Write a note to yourself, if you like. It will be saved with your results."></textarea>
+          <div class="save-actions">
+            <button class="btn-save" onclick="window.print()">Save as PDF</button>
+            <button class="btn-save-ghost" id="copyResultsBtn" onclick="copyResults()">Copy as text</button>
+            <button class="btn-save-ghost" id="openShareBtn" onclick="openShareCard()">Share this card</button>
+          </div>
+        </div>
+        <div class="tipjar" id="tipjar">
+          <p class="t">If something here helped, there's a tip jar. Only if it did.</p>
+          <a class="tip-btn" href="https://buymeacoffee.com/nervuk" target="_blank" rel="noopener">Leave a tip</a>
+          <div class="tipjar-divider"></div>
+          <p class="tipjar-share-label">Know someone who would find this useful?</p>
+          <button class="share-instrument-btn" id="shareInstrumentBtn">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="11" cy="2.5" r="1.75" stroke="currentColor" stroke-width="1.25"/><circle cx="11" cy="11.5" r="1.75" stroke="currentColor" stroke-width="1.25"/><circle cx="3" cy="7" r="1.75" stroke="currentColor" stroke-width="1.25"/><line x1="4.7" y1="6.1" x2="9.3" y2="3.4" stroke="currentColor" stroke-width="1.25"/><line x1="4.7" y1="7.9" x2="9.3" y2="10.6" stroke="currentColor" stroke-width="1.25"/></svg>
+            Share this instrument
+          </button>
+        </div>
+        <div class="follow-block" id="followBlock">
+          <p class="follow-label">New tools come out now and then. Follow along:</p>
+          <div class="follow-links">
+            <a href="https://njump.me/REPLACE_NPUB" target="_blank" rel="noopener">Nostr</a>
+            <a href="https://x.com/nervuk" target="_blank" rel="noopener">X</a>
+            <a href="https://instagram.com/nervuk" target="_blank" rel="noopener">Instagram</a>
+            <a href="https://linkedin.com/company/nervuk" target="_blank" rel="noopener">LinkedIn</a>
+            <a href="https://facebook.com/nervuk" target="_blank" rel="noopener">Facebook</a>
+          </div>
+        </div>
+      </div>
+      <div class="disclaimer">
+        This is a self-inquiry tool. It is not a clinical assessment, a diagnosis, or a treatment, and it is not medical or psychological advice. If you are in serious distress, please contact a qualified professional or visit <a href="https://www.findahelpline.com" target="_blank">findahelpline.com</a>.<br><br>
+        This tool points at <em>kinds</em> of help. It does not tell you which treatment is right for you, and nothing here is a recommendation to take up any particular approach. Some of the options described, including medication and supervised approaches such as ketamine- or psychedelic-assisted therapy, carry real risks and have medical reasons why some people must not use them. They are only appropriate after assessment by a qualified professional. Their legal status is different in every country. Whether any approach fits you is a clinical question that a web page cannot answer.<br><br>
+        <a href="/legal">Disclaimer</a>
+      </div>
+    </div>
+
+  </div><!-- /panel -->
+</div><!-- /stage -->
+
+<!-- Somatic pause overlay -->
+<div id="pause">
+  <div class="breath-wrap">
+    <div class="breath-ring"></div>
+    <div class="breath-dot"></div>
+  </div>
+  <div class="pause-kicker" id="pauseKicker"></div>
+  <div class="pause-text" id="pauseText"></div>
+  <button id="pauseContinue" onclick="closePause()">Continue</button>
+</div>
+
+<!-- Share card overlay -->
+<div id="shareOverlay">
+  <div class="share-card">
+    <button class="share-close" onclick="closeShareCard()">✕</button>
+    <div class="share-headline" id="shareHeadline"></div>
+    <div class="share-feature" id="shareFeature"></div>
+    <div class="share-picks" id="sharePicks"></div>
+    <div class="share-actions">
+      <button class="btn-save-ghost" id="shareCopyLinkBtn" onclick="copyShareLink()">Copy link</button>
+    </div>
+    <div class="share-stamp">nervuk.ai — The kind of help you haven't tried</div>
+  </div>
+</div>
+
+<script>
+// ─── DATA ────────────────────────────────────────────────────────────────────
+// Two kinds of section:
+//   kind:'felt'   — resonance-tagged statements about lived experience (lands/quiet/notme/skip)
+//   kind:'choice' — direct multiple-choice questions for the factual axis (history, complexity)
+//
+// Felt item families:
+//   mind / body / relationship — which door the difficulty points toward
+//   fit:true   — matches the presentation psychedelic-assisted work is recognized for
+//   shame:true — guilt / self-blame / self-attack (often reached through experience, not only talk)
+//   acute:true via f:'acute' — present-tense distress; strong:true = strongest signal
+const SECTIONS = [
+  {
+    kind: 'felt',
+    theme: "How it feels",
+    kicker: "Before we start",
+    pause: "Before we start, take one slow breath and notice how you feel right now, without trying to change anything. The next questions are about the last few months, not about one bad day.",
+    items: [
+      {t:"My body stays tense, even when I know I am safe.", f:"body"},
+      {t:"I feel that this is my fault, or that something is wrong with me.", f:"mind", fit:true, shame:true},
+      {t:"One part of me wants one thing, and another part wants the opposite, as if I'm divided inside.", f:"relationship"},
+      {t:"I feel numb, or far away from my own body, as if I'm watching my life from behind glass.", f:"body"},
+      {t:"I speak to myself in a hard way that I would never use with a friend.", f:"relationship", fit:true, shame:true},
+      {t:"I feel that if I understood why I react this way, things would get better.", f:"mind"}
+    ]
+  },
+  {
+    kind: 'felt',
+    theme: "What helps and what doesn't",
+      kicker: "Keep going",
+    pause: "Let your shoulders drop, if they can. Was that easy? Or did they slowly tighten again?",
+    items: [
+      {t:"I understand why I feel this way, but my body still feels the same.", f:"body"},
+      {t:"The same painful things happen again in my close relationships, even when I see them coming.", f:"relationship"},
+      {t:"I go over painful events again and again in my head.", f:"mind", fit:true},
+      {t:"I believe things about myself that I cannot argue away: that I am not safe, not good enough, or to blame.", f:"mind", fit:true},
+      {t:"Breathing and other relaxing exercises do not help me.", f:"body"},
+      {t:"When someone gets close to me, strong feelings take over. I hold on too tight, or I pull away.", f:"relationship"}
+    ]
+  },
+  {
+    kind: 'choice',
+    theme: "What you have already tried",
+    frame: "",
+    kicker: "A few facts",
+    pause: "The next part is about what you have already tried. There are no right answers here.",
+    items: [
+      {
+        key: 'current', multi: false,
+        prompt: "Are you working on this with someone or something right now \u2014 a therapist, a programme, or a regular practice?",
+        options: [
+          {label: "No, not right now", v: 'none'},
+          {label: "Yes, and it is helping", v: 'helping'},
+          {label: "Yes, but it is not helping", v: 'stalled'},
+          {label: "I did in the past, but not now", v: 'past'}
+        ]
+      },
+      {
+        key: 'tried', multi: true,
+        prompt: "Which kinds of help have you really tried, now or in the past?",
+        hint: "Choose all that apply.",
+        options: [
+          {label: "Talking \u2014 counselling, CBT, talk therapy", v: 'mind'},
+          {label: "Body \u2014 somatic therapy, breathwork, yoga, bodywork", v: 'body'},
+          {label: "Relationships \u2014 couples therapy, group therapy, parts work, attachment work", v: 'relationship'},
+          {label: "Medical \u2014 medication, ketamine, or similar", v: 'state'},
+          {label: "None of these yet", v: 'none'}
+        ]
+      },
+      {
+        key: 'complexity', multi: false,
+        prompt: "Where does the hard part come from?",
+        hint: "Choose the answer that fits best.",
+        options: [
+          {label: "One event, or one period of my life", v: 'single'},
+          {label: "It goes back as far as I can remember", v: 'developmental'},
+          {label: "I am not sure", v: 'unknown'}
+        ]
+      }
+    ]
+  },
+  {
+    kind: 'felt',
+    theme: "Right now",
+    kicker: "The last few",
+    pause: "The last few questions are about what has been happening recently. You can stop at any time.",
+    items: [
+      {t:"I have thoughts of not wanting to be alive.", f:"acute", strong:true},
+      {t:"I feel more overwhelmed than able to cope.", f:"acute"},
+      {t:"Things I used to care about feel empty or pointless.", f:"acute"},
+      {t:"I have pulled away from people I would normally see.", f:"acute"}
+    ]
+  }
+];
+
+// ─── SCALE ───────────────────────────────────────────────────────────────────
+// The person only ever sees words. The numbers exist so the engine can rank
+// doors against each other; they are never shown and never summed into a score.
+// Mapped 0–4, not 1–5: "Never" must contribute nothing, or 19 untouched items
+// still accumulate 19 points and every threshold drifts.
+const POINTS = { never:0, rarely:1, sometimes:2, often:3, always:4, skip:1 };
+// "skip" scores 1 deliberately: not answering a statement about your body is
+// itself a weak signal toward that door. It is never treated as endorsement.
+const SCALE_LABEL = { never:'Never', rarely:'Rarely', sometimes:'Sometimes', often:'Often', always:'Almost always', skip:'Skipped' };
+
+// ─── STATE ───────────────────────────────────────────────────────────────────
+const state = {};   // "si-qi" -> {val} for felt, or {opt} for choice
+let steps = [];     // flat list of {type:"pause"|"q", si, qi?, kind}
+let idx = 0;
+let lastLandedItems = [];   // populated in showResults(); read by openShareCard()
+
+function buildSteps() {
+  steps = [];
+  SECTIONS.forEach((sec, si) => {
+    steps.push({type: 'pause', si});
+    sec.items.forEach((_, qi) => steps.push({type: 'q', si, qi, kind: sec.kind}));
+  });
+}
+
+// ─── NAVIGATION ──────────────────────────────────────────────────────────────
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  const el = document.getElementById(id);
+  if (el) el.classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+function startInstrument() {
+  buildSteps();
+  idx = 0;
+  showScreen('screen-q');
+  advanceToStep();
+}
+
+function advanceToStep() {
+  const step = steps[idx];
+  if (!step) { showResults(); return; }
+  if (step.type === 'pause') { openPause(step.si); }
+  else { renderStep(step); }
+}
+
+function advance() {
+  idx++;
+  advanceToStep();
+}
+
+function goBack() {
+  if (idx <= 0) return;
+  idx--;
+  while (idx > 0 && steps[idx].type === 'pause') idx--;
+  if (steps[idx] && steps[idx].type === 'pause') { advanceToStep(); return; }
+  if (!steps[idx]) { idx = 0; }
+  renderStep(steps[idx]);
+}
+
+function endHere() { showResults(); }
+
+// ─── PAUSE OVERLAY ───────────────────────────────────────────────────────────
+let pauseTimer = null;
+
+function openPause(si) {
+  const sec = SECTIONS[si];
+  const kick = document.getElementById('pauseKicker');
+  if (kick) kick.textContent = sec.kicker || '';
+  document.getElementById('pauseText').textContent = sec.pause;
+  const cont = document.getElementById('pauseContinue');
+  cont.classList.remove('ready');
+  document.getElementById('pause').classList.add('show');
+  clearTimeout(pauseTimer);
+  pauseTimer = setTimeout(() => { cont.classList.add('ready'); }, 3200);
+}
+
+function closePause() {
+  document.getElementById('pause').classList.remove('show');
+  advance();
+}
+
+// ─── STEP RENDER (felt + choice) ─────────────────────────────────────────────
+function renderStep(step) {
+  if (step.kind === 'choice') renderChoice(step.si, step.qi);
+  else renderQuestion(step.si, step.qi);
+}
+
+function updateHeader(si, qi) {
+  const sec = SECTIONS[si];
+  document.getElementById('sectionLabel').textContent = `${si + 1}/${SECTIONS.length} · ${sec.theme}`;
+  const dots = document.getElementById('dots');
+  dots.innerHTML = '';
+  sec.items.forEach((_, i) => {
+    const d = document.createElement('span');
+    d.className = 'dot-q' + (i === qi ? ' on' : (i < qi ? ' done' : ''));
+    dots.appendChild(d);
+  });
+  // Back: use .show (CSS contract), not visibility
+  document.getElementById('goback').classList.toggle('show', idx > 1);
+}
+
+function renderQuestion(si, qi) {
+  updateHeader(si, qi);
+  const item = SECTIONS[si].items[qi];
+
+  document.getElementById('qLead').style.display = 'block';
+  document.getElementById('qPrompt').classList.remove('show');
+  document.getElementById('tags').style.display = 'flex';
+  document.getElementById('choices').classList.remove('show');
+
+  const frameEl = document.getElementById('qFrame');
+  frameEl.textContent = SECTIONS[si].frame || '';
+  frameEl.style.display = SECTIONS[si].frame ? 'block' : 'none';
+
+  const qText = document.getElementById('qText');
+  qText.textContent = item.t;
+  qText.classList.remove('rise'); void qText.offsetWidth; qText.classList.add('rise');
+
+  const saved = state[`${si}-${qi}`];
+  // classList.toggle(token, force) treats an explicitly-undefined `force`
+  // as if it were never passed at all, which makes it flip the class
+  // instead of setting it — coerce to a real boolean so unanswered
+  // questions correctly clear every button rather than flipping whatever
+  // state was left over from the last question rendered here.
+  document.querySelectorAll('#tags .tag, #tags .tag-skip').forEach(b => {
+    b.classList.toggle('on', !!(saved && saved.val === b.dataset.v));
+  });
+  setContinue(!!(saved && saved.val));
+}
+
+function renderChoice(si, qi) {
+  updateHeader(si, qi);
+  const item = SECTIONS[si].items[qi];
+
+  document.getElementById('qLead').style.display = 'none';
+  document.getElementById('tags').style.display = 'none';
+  document.getElementById('qFrame').style.display = 'none';
+  document.getElementById('qText').textContent = '';
+
+  const prompt = document.getElementById('qPrompt');
+  prompt.innerHTML = item.prompt + (item.hint ? `<div class="q-hint">${item.hint}</div>` : '');
+  prompt.classList.add('show');
+  prompt.classList.remove('rise'); void prompt.offsetWidth; prompt.classList.add('rise');
+
+  const saved = state[`${si}-${qi}`];
+  const selected = saved ? (item.multi ? (saved.opt || []) : saved.opt) : (item.multi ? [] : null);
+
+  const box = document.getElementById('choices');
+  box.innerHTML = '';
+  item.options.forEach(opt => {
+    const isOn = item.multi ? selected.includes(opt.v) : selected === opt.v;
+    const b = document.createElement('button');
+    b.className = 'choice' + (item.multi ? '' : ' single') + (isOn ? ' on' : '');
+    b.innerHTML = `<span class="box">${isOn ? '✓' : ''}</span><span>${opt.label}</span>`;
+    b.onclick = () => chooseOption(si, qi, opt.v);
+    box.appendChild(b);
+  });
+  box.classList.add('show');
+
+  const ready = item.multi ? (selected.length > 0) : (selected !== null);
+  setContinue(ready);
+}
+
+function chooseOption(si, qi, v) {
+  const item = SECTIONS[si].items[qi];
+  const key = `${si}-${qi}`;
+  if (item.multi) {
+    const cur = (state[key] && state[key].opt) ? state[key].opt.slice() : [];
+    let next;
+    if (v === 'none') {
+      next = cur.includes('none') ? [] : ['none'];          // "none" is exclusive
+    } else {
+      next = cur.filter(x => x !== 'none');
+      next = next.includes(v) ? next.filter(x => x !== v) : next.concat(v);
+    }
+    state[key] = {opt: next, ckey: item.key, multi: true};
+  } else {
+    state[key] = {opt: v, ckey: item.key, multi: false};
+  }
+  renderChoice(si, qi);
+}
+
+function selectTag(val) {
+  const step = steps[idx];
+  if (!step || step.type !== 'q') return;
+  state[`${step.si}-${step.qi}`] = {val};
+  document.querySelectorAll('#tags .tag, #tags .tag-skip').forEach(b => b.classList.toggle('on', b.dataset.v === val));
+  setContinue(true);
+}
+
+function setContinue(on) {
+  const c = document.getElementById('continue');
+  c.disabled = !on;
+  c.classList.toggle('show', on);
+}
+
+// ─── RESULTS ENGINE ──────────────────────────────────────────────────────────
+const DOOR = {
+  mind: {
+    name: 'Mind', label: 'the mind door',
+    lands: 'Your answers point to meaning and thought: what you believe about yourself, and the events you keep going over. This layer responds well to being worked on directly, with a structured method rather than open-ended conversation.',
+    tools: [
+      ['Cognitive Processing Therapy (CPT)', 'when the core of it is guilt, shame or self-blame. Usually about 12 sessions'],
+      ['Prolonged Exposure (PE)', 'when your life has slowly narrowed around avoiding a memory, a place or a feeling. Usually 8 to 15 sessions'],
+      ['EMDR', 'works on one stuck memory without asking you to describe it in detail. Useful if talking about it is too much'],
+      ['Trauma-Focused CBT (TF-CBT)', 'for teenagers, or when a parent or partner can take part in the work']
+    ],
+    howto: 'These are named methods with training behind them, not general counselling. When you contact a therapist, ask directly: <i>are you trained in CPT, or in EMDR?</i> If the answer is vague, keep looking.',
+    question: 'What do I believe about myself that I cannot argue my way out of?'
+  },
+  body: {
+    name: 'Body', label: 'the body door',
+    lands: 'Your answers point below thinking. You understand what happened, and your body has not caught up: the tension, the racing, the numbness. That part often does not change through talking about it.',
+    tools: [
+      ['Somatic Experiencing (SE)', 'when you understand the event but your body stays switched on. Slow, and works in small steps'],
+      ['Sensorimotor Psychotherapy', 'when posture, breathing and body habits carry it. Connects the body work to the story'],
+      ['Trauma-sensitive yoga or breathwork', 'a gentle way back into a body that does not feel safe. Good next to therapy, not instead of it'],
+      ['Polyvagal-informed therapy and the Safe and Sound Protocol', 'aims to build a basic sense of safety first. The research base here is still thin, so treat it as support, not a main treatment'],
+      ['Neurofeedback or HRV biofeedback', 'a non-talking option. Results are mixed across studies and it is often expensive. Worth trying after the others, not before']
+    ],
+    howto: 'Search for a "Somatic Experiencing practitioner" or a "trauma-informed body psychotherapist" in your country. Body therapy is not regulated everywhere, so ask how many hours of training they have and who trained them.',
+    question: 'Where does my body still act as if I am in danger?'
+  },
+  relationship: {
+    name: 'Relationship', label: 'the relationship and self door',
+    lands: 'Your answers point to what happens between people, and between the different parts of you: the harsh inner voice, the same pattern repeating when someone gets close. This kind of difficulty usually needs another person in the room to change.',
+    tools: [
+      ['Internal Family Systems (IFS)', 'when you feel divided inside, or carry a harsh inner critic'],
+      ['Schema Therapy', 'for long-running patterns that keep repeating in love and work. Longer than most therapies, often a year or more'],
+      ['Dialectical Behaviour Therapy (DBT)', 'when feelings rise very fast and relationships feel unstable. Teaches skills first, before going near the past'],
+      ['Emotionally Focused Therapy (EFT) and attachment-based therapy', 'when closeness itself is where it breaks down. EFT also works for couples']
+    ],
+    howto: 'Ask a therapist which of these they are trained in, and roughly how long they think the work would take. A clear, specific answer is a good sign.',
+    question: 'What can I only learn with another person, and not on my own?'
+  }
+};
+
+// State door: surfaced on profile-fit OR breadth of attempts. Gated by supervised
+// access, not by "earning it". Regulatory facts checked July 2026 — these change
+// fast, so this card is on the list for a review before every release.
+const STATE_CARD = `
+  <div class="rcard">
+    <div class="rc-theme"><span class="rc-dot"></span>the state door — supervised medical approaches</div>
+    <div class="rc-body">
+      These do not replace therapy. They briefly change your brain state so that the therapy has a better chance of reaching you. All of them are done with a trained clinician, after a medical check. For some patterns — long-term PTSD, depression that has not responded to treatment, and rigid, self-blaming thinking — the trial results are as good as or better than the standard first-line therapies. That is why they are here, not because everything else has to fail first.<br><br>
+      <b>Ketamine and esketamine</b><br>
+      The most available option today. Esketamine nasal spray (Spravato) is approved in the US and the EU for depression that has not responded to at least two antidepressants, and is given in a certified clinic under supervision. Since 2025 it can also be used on its own in the US, without a daily antidepressant. Ketamine infusions are used off-label in many countries. Effects can appear within a day or two, but usually fade without repeat sessions. It is not a substitute for crisis care.<br><br>
+      <b>MDMA-assisted therapy</b><br>
+      The strongest trial results so far for long-term PTSD, especially where shame makes the memory impossible to stay with. It is <b>not approved in the US</b>: the FDA declined the application in August 2024 and asked for another Phase 3 trial. Australia is currently the only country where it can legally be prescribed, through a special authorised-prescriber scheme. Everywhere else, access is through clinical trials.<br><br>
+      <b>Psilocybin-assisted therapy</b><br>
+      Studied for depression that has not responded to treatment, and for rigid, repeating thought patterns. Not approved as a medicine anywhere yet. Legal supervised sessions do exist in Oregon and Colorado, with no residency requirement, at roughly $1,000 to $3,000, not covered by insurance. There are firm exclusions, including lithium use, psychosis, and a history of self-harm.<br><br>
+      <b>LSD-assisted therapy</b><br>
+      A longer session than psilocybin, studied mainly for anxiety. The evidence base is smaller and newer than the others. Trials only.<br><br>
+      <b>Stellate Ganglion Block (SGB)</b><br>
+      Not a therapy: a local anaesthetic injection near a nerve cluster in the neck, done by an anaesthetist. There is trial evidence that it lowers PTSD symptoms for some people, sometimes for weeks or months. It can open a window for therapy. It does not do the therapy.<br><br>
+      <b>Two things that matter more than the list.</b> First, none of these is a drug that removes trauma. The session opens a window; the preparation before it and the integration after it do the actual work. A clinic that offers you the drug without both is not offering this treatment. Second, all of them need screening first. Heart conditions, high blood pressure, psychosis, bipolar disorder and certain medications are real reasons not to proceed. This is never something to arrange on your own.<br><br>
+      <b>What to do with this:</b> ask your doctor or therapist whether a supervised, state-based approach is worth considering in your case, and when. If they do not know this area, ask them to refer you to someone who does. Legal status differs by country and is changing quickly, so check the rules where you live before you plan anything.<br><br>
+      <b>A question to walk in with:</b> <i>given my history, is this something we should consider now, and not only after everything else has failed?</i>
+    </div>
+  </div>`;
+
+const ACT_NOTE = `<p style="font-size:0.86rem;color:var(--ink-faint);font-style:italic">Whatever door you start with, Acceptance and Commitment Therapy (ACT) is worth knowing about. It is less an entry point than a way of holding the work together: making room for hard feelings while still moving toward what matters to you. It fits well next to any of the above.</p>`;
+
+const SHAME_NOTE = `<p style="font-size:0.86rem;color:var(--ink-faint);font-style:italic">About the self-blame you marked: when the wound is shame, it often shifts through new <i>experience</i> — being met differently by another person, in your body, or in a supervised session — as much as through understanding it. Talking about it is one road, not the only one.</p>`;
+
+function toolCard(key, complexity, alreadyTried) {
+  const d = DOOR[key];
+  const rows = d.tools.map(t => `<b>${t[0]}</b> — ${t[1]}.`).join('<br>');
+  let tuner = '';
+  if (complexity === 'developmental') {
+    tuner = `<br><br>You said this goes back as far as you can remember, rather than to one event. In that case the longer approaches above, the ones that work through the relationship or the body, usually fit better than short, exposure-based ones.`;
+  } else if (complexity === 'single') {
+    tuner = `<br><br>You said this traces to one event or one period. In that case the more focused, structured approaches above, the ones that reprocess a specific memory, are often a strong place to start.`;
+  }
+  const triedPrefix = alreadyTried
+    ? `You said you have already given this door a fair try. So the question is not whether to repeat it, but whether the method, the depth or the order was right. With that in mind:<br><br>`
+    : '';
+  return `
+  <div class="rcard">
+    <div class="rc-theme"><span class="rc-dot"></span>${d.label} — approaches to look into</div>
+    <div class="rc-body">
+      ${triedPrefix}${d.lands}<br><br>
+      ${rows}${tuner}<br><br>
+      <b>How to find it:</b> ${d.howto}<br><br>
+      <b>A question to walk in with:</b> <i>${d.question}</i>
+    </div>
+  </div>`;
+}
+
+const EXPLORE_LINK = `<p style="margin-top:4px"><a href="/therapies.html" style="color:var(--accent);font-weight:500;text-decoration:none">See all of these side by side →</a></p>`;
+const DOOR_NAME = { mind:'Mind', body:'Body', relationship:'Relationship' };
+
+function showResults() {
+  const totals = {mind:0, body:0, relationship:0};
+  let stateFit = 0, shameSignal = 0;
+  let acuteCount = 0, acuteStrong = false;
+  let engagedFelt = 0;
+  const landedItems = [];
+  const skippedItems = [];
+  const choices = {current: null, tried: [], complexity: 'unknown'};
+
+  SECTIONS.forEach((sec, si) => {
+    sec.items.forEach((item, qi) => {
+      const s = state[`${si}-${qi}`];
+      if (!s) return;
+
+      if (sec.kind === 'choice') {
+        if (s.ckey === 'tried') choices.tried = s.opt || [];
+        else if (s.ckey === 'current') choices.current = s.opt;
+        else if (s.ckey === 'complexity') choices.complexity = s.opt || 'unknown';
+        return;
+      }
+
+      if (!s.val || s.val === 'never') return;
+      engagedFelt++;
+      const pts = POINTS[s.val] || 0;
+      // "Endorsed" means anything above Never. Deliberately wide: on the
+      // safety items a single "Rarely" must count, the same way PHQ-9 item 9
+      // treats any answer above "not at all" as something to follow up.
+      // A skip is NOT an endorsement — you cannot read agreement into silence —
+      // except on the strongest safety item, where wanting to look away is
+      // itself worth surfacing care for.
+      const endorsed = (s.val !== 'skip');
+
+      if (item.f === 'acute') {
+        if (endorsed) { acuteCount++; if (item.strong) acuteStrong = true; }
+        else if (item.strong) { acuteStrong = true; }
+      } else {
+        totals[item.f] += pts;
+      }
+      if (endorsed && item.fit) stateFit += pts;
+      if (endorsed && item.shame) shameSignal += pts;
+
+      // "Marked most strongly" = Often or Almost always only.
+      if (pts >= 3) landedItems.push({text: item.t, si, val: s.val});
+      if (s.val === 'skip') skippedItems.push({text: item.t, si, val: s.val});
+    });
+  });
+
+  // door-aware treatment history
+  const triedSet = new Set(choices.tried);
+  const triedDoor = d => triedSet.has(d);
+  const triedDoorCount = ['mind','body','relationship'].filter(triedDoor).length + (triedSet.has('state') ? 1 : 0);
+  const complexity = choices.complexity;
+
+  // State is relevant on profile-fit OR genuine breadth of attempts (not "one therapy failed"),
+  // OR currently in something that isn't reaching after at least one real try.
+  // Threshold doubled from 4 to 8: max points per item went from 2 to 4.
+  const stateRelevant = (stateFit >= 8)
+    || (triedDoorCount >= 2)
+    || triedSet.has('state')
+    || (choices.current === 'stalled' && triedDoorCount >= 1);
+
+  // dominant door, and the strongest door not yet tried
+  const order = ['body','relationship','mind'];
+  const ranked = order.map(k => ({k, v: totals[k]})).sort((a,b) => b.v - a.v);
+  const primary = ranked[0];
+  const secondary = ranked[1];
+  const hasDoorSignal = primary.v > 0;
+  const secondaryClose = secondary.v > 0 && secondary.v >= primary.v * 0.6;
+  const untried = ranked.filter(r => r.v > 0 && !triedDoor(r.k));
+  const lead = untried.length ? untried[0] : primary;          // prefer an untried door with signal
+  const leadTried = triedDoor(lead.k);
+  const redirected = untried.length && lead.k !== primary.k && triedDoor(primary.k);
+
+  let kicker = '', head = '', sub = '', card = '', careCardHtml = '', showClosing = false;
+  const shameTail = (shameSignal >= 4) ? SHAME_NOTE : '';   // threshold doubled with the scale
+
+  // ── Care card ──────────────────────────────────────────────────────────
+  // Additive, not a gate. It is rendered above the results and the results
+  // are still produced underneath it: the person did the work, so they get
+  // the output. The only thing suppressed on the strongest signal is the
+  // tip jar — asking for money on top of that disclosure is not information.
+  if (acuteStrong) {
+    careCardHtml = `<div class="care-card crisis">
+      <div class="cc-kicker">Please read this first</div>
+      <div class="cc-body">
+        <p>Some of what you marked is about right now, not about the long pattern. A web page is not what helps when you are barely coping. A person is. That is not a failure on your part. It is just the honest order of things.</p>
+        <p>Please talk to someone today: a person you trust, your doctor, or a free and confidential line. The link below lists options wherever you are. Your results are still below, and they will keep. Read them when the ground feels steadier.</p>
+      </div>
+      <a class="cc-link" href="https://www.findahelpline.com" target="_blank" rel="noopener">findahelpline.com →</a>
+    </div>`;
+  } else if (acuteCount >= 2) {
+    careCardHtml = `<div class="care-card">
+      <div class="cc-kicker">One thing first</div>
+      <div class="cc-body">
+        <p>A few of your answers were about the last two weeks, not about a long-standing pattern. When the present is heavy, that is worth saying out loud to someone before you plan anything longer-term.</p>
+        <p>Your results are below. Consider telling one person you trust, or your doctor, how the last two weeks have actually been.</p>
+      </div>
+      <a class="cc-link" href="https://www.findahelpline.com" target="_blank" rel="noopener">findahelpline.com →</a>
+    </div>`;
+  }
+
+  // ── Branch ─────────────────────────────────────────────────────────────
+  // Branch 0 — no felt signal at all
+  if (engagedFelt === 0 && !hasDoorSignal) {
+    head = 'Nothing stood out clearly, and that is also useful to know.';
+    sub  = `<p>None of the sentences landed hard enough to point in a clear direction. That may mean the difficulty is quieter than the words used here, or that it sits somewhere this tool does not reach. The comparison page lays out the main families of help in one place, if you would like a fuller picture.</p>`;
+    card = EXPLORE_LINK;
+    showClosing = true;
+  }
+  // No door signal but they engaged the choices — gentle, non-empty
+  else if (!hasDoorSignal) {
+    kicker = 'what this points to';
+    head = 'Nothing pointed clearly to one door, which is its own kind of information.';
+    sub = `<p>Your answers did not lean strongly toward any one place. That is worth sitting with rather than forcing an answer. If you would like to see the full range of help in one place, the comparison page is below.</p>`;
+    card = EXPLORE_LINK;
+    showClosing = true;
+  }
+  // Currently in something that helps — protect it; surface State here too (safest place to explore it)
+  else if (choices.current === 'helping') {
+    kicker = 'what this points to';
+    head = `Something you are already doing seems to be reaching you. Keep going.`;
+    sub = `<p>You said you are in something now that is helping. The most useful thing this tool can do here is small: do not go looking for a different door while the one you are in is still opening.</p>`;
+    if (stateRelevant) {
+      sub += `<p>One thing worth raising with the person you already work with: what you marked also fits a group of supervised, medical approaches that some people find reaches what ordinary therapy cannot. You are in the safest possible place to ask about it. It is described below.</p>`;
+    }
+    sub += `<p>If you want to go deeper in what you are doing, your answers lean toward the <b>${DOOR_NAME[primary.k]}</b> door.</p>`;
+    card = toolCard(primary.k, complexity, triedDoor(primary.k)) + (stateRelevant ? STATE_CARD : '') + shameTail + EXPLORE_LINK;
+    showClosing = true;
+  }
+  // In something that ISN'T reaching — often right effort, wrong door
+  else if (choices.current === 'stalled') {
+    kicker = 'what this points to';
+    head = `You are in something, but it is not reaching you. That can mean the right effort through the wrong door.`;
+    sub = `<p>What you are in may be working on one layer while your difficulty sits in another.</p>`;
+    if (redirected || (untried.length && leadTried === false)) {
+      sub += `<p>A lot of what you marked points to the <b>${DOOR_NAME[lead.k]}</b> door, and you said you have not yet tried that kind of help. That gap is often where the unreached part is waiting.</p>`;
+    } else {
+      sub += `<p>Your answers lean toward the <b>${DOOR_NAME[lead.k]}</b> door. It may be worth checking whether what you are in actually works there, or whether the fit is wrong.</p>`;
+    }
+    card = toolCard(lead.k, complexity, leadTried) + bridgeNote(primary, secondary, secondaryClose) + (stateRelevant ? STATE_CARD : '') + shameTail + ACT_NOTE + EXPLORE_LINK;
+    showClosing = true;
+  }
+  // Not currently in anything (none / past) — orient by door, leading with what's untried
+  else {
+    kicker = 'what this points to';
+    head = stateRelevant
+      ? `This points to the ${DOOR_NAME[lead.k]} door, and to one more worth knowing about.`
+      : `This points to the ${DOOR_NAME[lead.k]} door.`;
+    sub = `<p>${doorLeadSub(lead.k)}</p>`;
+    if (redirected) {
+      sub += `<p>You said you have already worked the ${DOOR_NAME[primary.k]} door. What you marked also points to the ${DOOR_NAME[lead.k]} door, which may be the one you have not yet opened.</p>`;
+    }
+    if (stateRelevant) {
+      sub += (triedDoorCount >= 2)
+        ? `<p>You have also really tried more than one kind of help. For a pattern like yours, that is exactly when a fourth, supervised group of approaches becomes worth knowing about. It is described below, and not as a fallback.</p>`
+        : `<p>What you marked also has the shape that a fourth, supervised group of approaches is increasingly recognised for. It is described below, because of how well it can fit a pattern like yours, not as a last resort.</p>`;
+    }
+    card = toolCard(lead.k, complexity, leadTried) + bridgeNote(primary, secondary, secondaryClose) + (stateRelevant ? STATE_CARD : '') + shameTail + ACT_NOTE + EXPLORE_LINK;
+    showClosing = true;
+  }
+
+  document.getElementById('rKicker').textContent = kicker;
+  document.getElementById('rHead').textContent = head;
+  document.getElementById('rSub').innerHTML = sub;
+  document.getElementById('rCard').innerHTML = card;
+
+  const careCardEl = document.getElementById('careCard');
+  careCardEl.innerHTML = careCardHtml;
+  careCardEl.style.display = careCardHtml ? 'block' : 'none';
+
+  const closingEl = document.getElementById('closing');
+  closingEl.style.display = showClosing ? 'block' : 'none';
+
+  // Share-card feature picks are drawn from "landed hard" items only — the
+  // strongest-signal pool, same pattern the rest of the design system uses.
+  // Kept fresh on every results render regardless of branch.
+  lastLandedItems = landedItems;
+
+  // Everything the person would otherwise get, they still get. The tip jar is
+  // the single exception on the strongest safety signal: it is a request for
+  // money, not information, and it does not belong on top of that disclosure.
+  ['saveBlock','followBlock','checkOtherBlock'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = '';
+  });
+  const tip = document.getElementById('tipjar');
+  if (tip) tip.style.display = acuteStrong ? 'none' : '';
+
+  buildFlaggedSection('flaggedLands', 'flaggedLandsItems', landedItems, 'lands');
+  buildFlaggedSection('flaggedSkip',  'flaggedSkipItems',  skippedItems, 'skip');
+
+  showScreen('screen-results');
+}
+
+function doorLeadSub(k) {
+  if (k === 'mind') return 'Most of what you marked is about meaning and thought: what you believe, and the story about what happened, more than the body or the relationship. That layer responds to being worked on directly.';
+  if (k === 'body') return 'Most of what you marked sits below thinking. You understand it, and the physical part has not followed. That gap is the signal: the work may need to happen in the body, not in words.';
+  return 'Most of what you marked is about the parts of you that pull in different directions, the inner critic, and what repeats when someone gets close. That kind of difficulty usually moves with another person, not alone in your head.';
+}
+
+function bridgeNote(primary, secondary, close) {
+  if (!close) return '';
+  const pair = [primary.k, secondary.k].sort().join('-');
+  if (pair === 'body-mind') {
+    return `<p style="font-size:0.86rem;color:var(--ink-faint);font-style:italic">Both the meaning and the physical side are stuck for you. <b>EMDR</b> and <b>Brainspotting</b> sit between these two: they work on a memory through the body rather than through talking. That is often the right place to start when both doors are open.</p>`;
+  }
+  if (pair === 'mind-relationship') {
+    return `<p style="font-size:0.86rem;color:var(--ink-faint);font-style:italic"><b>Schema Therapy</b> and <b>DBT</b> sit between these two: they work on the thinking and on the relationship pattern at the same time. The question that decides between them is whether the harder part is what you believe, or what keeps breaking when someone gets close.</p>`;
+  }
+  return `<p style="font-size:0.86rem;color:var(--ink-faint);font-style:italic">These two often go together: a body that will not settle, and closeness that overwhelms. Approaches that steady the body first usually make the relationship work possible. It is worth doing them in that order.</p>`;
+}
+
+
+function buildFlaggedSection(wrapId, listId, items, tagClass) {
+  const wrap = document.getElementById(wrapId);
+  const list = document.getElementById(listId);
+  if (!items.length) { wrap.style.display = 'none'; return; }
+  wrap.style.display = 'block';
+
+  // Group by originating section, preserving the order sections appear in
+  // the instrument (not the order items were answered/skipped in).
+  const bySi = new Map();
+  items.forEach(it => {
+    if (!bySi.has(it.si)) bySi.set(it.si, []);
+    bySi.get(it.si).push(it);
+  });
+  const groups = [...bySi.keys()].sort((a, b) => a - b).map(si => ({
+    theme: SECTIONS[si].theme,
+    items: bySi.get(si)
+  }));
+
+  list.innerHTML = groups.map(g => `
+    <div class="flagged-group">
+      <div class="fg-title"><span class="fg-swatch"></span>${g.theme}</div>
+      ${g.items.map(it => `
+        <div class="flagged-item">
+          <div class="fi-text">${it.text}</div>
+          <span class="fi-tag ${tagClass}">${SCALE_LABEL[it.val] || ''}</span>
+        </div>`).join('')}
+    </div>`).join('');
+}
+
+function toggleFlagged(which) {
+  const wrapId = which === 'lands' ? 'flaggedLands' : 'flaggedSkip';
+  const listId = which === 'lands' ? 'flaggedLandsItems' : 'flaggedSkipItems';
+  const btn = document.querySelector(`#${wrapId} .flagged-toggle`);
+  const list = document.getElementById(listId);
+  const open = list.classList.toggle('open');
+  btn.classList.toggle('open', open);
+}
+
+// ─── SHARE CARD ──────────────────────────────────────────────────────────────
+let sharePicked = null;
+
+function openShareCard() {
+  document.getElementById('shareHeadline').textContent = document.getElementById('rHead').textContent.trim();
+
+  const picks = lastLandedItems.slice(0, 6).map(it => it.text);
+  const picksEl = document.getElementById('sharePicks');
+  const featureEl = document.getElementById('shareFeature');
+  sharePicked = null;
+  featureEl.classList.remove('show');
+  if (picks.length) {
+    picksEl.innerHTML = picks.map((p, i) => `<button class="share-pick" data-i="${i}" onclick="pickShareFeature(${i})">Feature a line</button>`).join('');
+    picksEl._picks = picks;
+  } else {
+    picksEl.innerHTML = '';
+  }
+
+  document.getElementById('shareOverlay').classList.add('show');
+}
+
+function pickShareFeature(i) {
+  const picksEl = document.getElementById('sharePicks');
+  const picks = picksEl._picks || [];
+  const featureEl = document.getElementById('shareFeature');
+  document.querySelectorAll('.share-pick').forEach(b => b.classList.remove('on'));
+  const btn = document.querySelector(`.share-pick[data-i="${i}"]`);
+  if (sharePicked === i) {
+    sharePicked = null;
+    featureEl.classList.remove('show');
+    return;
+  }
+  sharePicked = i;
+  if (btn) btn.classList.add('on');
+  featureEl.textContent = picks[i];
+  featureEl.classList.add('show');
+}
+
+function closeShareCard() {
+  document.getElementById('shareOverlay').classList.remove('show');
+}
+
+// ─── SAVE / COPY RESULTS ──────────────────────────────────────────────────────
+
+function collectFlaggedText(listId) {
+  const groups = [...document.querySelectorAll(`#${listId} .flagged-group`)];
+  return groups.map(g => {
+    const title = g.querySelector('.fg-title').textContent.trim();
+    const items = [...g.querySelectorAll('.fi-text')].map(e => '  • ' + e.textContent.trim());
+    return title + '\n' + items.join('\n');
+  }).join('\n\n');
+}
+
+function copyResults() {
+  const head = document.getElementById('rHead').textContent.trim();
+  const sub  = document.getElementById('rSub').innerText.trim();
+  const careEl = document.getElementById('careCard');
+  const careText = (careEl && careEl.style.display !== 'none') ? careEl.innerText.trim() : '';
+  const cardEl = document.getElementById('rCard');
+  const cardText = cardEl ? cardEl.innerText.trim() : '';
+  const note = (document.getElementById('resultNote').value || '').trim();
+  let txt = 'The kind of help you haven\'t tried — a self-inquiry at nervuk.ai\n\n' + head;
+  if (sub) txt += '\n\n' + sub;
+  if (careText) txt += '\n\n' + careText;
+  if (cardText) txt += '\n\n' + cardText;
+  const lands = collectFlaggedText('flaggedLandsItems');
+  if (lands) txt += '\n\nWhat I marked most strongly:\n' + lands;
+  const skip = collectFlaggedText('flaggedSkipItems');
+  if (skip) txt += '\n\nWhat I skipped:\n' + skip;
+  if (note) txt += '\n\nMy note: ' + note;
+  txt += '\n\nnervuk.ai/doors.html';
+
+  const btn = document.getElementById('copyResultsBtn');
+  const done = () => { btn.textContent = 'Copied ✓'; btn.classList.add('copied'); setTimeout(() => { btn.textContent = 'Copy as text'; btn.classList.remove('copied'); }, 2200); };
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(txt).then(done).catch(() => fallbackCopy(txt, done));
+  } else {
+    fallbackCopy(txt, done);
+  }
+}
+function fallbackCopy(txt, done) {
+  const ta = document.createElement('textarea');
+  ta.value = txt; ta.style.position = 'fixed'; ta.style.opacity = '0';
+  document.body.appendChild(ta); ta.select();
+  try { document.execCommand('copy'); done(); } catch (e) {}
+  document.body.removeChild(ta);
+}
+
+// The note lives in a hidden field on screen; inject it into the printed/PDF output.
+window.addEventListener('beforeprint', function () {
+  const n = (document.getElementById('resultNote').value || '').trim();
+  const el = document.getElementById('printNote');
+  if (!el) return;
+  el.innerHTML = '';
+  if (n) {
+    const lbl = document.createElement('div'); lbl.className = 'pn-label'; lbl.textContent = 'My note';
+    const body = document.createElement('div'); body.className = 'pn-body'; body.textContent = n;
+    el.appendChild(lbl); el.appendChild(body);
+  }
+});
+
+// ─── SHARE THIS INSTRUMENT (ported from tiredness) ──────────────────────────
+
+document.addEventListener("DOMContentLoaded", function () {
+  const btn = document.getElementById("shareInstrumentBtn");
+  if (!btn) return;
+  const ICON_SHARE = `<svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="11" cy="2.5" r="1.75" stroke="currentColor" stroke-width="1.25"/><circle cx="11" cy="11.5" r="1.75" stroke="currentColor" stroke-width="1.25"/><circle cx="3" cy="7" r="1.75" stroke="currentColor" stroke-width="1.25"/><line x1="4.7" y1="6.1" x2="9.3" y2="3.4" stroke="currentColor" stroke-width="1.25"/><line x1="4.7" y1="7.9" x2="9.3" y2="10.6" stroke="currentColor" stroke-width="1.25"/></svg>`;
+  const ICON_CHECK = `<svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><polyline points="2,7 5.5,10.5 12,3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+  btn.addEventListener("click", function () {
+    const url = "https://nervuk.ai/doors.html";
+    function done() {
+      btn.classList.add("copied");
+      btn.innerHTML = ICON_CHECK + " Link copied";
+      setTimeout(function () {
+        btn.classList.remove("copied");
+        btn.innerHTML = ICON_SHARE + " Share this instrument";
+      }, 2200);
+    }
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(url).then(done).catch(function () {
+        btn.textContent = "nervuk.ai/doors.html";
+        btn.style.userSelect = "all";
+      });
+    } else {
+      btn.textContent = "nervuk.ai/doors.html";
+      btn.style.userSelect = "all";
+    }
+  });
+});
+
+
+
+// ─── COPY SHARE LINK ────────────────────────────────────────────────────────
+
+function copyShareLink() {
+  const url = 'https://nervuk.ai/doors.html';
+  const btn = document.getElementById('shareCopyLinkBtn');
+  const done = () => { btn.textContent = 'Copied ✓'; btn.classList.add('copied'); setTimeout(() => { btn.textContent = 'Copy link'; btn.classList.remove('copied'); }, 2200); };
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(url).then(done).catch(() => fallbackCopy(url, done));
+  } else {
+    fallbackCopy(url, done);
+  }
+}
+
+</script>
+</body>
+</html>
