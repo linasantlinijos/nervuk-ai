@@ -63,6 +63,21 @@
     font-family: var(--mark); font-weight: 500; font-size: 1rem;
     color: #000000; text-decoration: none;
   }
+  .wordmark-group { display: flex; align-items: center; }
+  .beta-divider {
+    width: 1px; height: 13px;
+    background: rgba(17,17,17,0.2);
+    margin-left: 13px;
+  }
+  .beta-tag {
+    font-family: var(--mark);
+    font-size: 12.5px;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+    color: rgba(0,0,0,0.925);
+    margin-left: 13px;
+  }
+
   .nav-back {
     font-family: var(--mark); font-size: 0.82rem;
     color: rgba(17,17,17,0.6); text-decoration: none;
@@ -518,7 +533,11 @@
 
 
 <header class="site-header">
-  <a href="index.html" class="wordmark">nervuk.ai</a>
+  <span class="wordmark-group">
+    <a href="index.html" class="wordmark">nervuk.ai</a>
+    <span class="beta-divider" aria-hidden="true"></span>
+    <span class="beta-tag">Beta</span>
+  </span>
   <a href="index.html" class="nav-back">← All instruments</a>
 </header>
 
