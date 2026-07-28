@@ -40,7 +40,7 @@
       display: flex;
       align-items: flex-start;
       justify-content: center;
-      padding: clamp(32px, 6vh, 64px) 24px 48px;
+      padding: calc(56px + clamp(32px, 6vh, 64px)) 24px 48px;
     }
 
     .content {
@@ -57,16 +57,22 @@
     }
 
     .header {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      height: 56px;
       display: flex;
-      align-items: baseline;
+      align-items: center;
       justify-content: space-between;
-      margin-bottom: 44px;
+      padding: 0 14px;
+      background: transparent;
     }
+    .header-right { display: flex; align-items: center; gap: 10px; }
 
     .wordmark {
       font-family: 'Hanken Grotesk', system-ui, sans-serif;
       font-weight: 500;
-      font-size: 1.3125rem;
+      font-size: 1.0625rem;
       color: var(--ink);
       text-decoration: none;
     }
@@ -197,27 +203,24 @@
     }
     .foot-link:hover { color: var(--accent); }
 
-    /* ─── Motion toggle (pause background video) ─── */
+    /* ─── Motion toggle (pause background video) — lives in the header now ─── */
     .motion-toggle {
-      position: fixed;
-      bottom: 20px;
-      left: 20px;
-      z-index: 40;
-      width: 40px;
-      height: 40px;
+      width: 32px;
+      height: 32px;
       border-radius: 50%;
       border: none;
-      background: rgba(17,17,17,0.45);
-      color: #f8f8f6;
+      background: #A29D95;
+      color: #fff;
       display: flex;
       align-items: center;
       justify-content: center;
       cursor: pointer;
       padding: 0;
+      flex-shrink: 0;
       transition: background .18s;
     }
-    .motion-toggle:hover { background: rgba(17,17,17,0.65); }
-    .motion-toggle svg { width: 15px; height: 15px; fill: currentColor; }
+    .motion-toggle:hover { background: #8f8a82; }
+    .motion-toggle svg { width: 12px; height: 12px; fill: currentColor; }
   </style>
 </head>
 <body>
@@ -228,7 +231,16 @@
     </video>
   </div>
 
-  <button id="motion-toggle" class="motion-toggle" type="button" aria-label="Pause background video" aria-pressed="false"></button>
+  <header class="header">
+    <span class="wordmark-group">
+      <a href="index.html" class="wordmark">nervuk.ai</a>
+      <span class="beta-divider" aria-hidden="true"></span>
+      <span class="beta-tag">Beta</span>
+    </span>
+    <span class="header-right">
+      <button id="motion-toggle" class="motion-toggle" type="button" aria-label="Pause background video" aria-pressed="false"></button>
+    </span>
+  </header>
   <script>
   (function() {
     var video = document.getElementById('bg-video');
@@ -268,14 +280,6 @@
 
   <main class="page">
     <div class="content">
-      <header class="header">
-        <span class="wordmark-group">
-          <a href="index.html" class="wordmark">nervuk.ai</a>
-          <span class="beta-divider" aria-hidden="true"></span>
-          <span class="beta-tag">Beta</span>
-        </span>
-      </header>
-
       <h1>Where are you?</h1>
       <p class="tagline">In the age of fast AI machines and robots, you don't need to be one – but you can grow into more of who you are. <br><br> Simple tools to find where your energy leaks.</p>
 

@@ -63,12 +63,14 @@
     position: fixed;
     top: 0; left: 0; right: 0;
     z-index: 100;
+    height: 56px;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 18px 28px;
+    padding: 0 14px;
     background: transparent;
   }
+  .header-right { display: flex; align-items: center; gap: 10px; }
   .wordmark {
     font-family: var(--mark);
     font-weight: 500;
@@ -100,10 +102,6 @@
     transition: color var(--transition);
   }
   .nav-back:hover { color: #111111; }
-
-  @media (max-width: 680px) {
-    .site-header { position: absolute; }
-  }
 
   /* ─── Stage / panel ─── */
   .stage {
@@ -810,30 +808,24 @@
   .share-pick.on { background: var(--ink); color: #fff; border-color: transparent; }
   .share-actions { display: flex; gap: 10px; margin-top: 16px; justify-content: center; flex-wrap: wrap; }
 
-  /* ─── Motion toggle (pause background video) ─── */
+  /* ─── Motion toggle (pause background video) — lives in the header now ─── */
   .motion-toggle {
-    position: fixed;
-    bottom: 20px;
-    left: 20px;
-    z-index: 40;
-    width: 40px;
-    height: 40px;
+    width: 32px;
+    height: 32px;
     border-radius: 50%;
     border: none;
-    background: rgba(17,17,17,0.45);
-    color: #f8f8f6;
+    background: rgba(162,157,149,0.42);
+    color: #fff;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
     padding: 0;
+    flex-shrink: 0;
     transition: background .18s;
   }
-  .motion-toggle:hover { background: rgba(17,17,17,0.65); }
-  .motion-toggle svg { width: 15px; height: 15px; fill: currentColor; }
-  @media print {
-    .motion-toggle { display: none !important; }
-  }
+  .motion-toggle:hover { background: rgba(162,157,149,0.62); }
+  .motion-toggle svg { width: 12px; height: 12px; fill: currentColor; }
 </style>
 </head>
 <body>
@@ -842,7 +834,18 @@
 <video id="bg-video" autoplay muted loop playsinline>
   <source src="raw25.mp4" type="video/mp4">
 </video>
-<button id="motion-toggle" class="motion-toggle" type="button" aria-label="Pause background video" aria-pressed="false"></button>
+<!-- Site header -->
+<header class="site-header">
+  <span class="wordmark-group">
+    <a href="index.html" class="wordmark">nervuk.ai</a>
+    <span class="beta-divider" aria-hidden="true"></span>
+    <span class="beta-tag">Beta</span>
+  </span>
+  <span class="header-right">
+    <a href="index.html" class="nav-back">← All instruments</a>
+    <button id="motion-toggle" class="motion-toggle" type="button" aria-label="Pause background video" aria-pressed="false"></button>
+  </span>
+</header>
 <script>
 (function() {
   var video = document.getElementById('bg-video');
@@ -879,17 +882,6 @@
   render();
 })();
 </script>
-
-
-<!-- Site header -->
-<header class="site-header">
-  <span class="wordmark-group">
-    <a href="index.html" class="wordmark">nervuk.ai</a>
-    <span class="beta-divider" aria-hidden="true"></span>
-    <span class="beta-tag">Beta</span>
-  </span>
-  <a href="index.html" class="nav-back">← All instruments</a>
-</header>
 
 <div class="stage">
   <div class="panel">
@@ -997,11 +989,11 @@
         <div class="follow-block">
           <p class="follow-label">New instruments come out from time to time. Follow along:</p>
           <div class="follow-links">
-            <a href="https://njump.me/REPLACE_NPUB" target="_blank" rel="noopener">Nostr</a>
-            <a href="https://x.com/nervuk" target="_blank" rel="noopener">X</a>
-            <a href="https://instagram.com/nervuk" target="_blank" rel="noopener">Instagram</a>
-            <a href="https://linkedin.com/company/nervuk" target="_blank" rel="noopener">LinkedIn</a>
-            <a href="https://facebook.com/nervuk" target="_blank" rel="noopener">Facebook</a>
+            <a href="https://njump.me/npub165nm0zcvl2apng8g7mvf4rgspe8ydhrgt43xfcwtxa0hupf9ps2skwyq3c" target="_blank" rel="noopener">Nostr</a>
+            <a href="https://x.com/nervukai" target="_blank" rel="noopener">X</a>
+            <a href="https://www.instagram.com/nervuk.ai/" target="_blank" rel="noopener">Instagram</a>
+            <a href="https://www.linkedin.com/company/nervuk-ai" target="_blank" rel="noopener">LinkedIn</a>
+            <a href="https://www.facebook.com/people/Nervukai/61588754740429/" target="_blank" rel="noopener">Facebook</a>
           </div>
         </div>
       </div>
