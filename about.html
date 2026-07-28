@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>About — nervuk.ai</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,500;0,7..72,600;1,7..72,400;1,7..72,500&family=Hanken+Grotesk:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --accent:#2a6654;
+    --accent-dim:#22503f;
+    --ink:#111111;
+    --ink-mid:#3c3c3a;
+    --ink-faint:#6f6f6b;
+    --paper:#f8f8f6;
+    --card:#ffffff;
+    --border:#e3e2dd;
+    --radius:14px;
+  }
+
+  *{box-sizing:border-box;}
+
+  html,body{
+    margin:0;
+    padding:0;
+    min-height:100%;
+    background:var(--ink);
+    font-family:'Literata', Georgia, serif;
+    color:var(--ink);
+  }
+
+  /* fixed video background */
+  .bg-video{
+    position:fixed;
+    inset:0;
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    z-index:-2;
+  }
+  .bg-fallback{
+    position:fixed;
+    inset:0;
+    background:#dfe3e0;
+    z-index:-3;
+  }
+  .bg-scrim{
+    position:fixed;
+    inset:0;
+    background:rgba(17,17,17,0.28);
+    z-index:-1;
+  }
+
+  .topbar{
+    max-width:760px;
+    margin:0 auto;
+    padding:32px 24px 18px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+  }
+  .wordmark{
+    font-family:'Hanken Grotesk', sans-serif;
+    font-weight:600;
+    font-size:17px;
+    letter-spacing:0.01em;
+    color:#111;
+    text-decoration:none;
+  }
+  .nav-back{
+    font-family:'Hanken Grotesk', sans-serif;
+    font-weight:500;
+    font-size:14px;
+    color:#111;
+    text-decoration:none;
+    opacity:0.82;
+    transition:opacity 0.22s ease;
+  }
+  .nav-back:hover{opacity:1;}
+
+  main{
+    max-width:760px;
+    margin:0 auto;
+    padding:8px 24px 72px;
+  }
+
+  .card{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    padding:56px clamp(24px, 6vw, 64px) 48px;
+    box-shadow:0 24px 60px rgba(17,17,17,0.16);
+  }
+
+  h1{
+    font-family:'Literata', serif;
+    font-weight:500;
+    font-size:clamp(30px, 5vw, 42px);
+    line-height:1.18;
+    letter-spacing:-0.01em;
+    margin:0 0 28px;
+    color:var(--ink);
+  }
+  h1 em, .lede em{
+    font-style:italic;
+    font-weight:500;
+  }
+
+  p{
+    font-size:17px;
+    line-height:1.68;
+    color:var(--ink-mid);
+    margin:0 0 20px;
+  }
+
+  .signed{
+    font-size:17px;
+    font-style:italic;
+    color:var(--ink);
+    margin:36px 0 0;
+  }
+
+  a{
+    color:var(--accent);
+    text-decoration-color:rgba(42,102,84,0.35);
+    text-underline-offset:2px;
+    transition:color 0.22s ease, text-decoration-color 0.22s ease;
+  }
+  a:hover{
+    color:var(--accent-dim);
+    text-decoration-color:var(--accent-dim);
+  }
+
+  .divider{
+    border:none;
+    border-top:1px solid var(--border);
+    margin:40px 0 32px;
+  }
+
+  h2{
+    font-family:'Literata', serif;
+    font-weight:500;
+    font-size:20px;
+    margin:0 0 20px;
+    color:var(--ink);
+  }
+
+  .notes{
+    list-style:none;
+    margin:0;
+    padding:0;
+    display:flex;
+    flex-direction:column;
+    gap:16px;
+  }
+  .notes li{
+    font-size:16px;
+    line-height:1.6;
+    color:var(--ink-mid);
+    padding-left:18px;
+    position:relative;
+  }
+  .notes li::before{
+    content:"";
+    position:absolute;
+    left:0;
+    top:9px;
+    width:5px;
+    height:5px;
+    border-radius:50%;
+    background:var(--accent);
+  }
+
+  .crisis{
+    margin-top:28px;
+    padding:18px 20px;
+    background:var(--paper);
+    border:1px solid var(--border);
+    border-radius:10px;
+    font-size:15.5px;
+    line-height:1.6;
+    color:var(--ink-mid);
+  }
+
+  .tip-line{
+    margin-top:32px;
+    font-size:16px;
+    color:var(--ink-mid);
+    font-style:italic;
+  }
+
+  .follow{
+    margin-top:40px;
+  }
+  .follow-label{
+    font-family:'Hanken Grotesk', sans-serif;
+    font-size:13px;
+    font-weight:500;
+    letter-spacing:0.02em;
+    color:var(--ink-faint);
+    text-transform:uppercase;
+    margin:0 0 12px;
+  }
+  .follow-links{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px 4px;
+    font-family:'Hanken Grotesk', sans-serif;
+    font-size:15px;
+  }
+  .follow-links a{
+    font-weight:500;
+    text-decoration:none;
+    border-bottom:1px solid rgba(42,102,84,0.35);
+    padding-bottom:1px;
+  }
+  .follow-sep{
+    color:var(--ink-faint);
+    padding:0 2px;
+  }
+
+  footer.page-foot{
+    max-width:760px;
+    margin:0 auto;
+    padding:0 24px 40px;
+    text-align:center;
+  }
+  footer.page-foot a{
+    color:#fff;
+    opacity:0.85;
+  }
+  footer.page-foot span{
+    font-family:'Hanken Grotesk', sans-serif;
+    font-size:13px;
+    color:#fff;
+    opacity:0.75;
+  }
+
+  @media (max-width:520px){
+    .card{padding:40px 22px 36px;border-radius:12px;}
+    .topbar{padding:24px 18px 14px;}
+    main{padding:8px 18px 56px;}
+  }
+</style>
+</head>
+<body>
+
+<div class="bg-fallback"></div>
+<video class="bg-video" autoplay muted loop playsinline poster="">
+  <source src="raw25.mp4" type="video/mp4">
+</video>
+<div class="bg-scrim"></div>
+
+<div class="topbar">
+  <a class="wordmark" href="/">nervuk</a>
+  <a class="nav-back" href="/">All instruments</a>
+</div>
+
+<main>
+  <div class="card">
+
+    <h1>I love my <em>nervukai</em></h1>
+
+    <p>In Lithuanian, it means "little nerves," even though our nervous system sometimes feels way too big and hard to manage.</p>
+
+    <p>Anyway, my nervukai love me. They do every single job they were built for, including keeping me safe. Your nervous system does this for you too.</p>
+
+    <p>But sometimes "safe" means we can't live our lives fully. We don't go after the things we actually want. We miss out on deep relationships. We spend our brain and our body managing something that isn't happening anymore, instead of on what matters to us and to the people around us.</p>
+
+    <p>That's how nervuk.ai started — from curiosity, and from a strong wish to find a better dialogue with my nervous system. With myself.</p>
+
+    <p>I've since seen firsthand what happens when that system has more room in it. It didn't become a different system. It just got less busy protecting from things that I didn't need protection from. What came back was capacity, freedom, and the ability to go further than I ever have. More of me available for my own life.</p>
+
+    <p>Also, while this shouldn't be the goal per se, this capacity and freedom are probably among your greatest sources of leverage in the modern economy of "you need to be more efficient" and "how will AI change our work and lives" (hence, nervuk.ai). As I said, it's not the goal, but a nice side effect if this is something you pursue.</p>
+
+    <p>Either way, these tools are a great thing to share with others, and I'm extremely happy to do so.</p>
+
+    <hr class="divider">
+
+    <h2>A few important things</h2>
+    <ul class="notes">
+      <li>I'm not a psychologist or a neurologist. I follow this field and I build carefully.</li>
+      <li>These tools have been built with AI over countless iterations, using the most capable models available at the time (hence, again, nervuk.ai).</li>
+      <li>Treat every tool as a hint about where you could look next — on your own, or with a professional. Not an answer, not an assessment, not a verdict about who you are. Read a more detailed disclaimer <a href="/legal.html">here</a>.</li>
+      <li>Nothing you type is stored or sent anywhere. No account, no email. Each tool takes one sitting. Keep the result, or close the tab and it's gone.</li>
+    </ul>
+
+    <div class="crisis">
+      If you're in a crisis right now, these aren't the right thing. <a href="https://findahelpline.com" target="_blank" rel="noopener">findahelpline.com</a> lists free lines in most countries.
+    </div>
+
+    <p class="tip-line">The tools are free. If something here helped — there's a <a href="https://nervuk.ai/tip-jar.html">tip jar</a>. Only if it did. </p>
+
+    <div class="follow">
+      <p class="follow-label">New tools appear now and then. Follow nervuk.ai here</p>
+      <div class="follow-links">
+        <a href="https://njump.me/npub165nm0zcvl2apng8g7mvf4rgspe8ydhrgt43xfcwtxa0hupf9ps2skwyq3c" target="_blank" rel="noopener">Nostr</a>
+        <span class="follow-sep">·</span>
+        <a href="https://x.com/nervukai" target="_blank" rel="noopener">X</a>
+        <span class="follow-sep">·</span>
+        <a href="https://www.instagram.com/nervuk.ai/" target="_blank" rel="noopener">Instagram</a>
+        <span class="follow-sep">·</span>
+        <a href="https://www.linkedin.com/company/nervuk-ai" target="_blank" rel="noopener">LinkedIn</a>
+        <span class="follow-sep">·</span>
+        <a href="https://www.facebook.com/people/Nervukai/61588754740429/" target="_blank" rel="noopener">Facebook</a>
+      </div>
+    </div>
+
+    <p class="signed">Feel free to reach out on Nervuk.ai's social media channels for feedback, ideas, or potential collaborations.<br> <br> Linas</p>
+
+  </div>
+</main>
+
+</body>
+</html>
