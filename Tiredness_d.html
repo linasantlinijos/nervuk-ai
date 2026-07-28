@@ -761,7 +761,7 @@
 
   /* ─── Print / Save-as-PDF ─── */
   @media print {
-    #bg-video, .site-header, #pause, #shareOverlay, .tipjar, .save-block, .follow-block { display: none !important; }
+    #bg-video, .site-header, #pause, #shareOverlay, .tipjar, .save-block, .follow-block, .site-footer { display: none !important; }
     html, body { background: #fff !important; }
     .stage { padding: 0 !important; min-height: 0 !important; }
     .panel { box-shadow: none !important; border-radius: 0 !important; max-width: 100% !important; }
@@ -787,6 +787,29 @@
   @media (max-width: 480px) { .disclaimer { padding: 16px 24px 28px; } }
   .disclaimer a { color: var(--ink-faint); }
   .disclaimer a:hover { color: var(--ink); }
+
+  /* ─── Site footer (About / Disclaimer / copyright) — lives outside the
+       card, scrolls with the page in normal flow, never fixed/floating ─── */
+  .site-footer {
+    margin-top: 32px;
+    padding: 0 16px 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    text-align: center;
+  }
+  .site-footer-links { display: flex; align-items: center; gap: 10px; }
+  .site-footer-link {
+    font-size: 0.9625rem;
+    color: var(--ink-mid);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    transition: color .18s;
+  }
+  .site-footer-link:hover { color: var(--accent); }
+  .site-footer-sep { color: var(--ink-faint); font-size: 0.85rem; }
+  .site-footer-copy { font-size: 0.825rem; color: var(--ink-faint); }
 
   /* ─── Share card overlay ─── */
   #shareOverlay {
@@ -900,7 +923,7 @@
         <p class="lead">Some tiredness comes from using your energy — you worked hard, you slept badly, your body wants rest. Some comes from a nervous system that stays on alert even when nothing is wrong. That uses energy too, quietly, all day. These questions help you see which one this is.</p>
         <p class="note">Read each sentence and answer quickly. Don't think too long — just notice which ones feel true. This won't measure how tired you are, and it won't give you a score. It looks at one possible cause of tiredness, not all of them.</p>
         <div class="meta-row">
-          <span><span class="mdot"></span> 5 areas, 25 short questions</span>
+          <span><span class="mdot"></span> 5 areas, 26 short questions</span>
         </div>
         <p class="section-list-label">The five areas</p>
         <ul class="section-list">
@@ -1006,13 +1029,22 @@
       </div>
       <div class="disclaimer">
         This instrument is a self-inquiry tool, not a clinical assessment, diagnosis, or treatment. It is not medical or psychological advice. If you are experiencing significant distress, please reach out to a qualified professional or visit <a href="https://www.findahelpline.com" target="_blank">findahelpline.com</a>.<br><br>
-        This instrument looks at one possible source of tiredness — your nervous system. Persistent or worsening fatigue can have physical or mood-related causes a tool like this can't see; if that's you, please see a doctor.<br><br>
+        This instrument looks at one possible source of tiredness — your nervous system. Persistent or worsening fatigue can have physical, sleep-related, or mood-related causes a tool like this can't see; if that's you, please see a doctor.<br><br>
         <a href="/legal">Disclaimer</a>
       </div>
     </div>
 
   </div><!-- /panel -->
 </div><!-- /stage -->
+
+<footer class="site-footer">
+  <div class="site-footer-links">
+    <a href="/about" class="site-footer-link">About</a>
+    <span class="site-footer-sep">·</span>
+    <a href="/legal" class="site-footer-link">Disclaimer</a>
+  </div>
+  <p class="site-footer-copy">© nervuk.ai, 2026</p>
+</footer>
 
 <!-- Somatic pause overlay -->
 <div id="pause">
@@ -1100,7 +1132,8 @@ const SECTIONS = [
     items: [
       {t:"This tiredness is new. I haven't always felt like this.", f:"medical"},
       {t:"Along with the tiredness, I have other physical symptoms — pain, weight change, feeling cold, or getting sick often.", f:"medical"},
-      {t:"Along with the tiredness, I've had no interest or enjoyment in most things for weeks.", f:"medical"}
+      {t:"Along with the tiredness, I've had no interest or enjoyment in most things for weeks.", f:"medical"},
+      {t:"Along with the tiredness, I snore heavily, gasp or stop breathing in my sleep, or feel sleepy and foggy in the day no matter how much I slept.", f:"medical"}
     ]
   }
 ];
@@ -1255,6 +1288,7 @@ const RCARD_STUCK = `
     <div class="rc-theme"><span class="rc-dot"></span>what this kind of tiredness is</div>
     <div class="rc-body">
       A nervous system that stays in defence mode uses energy all the time — watching, staying tense, staying ready — even when nothing is happening. You can't see that energy going, which is why the tiredness can feel like it has no cause. You didn't do anything. Your system did, quietly, all day.<br><br>
+      <b>Worth knowing:</b> this doesn't rule out something physical too. Sleep quality, thyroid function, and iron levels are all worth checking at some point — even if this has been part of you for years, not just if it's new. Long-standing tiredness deserves a look, the same as tiredness that just started.<br><br>
       <!-- Future: link "what kind of support would suit you" to the therapy-orientation instrument when it ships -->
       <b>What tends to help:</b> an old pattern like this rarely changes by managing the tiredness itself. It changes slowly, as the nervous system learns again that it's safe to relax. That takes time, and most people don't do it alone. If this feels true, it may be worth talking to someone who works at this level — and worth thinking about what kind of support would suit you.
     </div>
@@ -1264,29 +1298,51 @@ const RCARD_STUCK = `
 // interpretive branch below (ns/deplete/healthy) and, when it fires, is shown
 // above it rather than in place of it — the person still sees the full
 // interpretive result as well as the safety message.
-function medicalCareCardHtml(ns) {
-  const extra = ns >= 4
+//
+// `leansNS` reflects the *actual rendered branch* (strong or mixed), not a raw
+// score — this is what the extra paragraph is conditioned on, so it can never
+// claim "the rest of your answers point toward a nervous system pattern" while
+// the headline underneath says the opposite.
+function medicalCareCardHtml(leansNS) {
+  const extra = leansNS
     ? `<p>The rest of your answers, explained below, point more toward a nervous system pattern — but that conversation comes after the check-up, not instead of it.</p>`
     : '';
   return `<div class="care-card">
     <div class="cc-kicker">Please read this first</div>
     <div class="cc-body">
-      <p>Some of your answers — that this tiredness is new, that it comes with other physical symptoms, or that it comes with weeks of low mood — point to things this tool can't see and a doctor can. That's not a reason to worry. It's the sensible first step. Whatever your nervous system is doing, it's worth checking the physical side first.</p>
+      <p>Some of your answers — around how long this has lasted, other physical symptoms, signs around sleep itself, or weeks of low mood — point to things this tool can't see and a doctor can. That's not a reason to worry. It's the sensible first step. Whatever your nervous system is doing, it's worth checking the physical side first.</p>
       ${extra}
     </div>
   </div>`;
 }
-function medicalSoftNoteHtml() {
+
+// Single-flag soft note. Which paragraph is shown depends on which specific
+// item fired — a single flag on "no interest or enjoyment for weeks" needs a
+// mood-specific note, not a physical-symptoms one; same for the sleep item.
+// kind: 'sleep' | 'mood' | 'general'
+function medicalSoftNoteHtml(kind) {
+  const body = {
+    sleep: `<p>One of your answers points at sleep itself — snoring, gasping, or daytime sleepiness that doesn't match how much you slept. That's worth a conversation with a doctor about your sleep specifically. It's treatable, and from the inside it can feel a lot like a tired nervous system.</p>`,
+    mood: `<p>One of your answers — going weeks without interest or enjoyment in most things — is worth naming to a doctor or a therapist on its own, alongside anything you find here. Low mood and fatigue together are worth checking in their own right.</p>`,
+    general: `<p>One of your answers is something a doctor should look at. Whether this tiredness is new or something you've carried for a long time, it's worth a check-up alongside anything you find here — long-standing fatigue deserves a look too, not only fatigue that just started.</p>`
+  }[kind] || `<p>One of your answers is something a doctor should look at, alongside anything you find here.</p>`;
   return `<div class="rcard medical">
     <div class="rc-theme"><span class="rc-dot"></span>Worth mentioning to a doctor</div>
-    <div class="rc-body"><p>One of your answers is something a doctor should look at. If your tiredness is new, getting worse, or comes with other physical symptoms, it's worth a check-up as well.</p></div>
+    <div class="rc-body">${body}</div>
   </div>`;
 }
+
+// Maps a medical item's index (within the "Other possible causes" section) to
+// which single-flag note it should surface. Recency and the general-physical-
+// symptoms item share a note; anhedonia and the sleep-signs item each get
+// their own, since a generic "physical symptoms" note doesn't fit either.
+const MEDICAL_NOTE_KIND = {0: 'general', 1: 'general', 2: 'mood', 3: 'sleep'};
 
 function showResults() {
   // score families
   const totals = {stuck:0, deplete:0, healthy:0, medical:0};
   let medicalCount = 0; // lands or quiet on medical items
+  const medicalFlaggedQis = []; // which medical item(s) fired, for the single-flag note
   const landedItems = [];
   const skippedItems = [];
 
@@ -1296,10 +1352,18 @@ function showResults() {
       const s = state[key];
       if (!s || !s.val || s.val === 'notme') return;
 
-      const pts = s.val === 'lands' ? 2 : s.val === 'quiet' ? 1 : s.val === 'skip' ? 1 : 0;
+      // "skip" scores 0 — it's surfaced separately as "what you chose not to
+      // answer" (see skippedItems below) rather than counted as partial
+      // endorsement. Counting it as 1 point used to inject false counter-
+      // signal: skipping several deplete/healthy items could out-vote a
+      // clearly strong stuck profile and downgrade the result.
+      const pts = s.val === 'lands' ? 2 : s.val === 'quiet' ? 1 : 0;
       totals[item.f] += pts;
 
-      if (item.f === 'medical' && (s.val === 'lands' || s.val === 'quiet')) medicalCount++;
+      if (item.f === 'medical' && (s.val === 'lands' || s.val === 'quiet')) {
+        medicalCount++;
+        medicalFlaggedQis.push(qi);
+      }
 
       if (s.val === 'lands') landedItems.push({text: item.t, si});
       if (s.val === 'skip')  skippedItems.push({text: item.t, si});
@@ -1312,32 +1376,41 @@ function showResults() {
   const not = totals.deplete + totals.healthy;
   const nonMedical = ns + not;
 
-  // ── Care card (medical safety gate) ────────────────────────────────────────
-  // Computed independently of the interpretive branch below. When it fires it
-  // is shown above the interpretive result, not instead of it — the person
-  // always sees the full result this instrument would otherwise give them.
-  let careCardHtml = '';
-  const medicalGate = medicalCount >= 2 || (medicalCount >= 1 && nonMedical === 0);
-  if (medicalGate) {
-    careCardHtml = medicalCareCardHtml(ns);
-  }
-
   // ── Interpretive branch ─────────────────────────────────────────────────────
-  // Always computed on the nervous-system vs. not-a-leak axis, independent of
-  // the care card above. "Nothing landed" is judged on this axis only (not on
-  // whether any medical items were marked), so it stays accurate even when the
-  // care card is also showing.
-  let kicker = '', head = '', sub = '', card = '', showClosing = false;
+  // Computed on the nervous-system vs. not-a-leak axis. `leansNS` records
+  // whether the branch actually shown points toward a nervous-system read —
+  // the care card's extra sentence is keyed off this, not off a raw score, so
+  // it can never assert something the headline underneath contradicts.
+  let kicker = '', head = '', sub = '', card = '', showClosing = false, leansNS = false;
 
   if (nonMedical === 0) {
-    // Branch 0 — nothing landed on this axis
+    // Branch 0 — nothing landed on this axis. Headline is scoped to "this
+    // axis" when medical items did land, so it doesn't sit under a care card
+    // that just described several answers as strongly true.
     kicker = '';
-    head = "Nothing here felt strongly true — that's information too.";
-    sub = `<p>Maybe today isn't the right day, or maybe this kind of tiredness isn't yours. Both are useful to know. You can come back another time and see if anything has changed.</p>`;
+    if (medicalCount > 0) {
+      head = "On the nervous-system side, nothing here felt strongly true.";
+      sub = `<p>Your answers pointed elsewhere this time — see the note above. That doesn't mean nothing's going on; it means this particular lens, the nervous-system one, isn't where it's showing up today.</p>`;
+    } else {
+      head = "Nothing here felt strongly true — that's information too.";
+      sub = `<p>Maybe today isn't the right day, or maybe this kind of tiredness isn't yours. Both are useful to know. You can come back another time and see if anything has changed.</p>`;
+    }
+  }
+  else if (nonMedical < 4) {
+    // Branch 1 — a little landed, but not enough to read a pattern into.
+    // Without this floor, a single "somewhat true" answer could otherwise
+    // produce the same confident headline as a fully-answered strong profile.
+    kicker = 'what your answers suggest';
+    head = "Only a little landed here — not enough yet to read much into.";
+    sub = `<p>A couple of answers stood out, but that's thin ground for a pattern either way. If this feels like it's touching something real, it might be worth answering the rest when you have a few quiet minutes, or noticing over the next few days which of these keep showing up.</p>`;
+    if (medicalCount === 1) card = medicalSoftNoteHtml(MEDICAL_NOTE_KIND[medicalFlaggedQis[0]]);
+    showClosing = true;
   }
   else {
     // a single medical flag earns a gentle aside, never the headline
-    let medicalNote = (medicalCount === 1) ? medicalSoftNoteHtml() : '';
+    let medicalNote = (medicalCount === 1)
+      ? medicalSoftNoteHtml(MEDICAL_NOTE_KIND[medicalFlaggedQis[0]])
+      : '';
 
     if (ns > 0 && (not === 0 || ns >= not * 1.6)) {
       // Branch 2 — strong nervous-system lean
@@ -1345,6 +1418,7 @@ function showResults() {
       head = 'A lot of your answers fit a nervous system that stays on alert.';
       sub = `<p>This isn't the kind of tiredness that sleep repairs. It comes from a body that stays ready for danger long after the danger has gone. It looks less like today's demands and more like an old protection that is still running.</p>`;
       card = RCARD_STUCK;
+      leansNS = true;
     }
     else if (ns > 0 && ns >= not * 0.6) {
       // Branch 3 — mixed (both meaningfully present)
@@ -1352,6 +1426,7 @@ function showResults() {
       head = 'Some of this is ordinary tiredness. Some of it is your nervous system.';
       sub = `<p>Part of your answers look like a body that used its energy and needs rest. Part of them look like a system that stays tense even when it's safe. These two are worth separating — they need different things.</p>`;
       card = RCARD_STUCK;
+      leansNS = true;
     }
     else if (totals.deplete >= totals.healthy) {
       // Branch 4 — ordinary depletion dominates, little nervous-system signal
@@ -1368,6 +1443,17 @@ function showResults() {
 
     card += medicalNote;
     showClosing = true;
+  }
+
+  // ── Care card (medical safety gate) ────────────────────────────────────────
+  // Computed after the interpretive branch above, using its outcome (leansNS).
+  // When it fires it is shown above the interpretive result, not instead of
+  // it — the person always sees the full result this instrument would
+  // otherwise give them.
+  let careCardHtml = '';
+  const medicalGate = medicalCount >= 2 || (medicalCount >= 1 && nonMedical === 0);
+  if (medicalGate) {
+    careCardHtml = medicalCareCardHtml(leansNS);
   }
 
   // render
@@ -1492,7 +1578,8 @@ function openShareCard() {
   sharePicked = null;
   featureEl.classList.remove('show');
   if (picks.length) {
-    picksEl.innerHTML = picks.map((p, i) => `<button class="share-pick" data-i="${i}" onclick="pickShareFeature(${i})">Feature a line</button>`).join('');
+    const truncate = (t, n) => t.length > n ? t.slice(0, n - 1).trim() + '…' : t;
+    picksEl.innerHTML = picks.map((p, i) => `<button class="share-pick" data-i="${i}" onclick="pickShareFeature(${i})">${truncate(p, 42)}</button>`).join('');
     picksEl._picks = picks;
   } else {
     picksEl.innerHTML = '';

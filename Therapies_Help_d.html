@@ -22,6 +22,9 @@
     --tag-quiet:   #4a6b7c;
     --tag-notme:   #7a7a7a;
     --tag-skip:    #2a6654;
+    /* Reserved for the crisis care card only. The ordinary care card uses the
+       accent; the crisis one must not look like every other panel on the page. */
+    --alert:       #7a5c3a;
     --shadow:      0 4px 32px rgba(0,0,0,0.13);
     --radius:      12px;
     --serif:       'Literata', Georgia, serif;
@@ -584,15 +587,16 @@
   .care-card .cc-kicker::before {
     content: ""; width: 9px; height: 9px; border-radius: 2px; background: var(--accent); flex-shrink: 0; display: inline-block;
   }
-  .care-card.crisis .cc-kicker { color: var(--tag-skip); }
-  .care-card.crisis .cc-kicker::before { background: var(--tag-skip); }
+  .care-card.crisis { border-color: var(--alert); }
+  .care-card.crisis .cc-kicker { color: var(--alert); }
+  .care-card.crisis .cc-kicker::before { background: var(--alert); }
   .care-card .cc-body { font-size: 0.96rem; line-height: 1.7; color: var(--ink-mid); }
   .care-card .cc-body p + p { margin-top: 12px; }
   .care-card .cc-link {
     display: inline-block; margin-top: 16px; font-family: var(--sans); font-weight: 600; font-size: 0.88rem;
     color: var(--accent); text-decoration: none; border-bottom: 1.5px solid var(--accent);
   }
-  .care-card.crisis .cc-link { color: var(--tag-skip); border-bottom-color: var(--tag-skip); }
+  .care-card.crisis .cc-link { color: var(--alert); border-bottom-color: var(--alert); }
 
   /* ─── Collapsible flagged sections ─── */
   .flagged-section { margin-bottom: 20px; }
@@ -788,7 +792,7 @@
 
   /* ─── Print / Save-as-PDF ─── */
   @media print {
-    #bg-video, .site-header, #pause, #shareOverlay, .tipjar, .save-block, .follow-block { display: none !important; }
+    #bg-video, .site-header, #pause, #shareOverlay, .tipjar, .save-block, .follow-block, .site-footer { display: none !important; }
     html, body { background: #fff !important; }
     .stage { padding: 0 !important; min-height: 0 !important; }
     .panel { box-shadow: none !important; border-radius: 0 !important; max-width: 100% !important; }
@@ -821,9 +825,14 @@
   .share-feature { font-family: var(--serif); font-style: italic; font-size: 0.95rem; color: var(--ink-mid); border-left: 3px solid var(--accent); padding-left: 12px; margin: 16px 0; display: none; }
   .share-feature.show { display: block; }
   .share-picks { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 18px; }
+  .share-picks-label {
+    flex-basis: 100%; font-family: var(--serif); font-style: italic;
+    font-size: 0.85rem; color: var(--ink-faint); margin-bottom: 2px;
+  }
   .share-pick {
     font-family: var(--sans); font-size: 0.8rem; padding: 5px 10px; border-radius: 14px;
     border: 1px solid var(--border); background: var(--paper-tint); color: var(--ink-faint); cursor: pointer;
+    text-align: left; line-height: 1.35; max-width: 100%;
   }
   .share-pick.on { background: var(--ink); color: #fff; border-color: transparent; }
   .share-actions { display: flex; gap: 10px; margin-top: 16px; justify-content: center; flex-wrap: wrap; }
@@ -841,6 +850,29 @@
   @media (max-width: 480px) { .disclaimer { padding: 16px 24px 28px; } }
   .disclaimer a { color: var(--ink-faint); }
   .disclaimer a:hover { color: var(--ink); }
+
+  /* ─── Site footer (About / Disclaimer / copyright) — lives outside the
+       card, scrolls with the page in normal flow, never fixed/floating ─── */
+  .site-footer {
+    margin-top: 32px;
+    padding: 0 16px 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    text-align: center;
+  }
+  .site-footer-links { display: flex; align-items: center; gap: 10px; }
+  .site-footer-link {
+    font-size: 0.9625rem;
+    color: var(--ink-mid);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    transition: color .18s;
+  }
+  .site-footer-link:hover { color: var(--accent); }
+  .site-footer-sep { color: var(--ink-faint); font-size: 0.85rem; }
+  .site-footer-copy { font-size: 0.825rem; color: var(--ink-faint); }
   /* choice questions (factual axis: history, complexity) */
   .q-prompt {
     display: none;
@@ -1068,6 +1100,15 @@
   </div><!-- /panel -->
 </div><!-- /stage -->
 
+<footer class="site-footer">
+  <div class="site-footer-links">
+    <a href="/about" class="site-footer-link">About</a>
+    <span class="site-footer-sep">·</span>
+    <a href="/legal" class="site-footer-link">Disclaimer</a>
+  </div>
+  <p class="site-footer-copy">© nervuk.ai, 2026</p>
+</footer>
+
 <!-- Somatic pause overlay -->
 <div id="pause">
   <div class="breath-wrap">
@@ -1177,8 +1218,9 @@ const SECTIONS = [
   {
     kind: 'felt',
     theme: "Right now",
+    frame: "Thinking about the last two weeks",
     kicker: "The last few",
-    pause: "The last few questions are about what has been happening recently. You can stop at any time.",
+    pause: "The last few questions are about the last two weeks, not about the long pattern. You can stop at any time.",
     items: [
       {t:"I have thoughts of not wanting to be alive.", f:"acute", strong:true},
       {t:"I feel more overwhelmed than able to cope.", f:"acute"},
@@ -1401,10 +1443,10 @@ const DOOR = {
   },
   body: {
     name: 'Body', label: 'the body door',
-    lands: 'Your answers point below thinking. You understand what happened, and your body has not caught up: the tension, the racing, the numbness. That part often does not change through talking about it.',
+    lands: 'Your answers point below thinking. You understand what happened, and your body has not caught up: the tension, the racing, the numbness. That part often does not shift through understanding alone.',
     tools: [
-      ['Somatic Experiencing (SE)', 'when you understand the event but your body stays switched on. Slow, and works in small steps'],
-      ['Sensorimotor Psychotherapy', 'when posture, breathing and body habits carry it. Connects the body work to the story'],
+      ['Somatic Experiencing (SE)', 'when you understand the event but your body stays switched on. Slow, and works in small steps. Widely practised, though the trial evidence behind it is thinner than for the structured trauma therapies'],
+      ['Sensorimotor Psychotherapy', 'when posture, breathing and body habits carry it. Connects the body work to the story. Same caveat: more practised than formally tested'],
       ['Trauma-sensitive yoga or breathwork', 'a gentle way back into a body that does not feel safe. Good next to therapy, not instead of it'],
       ['Polyvagal-informed therapy and the Safe and Sound Protocol', 'aims to build a basic sense of safety first. The research base here is still thin, so treat it as support, not a main treatment'],
       ['Neurofeedback or HRV biofeedback', 'a non-talking option. Results are mixed across studies and it is often expensive. Worth trying after the others, not before']
@@ -1416,7 +1458,7 @@ const DOOR = {
     name: 'Relationship', label: 'the relationship and self door',
     lands: 'Your answers point to what happens between people, and between the different parts of you: the harsh inner voice, the same pattern repeating when someone gets close. This kind of difficulty usually needs another person in the room to change.',
     tools: [
-      ['Internal Family Systems (IFS)', 'when you feel divided inside, or carry a harsh inner critic'],
+      ['Internal Family Systems (IFS)', 'when you feel divided inside, or carry a harsh inner critic. Many people find it fits them immediately; the formal trial evidence is still early'],
       ['Schema Therapy', 'for long-running patterns that keep repeating in love and work. Longer than most therapies, often a year or more'],
       ['Dialectical Behaviour Therapy (DBT)', 'when feelings rise very fast and relationships feel unstable. Teaches skills first, before going near the past'],
       ['Emotionally Focused Therapy (EFT) and attachment-based therapy', 'when closeness itself is where it breaks down. EFT also works for couples']
@@ -1427,25 +1469,35 @@ const DOOR = {
 };
 
 // State door: surfaced on profile-fit OR breadth of attempts. Gated by supervised
-// access, not by "earning it". Regulatory facts checked July 2026 — these change
-// fast, so this card is on the list for a review before every release.
+// access, not by "earning it".
+//
+// DELIBERATELY JURISDICTION-FREE. This card names no country, state, regulator,
+// approval date, brand name or price. Two reasons: the legal picture is different
+// in every country and changes several times a year, so anything specific here is
+// wrong somewhere and stale everywhere; and the person's actual next move is a
+// conversation with a clinician, not a fact from this page. Do not reintroduce
+// specifics — the maintenance burden is real and the failure mode is a reader in
+// one country planning around another country's rules.
+//
+// Suppressed entirely on the strongest safety signal — see stateShown in showResults().
 const STATE_CARD = `
   <div class="rcard">
     <div class="rc-theme"><span class="rc-dot"></span>the state door — supervised medical approaches</div>
     <div class="rc-body">
-      These do not replace therapy. They briefly change your brain state so that the therapy has a better chance of reaching you. All of them are done with a trained clinician, after a medical check. For some patterns — long-term PTSD, depression that has not responded to treatment, and rigid, self-blaming thinking — the trial results are as good as or better than the standard first-line therapies. That is why they are here, not because everything else has to fail first.<br><br>
+      These do not replace therapy. They briefly change your brain state so that the therapy has a better chance of reaching you. All of them are done with a trained clinician, after a medical check. For some patterns — long-standing PTSD, depression that has not responded to treatment, and rigid, self-blaming thinking — trial results have been strong enough that these are now studied as a serious option rather than a last resort. How much of that effect holds up under stricter testing is still being argued, and an honest clinic will tell you so. Both halves of that are worth carrying.<br><br>
       <b>Ketamine and esketamine</b><br>
-      The most available option today. Esketamine nasal spray (Spravato) is approved in the US and the EU for depression that has not responded to at least two antidepressants, and is given in a certified clinic under supervision. Since 2025 it can also be used on its own in the US, without a daily antidepressant. Ketamine infusions are used off-label in many countries. Effects can appear within a day or two, but usually fade without repeat sessions. It is not a substitute for crisis care.<br><br>
+      The most widely available of these. Given under supervision, usually for depression that has not responded to other treatments. Effects can appear within a day or two, but usually fade without repeat sessions. It is not a substitute for crisis care.<br><br>
       <b>MDMA-assisted therapy</b><br>
-      The strongest trial results so far for long-term PTSD, especially where shame makes the memory impossible to stay with. It is <b>not approved in the US</b>: the FDA declined the application in August 2024 and asked for another Phase 3 trial. Australia is currently the only country where it can legally be prescribed, through a special authorised-prescriber scheme. Everywhere else, access is through clinical trials.<br><br>
+      The strongest trial results so far for long-standing PTSD, especially where shame makes the memory impossible to stay with. Regulators have asked for more evidence before approval, partly because it is hard to run a blinded trial with something people can tell they have taken.<br><br>
       <b>Psilocybin-assisted therapy</b><br>
-      Studied for depression that has not responded to treatment, and for rigid, repeating thought patterns. Not approved as a medicine anywhere yet. Legal supervised sessions do exist in Oregon and Colorado, with no residency requirement, at roughly $1,000 to $3,000, not covered by insurance. There are firm exclusions, including lithium use, psychosis, and a history of self-harm.<br><br>
+      Studied for depression that has not responded to treatment, and for rigid, repeating thought patterns. Where supervised access exists at all, it is tightly controlled and the screening is strict.<br><br>
       <b>LSD-assisted therapy</b><br>
-      A longer session than psilocybin, studied mainly for anxiety. The evidence base is smaller and newer than the others. Trials only.<br><br>
+      A longer session than psilocybin, studied mainly for anxiety, while modern clinical research has also investigated LSD for depression, alcohol use disorder, cluster headaches, and other conditions. The evidence base is smaller and newer than the others.<br><br>
       <b>Stellate Ganglion Block (SGB)</b><br>
       Not a therapy: a local anaesthetic injection near a nerve cluster in the neck, done by an anaesthetist. There is trial evidence that it lowers PTSD symptoms for some people, sometimes for weeks or months. It can open a window for therapy. It does not do the therapy.<br><br>
-      <b>Two things that matter more than the list.</b> First, none of these is a drug that removes trauma. The session opens a window; the preparation before it and the integration after it do the actual work. A clinic that offers you the drug without both is not offering this treatment. Second, all of them need screening first. Heart conditions, high blood pressure, psychosis, bipolar disorder and certain medications are real reasons not to proceed. This is never something to arrange on your own.<br><br>
-      <b>What to do with this:</b> ask your doctor or therapist whether a supervised, state-based approach is worth considering in your case, and when. If they do not know this area, ask them to refer you to someone who does. Legal status differs by country and is changing quickly, so check the rules where you live before you plan anything.<br><br>
+      <b>Two things that matter more than the list.</b> First, none of these is a drug that removes trauma. The session opens a window; the preparation before it and the integration after it do the actual work. A clinic that offers you the drug without both is not offering this treatment. Second, all of them need screening first. Heart conditions, high blood pressure, psychosis, bipolar disorder, being in acute crisis, and certain medications are real reasons not to proceed. This is never something to arrange on your own.<br><br>
+      <b>On availability:</b> what is legal, and how you would reach it, differs completely from one country to the next and is changing quickly. Nothing above describes what is available where you live. Check that locally, with a professional, before you plan anything around it.<br><br>
+      <b>What to do with this:</b> ask your doctor or therapist whether a supervised, state-based approach is worth considering in your case, and when. If they do not know this area, ask them to refer you to someone who does.<br><br>
       <b>A question to walk in with:</b> <i>given my history, is this something we should consider now, and not only after everything else has failed?</i>
     </div>
   </div>`;
@@ -1483,10 +1535,15 @@ const DOOR_NAME = { mind:'Mind', body:'Body', relationship:'Relationship' };
 
 function showResults() {
   const totals = {mind:0, body:0, relationship:0};
+  // Points rank the doors; endorsements decide whether a door may be named at
+  // all. A skip is worth a point but is not agreement, so a run made entirely
+  // of skips must not be able to produce a door. See eligible[] below.
+  const endorsedDoor = {mind:0, body:0, relationship:0};
   let stateFit = 0, shameSignal = 0;
-  let acuteCount = 0, acuteStrong = false;
+  let acuteCount = 0, acuteStrong = false, acuteStrongSkipped = false;
   let engagedFelt = 0;
-  const landedItems = [];
+  const landedItems = [];     // everything marked hard — private accordion + print
+  const shareItems = [];      // same, minus the safety items — public share card
   const skippedItems = [];
   const choices = {current: null, tried: [], complexity: 'unknown'};
 
@@ -1514,16 +1571,23 @@ function showResults() {
       const endorsed = (s.val !== 'skip');
 
       if (item.f === 'acute') {
-        if (endorsed) { acuteCount++; if (item.strong) acuteStrong = true; }
-        else if (item.strong) { acuteStrong = true; }
+        if (endorsed) { acuteCount++; if (item.strong) { acuteStrong = true; acuteStrongSkipped = false; } }
+        else if (item.strong) { acuteStrong = true; acuteStrongSkipped = true; }
       } else {
         totals[item.f] += pts;
+        if (endorsed) endorsedDoor[item.f]++;
       }
       if (endorsed && item.fit) stateFit += pts;
       if (endorsed && item.shame) shameSignal += pts;
 
       // "Marked most strongly" = Often or Almost always only.
-      if (pts >= 3) landedItems.push({text: item.t, si, val: s.val});
+      // The safety items stay out of the share pool: a public card is not the
+      // place for "I have thoughts of not wanting to be alive." They remain in
+      // the private accordion, where noticing them is the point.
+      if (pts >= 3) {
+        landedItems.push({text: item.t, si, val: s.val});
+        if (item.f !== 'acute') shareItems.push({text: item.t, si, val: s.val});
+      }
       if (s.val === 'skip') skippedItems.push({text: item.t, si, val: s.val});
     });
   });
@@ -1542,17 +1606,37 @@ function showResults() {
     || triedSet.has('state')
     || (choices.current === 'stalled' && triedDoorCount >= 1);
 
-  // dominant door, and the strongest door not yet tried
+  // HARD SAFETY GATE. Everything else on this results screen stays visible on a
+  // crisis path — the person did the work, they get the output. The state door is
+  // the exception: active suicidality is a screening exclusion for every approach
+  // on that card, and handing someone in crisis a menu of substances to go looking
+  // for is the one concrete harm this instrument could actually cause. Suppressed
+  // silently, with no note pointing at what was withheld. Every downstream mention
+  // of the state door reads stateShown, never stateRelevant.
+  const stateShown = stateRelevant && !acuteStrong;
+
+  // dominant door, and the strongest door not yet tried.
+  // Only doors with at least one genuine endorsement are eligible to be named:
+  // skip points can break a tie or add weight, but they can never invent a door.
   const order = ['body','relationship','mind'];
-  const ranked = order.map(k => ({k, v: totals[k]})).sort((a,b) => b.v - a.v);
-  const primary = ranked[0];
-  const secondary = ranked[1];
-  const hasDoorSignal = primary.v > 0;
-  const secondaryClose = secondary.v > 0 && secondary.v >= primary.v * 0.6;
-  const untried = ranked.filter(r => r.v > 0 && !triedDoor(r.k));
+  const ranked = order.map(k => ({k, v: totals[k], e: endorsedDoor[k]})).sort((a,b) => b.v - a.v);
+  const eligible = ranked.filter(r => r.e > 0);
+  const hasDoorSignal = eligible.length > 0;
+  const primary = hasDoorSignal ? eligible[0] : ranked[0];
+  const secondary = (hasDoorSignal && eligible[1]) ? eligible[1] : {k: null, v: 0, e: 0};
+  const secondaryClose = !!secondary.k && secondary.v > 0 && secondary.v >= primary.v * 0.6;
+  const untried = eligible.filter(r => !triedDoor(r.k));
   const lead = untried.length ? untried[0] : primary;          // prefer an untried door with signal
   const leadTried = triedDoor(lead.k);
   const redirected = untried.length && lead.k !== primary.k && triedDoor(primary.k);
+  // One "Often" on one item should not read like a verdict. Below this floor the
+  // result is phrased as a lean to hold lightly, not a direction to act on.
+  const tentative = hasDoorSignal && (lead.e < 2 || lead.v < 4);
+  const hedge = tentative ? 'You marked only a few things strongly, so hold this lightly. ' : '';
+  // The bridge note names the two doors that are close together. When the lead
+  // card is a redirect to a third, untried door, that note would be describing
+  // approaches other than the one just recommended — so it is suppressed.
+  const showBridge = secondaryClose && lead.k === primary.k;
 
   let kicker = '', head = '', sub = '', card = '', careCardHtml = '', showClosing = false;
   const shameTail = (shameSignal >= 4) ? SHAME_NOTE : '';   // threshold doubled with the scale
@@ -1560,13 +1644,21 @@ function showResults() {
   // ── Care card ──────────────────────────────────────────────────────────
   // Additive, not a gate. It is rendered above the results and the results
   // are still produced underneath it: the person did the work, so they get
-  // the output. The only thing suppressed on the strongest signal is the
-  // tip jar — asking for money on top of that disclosure is not information.
+  // the output. Two things, and only two, are suppressed on the strongest
+  // signal: the tip jar (asking for money on top of that disclosure is not
+  // information) and the state door (see stateShown). Do not add a third
+  // without a reason as concrete as those two.
   if (acuteStrong) {
+    // The strong item can reach this branch two ways: endorsed, or skipped.
+    // Skipping is a legitimate answer and the copy must not tell someone they
+    // "marked" a thing they deliberately declined to answer.
+    const opener = acuteStrongSkipped
+      ? `<p>One of the questions you chose not to answer was about whether you have wanted to stay alive. Skipping is allowed, always, and this tool does not assume what your answer would have been. It is also the one place where looking away is worth a second thought, so this note appears either way. If the present is heavy, a web page is not what helps. A person is. That is not a failure on your part. It is just the honest order of things.</p>`
+      : `<p>Some of what you marked is about right now, not about the long pattern. A web page is not what helps when you are barely coping. A person is. That is not a failure on your part. It is just the honest order of things.</p>`;
     careCardHtml = `<div class="care-card crisis">
       <div class="cc-kicker">Please read this first</div>
       <div class="cc-body">
-        <p>Some of what you marked is about right now, not about the long pattern. A web page is not what helps when you are barely coping. A person is. That is not a failure on your part. It is just the honest order of things.</p>
+        ${opener}
         <p>Please talk to someone today: a person you trust, your doctor, or a free and confidential line. The link below lists options wherever you are. Your results are still below, and they will keep. Read them when the ground feels steadier.</p>
       </div>
       <a class="cc-link" href="https://www.findahelpline.com" target="_blank" rel="noopener">findahelpline.com →</a>
@@ -1594,7 +1686,10 @@ function showResults() {
   else if (!hasDoorSignal) {
     kicker = 'what this points to';
     head = 'Nothing pointed clearly to one door, which is its own kind of information.';
-    sub = `<p>Your answers did not lean strongly toward any one place. That is worth sitting with rather than forcing an answer. If you would like to see the full range of help in one place, the comparison page is below.</p>`;
+    sub = `<p>Nothing you marked leaned strongly toward any one place. That is worth sitting with rather than forcing an answer. If you would like to see the full range of help in one place, the comparison page is below.</p>`;
+    if (skippedItems.length >= 3) {
+      sub += `<p>You passed over a number of these. Skipping is a real answer too: it can mean the words did not fit, or that now is not the time to look at that. Either way it is not nothing.</p>`;
+    }
     card = EXPLORE_LINK;
     showClosing = true;
   }
@@ -1603,42 +1698,43 @@ function showResults() {
     kicker = 'what this points to';
     head = `Something you are already doing seems to be reaching you. Keep going.`;
     sub = `<p>You said you are in something now that is helping. The most useful thing this tool can do here is small: do not go looking for a different door while the one you are in is still opening.</p>`;
-    if (stateRelevant) {
+    if (stateShown) {
       sub += `<p>One thing worth raising with the person you already work with: what you marked also fits a group of supervised, medical approaches that some people find reaches what ordinary therapy cannot. You are in the safest possible place to ask about it. It is described below.</p>`;
     }
     sub += `<p>If you want to go deeper in what you are doing, your answers lean toward the <b>${DOOR_NAME[primary.k]}</b> door.</p>`;
-    card = toolCard(primary.k, complexity, triedDoor(primary.k)) + (stateRelevant ? STATE_CARD : '') + shameTail + EXPLORE_LINK;
+    card = toolCard(primary.k, complexity, triedDoor(primary.k)) + (stateShown ? STATE_CARD : '') + shameTail + EXPLORE_LINK;
     showClosing = true;
   }
   // In something that ISN'T reaching — often right effort, wrong door
   else if (choices.current === 'stalled') {
     kicker = 'what this points to';
     head = `You are in something, but it is not reaching you. That can mean the right effort through the wrong door.`;
-    sub = `<p>What you are in may be working on one layer while your difficulty sits in another.</p>`;
+    sub = `<p>${hedge}What you are in may be working on one layer while your difficulty sits in another.</p>`;
     if (redirected || (untried.length && leadTried === false)) {
-      sub += `<p>A lot of what you marked points to the <b>${DOOR_NAME[lead.k]}</b> door, and you said you have not yet tried that kind of help. That gap is often where the unreached part is waiting.</p>`;
+      sub += `<p>${tentative ? 'Some' : 'A lot'} of what you marked points to the <b>${DOOR_NAME[lead.k]}</b> door, and you said you have not yet tried that kind of help. That gap is often where the unreached part is waiting.</p>`;
     } else {
       sub += `<p>Your answers lean toward the <b>${DOOR_NAME[lead.k]}</b> door. It may be worth checking whether what you are in actually works there, or whether the fit is wrong.</p>`;
     }
-    card = toolCard(lead.k, complexity, leadTried) + bridgeNote(primary, secondary, secondaryClose) + (stateRelevant ? STATE_CARD : '') + shameTail + ACT_NOTE + EXPLORE_LINK;
+    card = toolCard(lead.k, complexity, leadTried) + bridgeNote(primary, secondary, showBridge) + (stateShown ? STATE_CARD : '') + shameTail + ACT_NOTE + EXPLORE_LINK;
     showClosing = true;
   }
   // Not currently in anything (none / past) — orient by door, leading with what's untried
   else {
     kicker = 'what this points to';
-    head = stateRelevant
-      ? `This points to the ${DOOR_NAME[lead.k]} door, and to one more worth knowing about.`
-      : `This points to the ${DOOR_NAME[lead.k]} door.`;
-    sub = `<p>${doorLeadSub(lead.k)}</p>`;
+    const verb = tentative ? 'leans toward' : 'points to';
+    head = stateShown
+      ? `This ${verb} the ${DOOR_NAME[lead.k]} door, and to one more worth knowing about.`
+      : `This ${verb} the ${DOOR_NAME[lead.k]} door.`;
+    sub = `<p>${hedge}${doorLeadSub(lead.k, tentative)}</p>`;
     if (redirected) {
       sub += `<p>You said you have already worked the ${DOOR_NAME[primary.k]} door. What you marked also points to the ${DOOR_NAME[lead.k]} door, which may be the one you have not yet opened.</p>`;
     }
-    if (stateRelevant) {
+    if (stateShown) {
       sub += (triedDoorCount >= 2)
         ? `<p>You have also really tried more than one kind of help. For a pattern like yours, that is exactly when a fourth, supervised group of approaches becomes worth knowing about. It is described below, and not as a fallback.</p>`
         : `<p>What you marked also has the shape that a fourth, supervised group of approaches is increasingly recognised for. It is described below, because of how well it can fit a pattern like yours, not as a last resort.</p>`;
     }
-    card = toolCard(lead.k, complexity, leadTried) + bridgeNote(primary, secondary, secondaryClose) + (stateRelevant ? STATE_CARD : '') + shameTail + ACT_NOTE + EXPLORE_LINK;
+    card = toolCard(lead.k, complexity, leadTried) + bridgeNote(primary, secondary, showBridge) + (stateShown ? STATE_CARD : '') + shameTail + ACT_NOTE + EXPLORE_LINK;
     showClosing = true;
   }
 
@@ -1655,9 +1751,9 @@ function showResults() {
   closingEl.style.display = showClosing ? 'block' : 'none';
 
   // Share-card feature picks are drawn from "landed hard" items only — the
-  // strongest-signal pool, same pattern the rest of the design system uses.
-  // Kept fresh on every results render regardless of branch.
-  lastLandedItems = landedItems;
+  // strongest-signal pool, same pattern the rest of the design system uses —
+  // minus the safety items, which stay private. Kept fresh on every render.
+  lastLandedItems = shareItems;
 
   // Everything the person would otherwise get, they still get. The tip jar is
   // the single exception on the strongest safety signal: it is a request for
@@ -1675,10 +1771,13 @@ function showResults() {
   showScreen('screen-results');
 }
 
-function doorLeadSub(k) {
-  if (k === 'mind') return 'Most of what you marked is about meaning and thought: what you believe, and the story about what happened, more than the body or the relationship. That layer responds to being worked on directly.';
-  if (k === 'body') return 'Most of what you marked sits below thinking. You understand it, and the physical part has not followed. That gap is the signal: the work may need to happen in the body, not in words.';
-  return 'Most of what you marked is about the parts of you that pull in different directions, the inner critic, and what repeats when someone gets close. That kind of difficulty usually moves with another person, not alone in your head.';
+function doorLeadSub(k, tentative) {
+  // "Most of what you marked" is only true when there is enough marked to have
+  // a "most". On a thin signal the same sentence becomes a quiet overclaim.
+  const q = tentative ? 'What you did mark' : 'Most of what you marked';
+  if (k === 'mind') return `${q} is about meaning and thought: what you believe, and the story about what happened, more than the body or the relationship. That layer responds to being worked on directly.`;
+  if (k === 'body') return `${q} sits below thinking. You understand it, and the physical part has not followed. That gap is the signal: the work may need to happen in the body, not in words.`;
+  return `${q} is about the parts of you that pull in different directions, the inner critic, and what repeats when someone gets close. That kind of difficulty usually moves with another person, not alone in your head.`;
 }
 
 function bridgeNote(primary, secondary, close) {
@@ -1743,7 +1842,12 @@ function openShareCard() {
   sharePicked = null;
   featureEl.classList.remove('show');
   if (picks.length) {
-    picksEl.innerHTML = picks.map((p, i) => `<button class="share-pick" data-i="${i}" onclick="pickShareFeature(${i})">Feature a line</button>`).join('');
+    // Every chip used to read "Feature a line", so the person could not see
+    // which line they were choosing. Show the line itself, shortened.
+    const shorten = s => (s.length > 46 ? s.slice(0, 45).replace(/[\s,.;:]+$/, '') + '…' : s);
+    const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    picksEl.innerHTML = `<div class="share-picks-label">Feature one line, if you want to</div>` +
+      picks.map((p, i) => `<button class="share-pick" data-i="${i}" onclick="pickShareFeature(${i})">${esc(shorten(p))}</button>`).join('');
     picksEl._picks = picks;
   } else {
     picksEl.innerHTML = '';

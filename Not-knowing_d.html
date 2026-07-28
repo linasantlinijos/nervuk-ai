@@ -184,6 +184,13 @@
     0%,100% { transform: translate(-50%,-50%) scale(1);   opacity: 0.7; }
     50%      { transform: translate(-50%,-50%) scale(2.2); opacity: 1;   }
   }
+  @media (prefers-reduced-motion: reduce) {
+    .breath-dot { animation: breathe-reduced 5s ease-in-out infinite; }
+  }
+  @keyframes breathe-reduced {
+    0%,100% { transform: translate(-50%,-50%); opacity: 0.7; }
+    50%      { transform: translate(-50%,-50%); opacity: 1;   }
+  }
   .pause-kicker {
     font-family: var(--sans); font-size: 0.8rem; letter-spacing: 0.1em; text-transform: uppercase;
     color: rgba(255,255,255,0.4); margin-bottom: 12px;
@@ -308,11 +315,10 @@
     margin-top: 14px; padding-left: 16px; border-left: 3px solid var(--accent);
   }
   .rcard .card-tip .tip-lead { font-weight: 600; font-style: normal; color: var(--accent); }
-  .rcard.note-card { background: var(--paper-tint); }
-  .rcard.lever { background: var(--accent); }
-  .rcard.lever .rc-theme { color: #ffffff; }
-  .rcard.lever .rc-dot { background: #ffffff; }
-  .rcard.lever .rc-body { color: rgba(255,255,255,0.92); }
+  .rcard.note-card { background: var(--paper); }
+  .rcard.lever { background: var(--paper); border-left: 3px solid var(--accent); }
+  .rcard.lever .rc-theme { color: var(--accent); }
+  .rcard.lever .rc-dot { background: var(--accent); }
 
   /* ─── Care card ─── */
   .care-card {
@@ -420,10 +426,33 @@
   .disclaimer a { color: var(--ink-faint); }
   .disclaimer a:hover { color: var(--ink); }
 
+  /* ─── Site footer (About / Disclaimer / copyright) — lives outside the
+       card, scrolls with the page in normal flow, never fixed/floating ─── */
+  .site-footer {
+    margin-top: 32px;
+    padding: 0 16px 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    text-align: center;
+  }
+  .site-footer-links { display: flex; align-items: center; gap: 10px; }
+  .site-footer-link {
+    font-size: 0.9625rem;
+    color: var(--ink-mid);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    transition: color .18s;
+  }
+  .site-footer-link:hover { color: var(--accent); }
+  .site-footer-sep { color: var(--ink-faint); font-size: 0.85rem; }
+  .site-footer-copy { font-size: 0.825rem; color: var(--ink-faint); }
+
   /* ─── Print / PDF ─── */
   .print-only { display: none; }
   @media print {
-    #bg-video, .site-header, #pause, .tipjar, .save-block, .follow-block, .other-block, #shareOverlay { display: none !important; }
+    #bg-video, .site-header, #pause, .tipjar, .save-block, .follow-block, .other-block, #shareOverlay, .site-footer { display: none !important; }
     html, body { background: #fff !important; }
     .stage { padding: 0 !important; min-height: 0 !important; }
     .panel { box-shadow: none !important; border-radius: 0 !important; max-width: 100% !important; }
@@ -599,8 +628,10 @@
 
         <div id="careCard" style="display:none"></div>
 
+        <div id="synthesis"></div>
+
         <div id="areaReads">
-          <div class="r-section-label" id="areaReadsLabel" style="display:none">What this might mean</div>
+          <div class="r-section-label" id="areaReadsLabel" style="display:none">Where it showed up most</div>
           <div id="areaCards"></div>
           <div id="patternNotes"></div>
         </div>
@@ -659,6 +690,15 @@
   </div><!-- /panel -->
 </div><!-- /stage -->
 
+<footer class="site-footer">
+  <div class="site-footer-links">
+    <a href="/about" class="site-footer-link">About</a>
+    <span class="site-footer-sep">·</span>
+    <a href="/legal" class="site-footer-link">Disclaimer</a>
+  </div>
+  <p class="site-footer-copy">© nervuk.ai, 2026</p>
+</footer>
+
 <!-- Somatic pause overlay -->
 <div id="pause">
   <div class="breath-wrap">
@@ -694,6 +734,13 @@
 // no compound images, no named theorists. Plain verbs, concrete nouns, one
 // idea per line.
 //
+// `meaning` is retained in the data (it is exported, and external checks may
+// read it) but is no longer rendered: the old per-area meaning cards repeated
+// the `origin` paragraphs in the synthesis almost point for point, so the
+// results now show origin (named, in the synthesis) and `look` (in the
+// "Before you take this as true" card) instead. Do not wire `meaning` back
+// into the results without re-reading the two texts side by side first.
+//
 // Section colours are drawn from the existing Mineral token set only — no new
 // hues were invented for this file.
 
@@ -707,6 +754,8 @@ const SECTIONS = [
     pause: "Notice how your body feels right now. You don't need to change anything.",
     meaning: "The wanting may be there, but you can't reach it. This looks less like having no desires and more like having no access to them. Something sits between you and what you want.",
     look: "<span class=\"tip-lead\">Look for:</span> whether this happens all the time, or only when something is at stake or other people can see. If it comes and goes, it is probably doing a job.",
+    origin: "The clearest signal is in the moment itself \u2014 the blank that arrives when you are asked. A blank that fast is a response, not an empty cupboard. Something is getting there before the answer does.",
+    action: "Next time someone asks what you want and the blank arrives, notice what happens in the half-second before it. There is often a quick scan first \u2014 what is the safe answer, what do they want to hear. If you can catch that scan, you have found the thing that is getting there first.",
     items: [
       { id: "tex1", text: "When someone asks what I want in my life, my mind just goes blank." },
       { id: "tex2", text: "When someone asks what I want, I first look for the answer they want to hear." },
@@ -722,8 +771,10 @@ const SECTIONS = [
     color: "#6b5a7a",
     kicker: "Going back",
     pause: "Let your shoulders drop, if they want to. The next questions go back to when you were a child.",
-    meaning: "Your not-knowing looks learned. When you were young, wanting was met with dismissal or with a cost, so you stopped wanting. It may be old protection still running in a life that no longer needs it.",
+    meaning: "Your not-knowing looks learned. When you were young, wanting was met with dismissal or with a cost, and you may have stopped wanting. It may be old protection still running in a life that no longer needs it.",
     look: "<span class=\"tip-lead\">Look for:</span> whether the danger you are still protecting yourself from belongs to then or to now. Often it belongs to then.",
+    origin: "The clearest signal reaches back a long way. If saying what you wanted once got you ignored, laughed at, or treated as a problem, then not forming the want at all is quicker and cheaper than forming it and swallowing it. Learned early enough, that stops feeling like something you do. It starts feeling like a fact about you.",
+    action: "Pick one small want that would have been unwelcome in the house you grew up in, and say it out loud to one person you trust now. Then watch what actually happens. The prediction you are carrying is old. The people around you are not.",
     items: [
       { id: "his1", text: "As a child, when I said what I wanted, it was ignored, laughed at, or used against me." },
       { id: "his2", text: "As a child, asking for something left me disappointed, or made me feel like too much." },
@@ -743,6 +794,8 @@ const SECTIONS = [
     pause: "Take one slow breath. The next questions are about now.",
     meaning: "Your not-knowing still seems to be doing a job. It protects you from something happening now — someone's reaction, or being seen to want something. Being vague is buying you safety today.",
     look: "<span class=\"tip-lead\">Try:</span> saying the risk out loud — \"If I admitted I wanted ___, then ___.\" It usually gets clearer once you have named what you are afraid of.",
+    origin: "The clearest signal is in the present, not the past. This one is still doing a job today. Staying vague is protecting you from something specific and current \u2014 someone's reaction, or simply being seen to want. That is not a leftover from before. It is a live arrangement.",
+    action: "Take the smallest thing you are currently being vague about, and say it plainly to one person this week. Not the big one. The small one. Then compare what actually happened with what you expected to happen. That gap is the only thing that changes the fear.",
     items: [
       { id: "now1", text: "Wanting something badly feels risky or embarrassing." },
       { id: "now2", text: "When I really want something, I quickly find reasons why it is silly or impractical." },
@@ -761,6 +814,8 @@ const SECTIONS = [
     pause: "Notice your jaw and your hands. See if a pattern is starting to show.",
     meaning: "There seems to be a repeating exit here. You leave just as things start to matter. This may be less about not knowing and more about a point you keep reaching and backing away from.",
     look: "<span class=\"tip-lead\">Look for:</span> two or three things you walked away from, and whether they all ended at the same kind of moment.",
+    origin: "The clearest signal is in the timing. You do not lose interest at random. You lose it as things start to matter. This is a well described shape: when something pulls you and frightens you at the same time, the fear grows faster than the pull as you get closer. So you leave right at the point where it would have counted \u2014 and from the inside it feels like the wanting simply went away on its own.",
+    action: "Think of the last two things you walked away from, and find the moment you left. Next time you reach that same moment, say it out loud as it is happening: \u201cthis is the point where I usually go.\u201d You do not have to stay. Naming it is what turns it from something that happens to you into something you are choosing.",
     items: [
       { id: "rep1", text: "I lose interest in things just as they start to matter to me." },
       { id: "rep2", text: "I have left jobs, relationships or projects just as they started to ask more of me." },
@@ -777,6 +832,8 @@ const SECTIONS = [
     pause: "Feel your feet on the floor. Wanting shows up in the body before you have words for it.",
     meaning: "Wanting seems to be cut off close to the body. Thinking harder will not help here. You are asking \u201cwhat do I want?\u201d of a channel that has gone quiet.",
     look: "<span class=\"tip-lead\">Try:</span> small yes-or-no choices first — what you move towards, what you move away from. Feeling usually has to come back before knowing does.",
+    origin: "The clearest signal sits close to the body. Wanting usually turns up first as a small pull or a lean, and the words arrive afterwards to explain it. If that early signal is faint, asking yourself harder cannot produce it. You are putting the question to a channel that is not saying much at the moment.",
+    action: "This week, when something small goes well, stop for a few seconds and let yourself register it before you move on. Not to enjoy it more \u2014 to give a faint signal the chance to be noticed at all. The channel that tells you when something is good is the same one that tells you what you want.",
     items: [
       { id: "bod1", text: "I can't feel wanting in my body. It stays an idea in my head." },
       { id: "bod2", text: "When something good happens, I feel it faintly or not at all." },
@@ -793,6 +850,8 @@ const SECTIONS = [
     pause: "Let your eyes soften. The next questions are about needing other people.",
     meaning: "Your not-knowing is tied to being uncomfortable with needing people. Wanting involves someone else — to see it, to give it, or to refuse it. That may be the unsafe part, more than the want itself.",
     look: "<span class=\"tip-lead\">Look for:</span> whether you know what you want right up until another person is involved. If it only goes blank in company, this is about people, not about preference.",
+    origin: "The clearest signal is about other people, not about preference. A want that stays private is safe. Say it out loud and someone can now give it to you, refuse it, or think less of you for having it. If needing people has gone badly before, the cheapest protection is not to want where anyone can see.",
+    action: "Ask one person for one small thing you could easily have done yourself. The thing does not matter. The point is to collect evidence about what actually happens when you need someone out loud \u2014 because right now you are working from an old estimate.",
     items: [
       { id: "ned1", text: "Needing something from another person feels like a weakness." },
       { id: "ned2", text: "I'd rather go without than have to ask." },
@@ -809,6 +868,8 @@ const SECTIONS = [
     pause: "If something has come up, let it be here for a moment. This part is tender. You can stop at any time.",
     meaning: "The not-knowing may be protecting a loss. Sometimes \u201cI don't know what I want\u201d is closer to \u201cI can't yet afford to feel what I didn't get.\u201d Go slowly here, and not alone if it feels heavy.",
     look: "<span class=\"tip-lead\">For now:</span> you don't need to open this. Noticing it is there, and closed for a reason, is enough for today.",
+    origin: "The clearest signal is in tender ground. Sometimes \u201cI don't know what I want\u201d is standing in for \u201cI can't yet afford to feel what I didn't get.\u201d The not-knowing is doing real work there \u2014 holding something at a distance that has been too heavy to carry alone. That is not a fault. It is what a person does with a weight and no help.",
+    action: "The useful next step here is not a bigger effort. It is company. If something opened while you were answering, this is the area least suited to working on by yourself \u2014 not because it is dangerous, but because grief moves better with someone sitting alongside it than with someone gritting their teeth.",
     items: [
       { id: "los1", text: "I keep away from thinking about what I wanted and never got." },
       { id: "los2", text: "Something I wanted as a child was lost, and I still carry that." },
@@ -824,6 +885,8 @@ const SECTIONS = [
     pause: "One breath in, one breath out. These last questions are about what would change if you did know.",
     meaning: "Knowing what you want would make you responsible for it. Not knowing keeps that open. This is common and it is not a failing, but it is worth seeing clearly.",
     look: "<span class=\"tip-lead\">Try:</span> one small want this week — say it and act on it — just to see how being in charge feels before you use it on anything big.",
+    origin: "The clearest signal is about what knowing would cost you. The moment you know what you want, it becomes yours to act on, and yours to have got wrong. Not knowing keeps all of that open. This is not laziness. It is a way of not being responsible for how your life turns out.",
+    action: "Watch for the moment you hand a decision to someone else, or to circumstances \u2014 \u201cwhatever you want\u201d, \u201cit's not up to me\u201d, \u201cwe'll see\u201d. Catch one of those this week and make a small call instead. You are not practising the want. You are practising being the person who decided.",
     items: [
       { id: "cha1", text: "Being fully in charge of my own life feels heavy or frightening." },
       { id: "cha2", text: "I act as if I have no choice, so that I don't have to choose." },
@@ -958,7 +1021,12 @@ if (typeof module !== "undefined" && module.exports) {
   // it can hold.
   function needsCare(stats, t) {
     const loss = stats.loss.charge;
-    return t.landsHard >= 14 || (loss !== null && loss >= 0.75);
+    // A strong hit in the loss area followed by "skip the rest of this area"
+    // leaves the section under-answered (insufficient), so the charge-based
+    // check above never fires. That abandonment, right after something in
+    // this area landed hard, is itself a signal worth catching on its own.
+    const lossAbandonedAfterHit = stats.loss.insufficient && stats.loss.landsHard.length >= 1;
+    return t.landsHard >= 14 || (loss !== null && loss >= 0.75) || lossAbandonedAfterHit;
   }
 
   function isNothingLanded(t) { return t.landsHard === 0 && t.skipped === 0; }
@@ -1207,12 +1275,21 @@ function showResults() {
   careCard.innerHTML = "";
   careCard.style.display = "none";
   closingStep.innerHTML = "";
+  const synthReset = document.getElementById("synthesis");
+  if (synthReset) synthReset.innerHTML = "";
 
   if (result.nothingLanded) {
     rKicker.textContent = "";
     rHead.textContent = "Nothing stood out today.";
     rSub.innerHTML = "<p>That is information too. Either today was not the day, or the not-knowing is thorough. Both are worth noticing. Try the whole set again another time and see whether anything has changed.</p>";
     areaLabel.style.display = "none";
+    // A run answered mostly "Not sure" also lands here (nothing hit "Often" /
+    // "Very much", nothing was skipped) — but for this instrument, that IS
+    // the finding, not an absence of one. Surface it rather than letting the
+    // generic "nothing stood out" message stand in for it.
+    if (result.fogged) {
+      patternNotes.innerHTML = noteCard("The \u201cnot sure\u201d answers", "You answered \u201cnot sure\u201d to a lot of these. For most tools that would just be missing data. Here it is the thing itself: being unable to say is exactly what this instrument is looking at. That's worth more attention than \u201cnothing stood out\u201d might suggest.");
+    }
     renderFlagged();
     showScreen("screen-results");
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -1221,33 +1298,107 @@ function showResults() {
 
   rKicker.textContent = "";
   rHead.textContent = "What your answers suggest";
-  rSub.innerHTML = "<p>No score and no type. Just the areas where your answers were strongest, and what that usually points to. Treat it as something to test, not a verdict.</p>";
+  rSub.innerHTML = "<p>No score and no type. What follows is a pattern psychology describes well, and what your answers suggest about how it is working in you. The pattern is established. Whether it is yours is for you to test — and further down there is a way to check.</p>";
 
-  // Area cards
+  // ── Synthesis ─────────────────────────────────────────────────────────────
+  // The interpretive layer. Everything below this point is detail and evidence;
+  // this is where the instrument actually says something. Three beats:
+  // reframe (it is learned and protective) → origin (what your answers point
+  // to) → maintenance (why it persists, and what it costs).
+  //
+  // Mechanism claims here are deliberately restricted to well-supported
+  // findings: avoidance sustained by short-term relief, and fear that does not
+  // update without disconfirming experience. Nothing leans on polyvagal
+  // neuroanatomy or on somatic markers as settled.
+  const synthesis = document.getElementById("synthesis");
+  const synthParts = [];
+
+  synthParts.push("<p>Your answers point to something more active than an empty list. Not knowing looks less like a gap where preferences should be, and more like something that runs \u2014 quickly, and before you get a say in it. It was almost certainly useful once. Most of these start as a sensible way to stay safe.</p>");
+
+  // Origin read, from the top-ranked areas. A section that ranked mostly on
+  // skips gets the skip-aware read instead of its content read — skips are
+  // charge on the area, never endorsement of what the items said.
+  // Each paragraph is prefixed with its area name in the section colour: the
+  // old area cards below carried the names, and with those cards retired the
+  // synthesis has to say which area each read belongs to.
+  result.top.forEach((t, i) => {
+    const s = NK.sectionById(t.id);
+    const stat = result.stats[t.id];
+    const skipMajority = stat.skippedCount > 0 && stat.skippedCount >= stat.counted / 2;
+    let text;
+    if (skipMajority) {
+      text = "You moved past most of this area rather than answering it. That points to where the heat is, without telling you what is under it. Worth noticing on its own: moving past a question quickly is the same move this whole pattern is built from.";
+    } else {
+      text = s.origin;
+    }
+    synthParts.push(`<p>${i > 0 ? "<b>Alongside that:</b> " : ""}<b>${esc(s.title)}.</b> ${text}</p>`);
+  });
+
+  synthesis.innerHTML = `<div class="rcard">
+      <div class="rc-theme"><span class="rc-dot"></span>What this looks like</div>
+      <div class="rc-body">${synthParts.join("")}</div>
+    </div>
+    <div class="rcard note-card">
+      <div class="rc-theme"><span class="rc-dot" style="background:var(--ink-faint)"></span>Why it doesn't wear off</div>
+      <div class="rc-body">
+        <p>Not knowing has a payoff, and the payoff is why it stays. Each time the question comes up and you slide past it, something eases. That relief is small and fast, and it teaches your system to do the same thing next time. It works \u2014 for about a minute. That is exactly what makes it stick.</p>
+        <p>The cost is slower and harder to see. While you don't say what you want, you never find out what would actually happen if you did. So the fear stays the size it was when you learned it. Nothing comes along to shrink it.</p>
+        <p>Meanwhile the wants themselves did not go anywhere. What went is your access to them. And your life still gets decided \u2014 by other people, by default, by whatever was easiest to agree to. The protection ends up doing the choosing.</p>
+        <p>Which is why this rarely eases just by being understood. It eases when the prediction gets tested and turns out to be wrong \u2014 in something small, more than once.</p>
+      </div>
+    </div>`;
+
+  // Rule-out card — replaces the old per-area "meaning" cards. Those repeated
+  // the origin paragraphs above almost point for point (for the "now" area,
+  // word for word in places), and a skip-majority area got the same
+  // "you moved past this" paragraph twice. The area names now live in the
+  // synthesis; what this slot adds is the one thing the synthesis does not
+  // have: a way for the read to be wrong. Skip-majority areas contribute no
+  // tip here — their look text assumes answered content.
+  let sparseNoTop = false;
+  areaLabel.style.display = "none";
   if (result.top.length) {
-    areaLabel.style.display = "block";
-    areaCards.innerHTML = result.top.map(t => {
+    const tips = result.top.map(t => {
       const s = NK.sectionById(t.id);
-      return `<div class="rcard">
-        <div class="rc-theme"><span class="rc-dot" style="background:${s.color}"></span>${esc(s.title)}</div>
-        <div class="rc-body"><p>${s.meaning}</p></div>
-        <div class="card-tip">${s.look}</div>
-      </div>`;
+      const stat = result.stats[t.id];
+      const skipMajority = stat.skippedCount > 0 && stat.skippedCount >= stat.counted / 2;
+      if (skipMajority) return "";
+      const namePrefix = result.top.length > 1 ? `<b>${esc(s.title)}.</b> ` : "";
+      return `<div class="card-tip">${namePrefix}${s.look}</div>`;
     }).join("");
+    areaCards.innerHTML = tips ? `<div class="rcard">
+      <div class="rc-theme"><span class="rc-dot"></span>Before you take this as true</div>
+      <div class="rc-body"><p>Not everything this points to is a defence. Sometimes not knowing really is just not knowing yet — still deciding, with nothing underneath it. There is a way to tell the difference.</p></div>
+      ${tips}
+    </div>` : "";
   } else {
-    areaLabel.style.display = "none";
+    // Too few answers landed in any single area to point to one, but
+    // individual items still hit hard — don't let the empty section imply
+    // nothing happened when the flagged list below says otherwise.
+    sparseNoTop = result.totals.landsHard > 0;
   }
 
   // Pattern notes
   const notes = [];
+  if (sparseNoTop) {
+    notes.push(noteCard("Too spread out to point to one area", "Not enough landed in any single area to call out here, but a few individual answers hit hard. Those are listed below, under \u201cWhat might need more attention.\u201d"));
+  }
   if (result.spread) {
     notes.push(noteCard("The charge was spread out", "Your answers were spread fairly evenly across the areas. There is no single source here. That is worth knowing on its own — the not-knowing may be doing several jobs at once."));
   }
   if (result.avoidant) {
-    notes.push(noteCard("What you moved past", "You skipped a lot of these. That is usually the strongest signal there is. The questions you most want to move past tend to sit closest to the centre of it."));
+    notes.push(noteCard("What you moved past", "You skipped a lot of these. That's worth taking seriously — the questions people most want to move past often sit close to the centre of it."));
   }
   if (result.fogged) {
     notes.push(noteCard("The \u201cnot sure\u201d answers", "You answered \u201cnot sure\u201d to a lot of these. For most tools that would just be missing data. Here it is the thing itself: being unable to say is exactly what this instrument is looking at. It is worth more attention than any single answer above."));
+  }
+  // A quiet reward channel is the one finding in this instrument that can
+  // have a mood-related rather than a learned explanation, and the two need
+  // different help. Fires on the body area's charge, independent of ranking:
+  // it matters whether or not the area came out on top.
+  const bodyStat = result.stats.body;
+  if (bodyStat && !bodyStat.insufficient && bodyStat.charge !== null && bodyStat.charge >= 0.75) {
+    notes.push(noteCard("This one is worth checking outside this tool", "Your answers about the body point to good things landing faintly or not at all. That can be part of the pattern this page describes \u2014 and a quieted response to good things is also a common part of low mood, and sometimes of plain exhaustion. A set of questions like this cannot tell those apart. If it has been like this for more than a few weeks, it is worth a conversation with a doctor or therapist, not only a self-inquiry."));
   }
   patternNotes.innerHTML = notes.join("");
 
@@ -1265,9 +1416,24 @@ function showResults() {
 
   renderFlagged();
 
+  // Closing action, tailored to the strongest area. Framed as a test rather
+  // than an exercise: the mechanism above says the pattern changes when a
+  // prediction is disconfirmed, so the step has to produce evidence.
+  let actionText;
+  if (result.top.length) {
+    const s0 = NK.sectionById(result.top[0].id);
+    const stat0 = result.stats[result.top[0].id];
+    const skipMajority0 = stat0.skippedCount > 0 && stat0.skippedCount >= stat0.counted / 2;
+    actionText = skipMajority0
+      ? "You do not have to open the area you moved past. But next time it comes up, notice whether moving past it is a decision you make, or something that happens before you get to decide. That distinction is the whole thing."
+      : s0.action;
+  } else {
+    actionText = "Pick one small thing you want this week. Say it out loud to someone, and act on it. Not to solve anything \u2014 just to see what actually happens when you do.";
+  }
+
   closingStep.innerHTML = `<div class="rcard lever">
-    <div class="rc-theme"><span class="rc-dot"></span>One small step</div>
-    <div class="rc-body"><p>Pick one small thing you want this week. Say it out loud to someone, and act on it. Not to solve anything — just to see how it feels to know.</p></div>
+    <div class="rc-theme"><span class="rc-dot"></span>One thing to test</div>
+    <div class="rc-body"><p>${actionText}</p></div>
   </div>`;
 
   showScreen("screen-results");
@@ -1308,7 +1474,7 @@ function buildFlaggedSection(wrapId, listId, groups, tagClass) {
   wrap.style.display = "block";
   list.innerHTML = groups.map(g => `
     <div class="flagged-group">
-      <div class="fg-title"><span class="fg-swatch" style="background:${tagClass === "lands" ? "var(--accent)" : g.color}"></span>${esc(g.name)}</div>
+      <div class="fg-title"><span class="fg-swatch" style="background:var(--accent)"></span>${esc(g.name)}</div>
       ${g.items.map(it => `<div class="flagged-item">
         <div class="fi-text">${esc(it.text)}</div>
         ${tagClass === "lands" ? `<span class="fi-tag lands">${esc(it.tag)}</span>` : '<span class="fi-tag skip">Skipped</span>'}
@@ -1340,10 +1506,16 @@ function copyResults() {
   const head = document.getElementById("rHead").textContent.trim();
   const areaEl = document.getElementById("areaReads");
   const careEl = document.getElementById("careCard");
+  const synthEl = document.getElementById("synthesis");
+  const closingEl = document.getElementById("closingStep");
   let body = "";
   if (careEl.style.display !== "none") body += careEl.innerText.trim();
+  const synthText = synthEl ? synthEl.innerText.trim() : "";
+  if (synthText) body += (body ? "\n\n" : "") + synthText;
   const areaText = areaEl.innerText.trim();
   if (areaText) body += (body ? "\n\n" : "") + areaText;
+  const closingText = closingEl ? closingEl.innerText.trim() : "";
+  if (closingText) body += (body ? "\n\n" : "") + closingText;
 
   const note = (document.getElementById("resultNote").value || "").trim();
   let txt = "Not knowing what I want — a self-inquiry at nervuk.ai\n\n" + head;
@@ -1394,7 +1566,7 @@ function openShareCard() {
   const areasEl = document.getElementById("shareAreas");
   areasEl.innerHTML = result.top.map(t => {
     const s = NK.sectionById(t.id);
-    return `<div class="share-area-row"><span class="sa-swatch" style="background:${s.color}"></span>${esc(s.title)}</div>`;
+    return `<div class="share-area-row"><span class="sa-swatch" style="background:var(--accent)"></span>${esc(s.title)}</div>`;
   }).join("");
 
   const landed = [];

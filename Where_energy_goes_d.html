@@ -28,6 +28,7 @@
     --sans:        'Literata', Georgia, serif;
     --mark:        'Hanken Grotesk', system-ui, sans-serif;
     --transition:  0.22s ease;
+    --care:        #5c6f8a;
   }
 
   /* ─── Reset & base ─── */
@@ -539,6 +540,39 @@
   }
   .rcard .rc-link:hover { color: var(--ink); border-bottom-color: var(--ink); }
 
+  /* Card variants — shared vocabulary with the Not-knowing instrument.
+     note-card  = a secondary observation, white background like the rest
+     lever      = the one testable step, accent rule on the left
+     card-tip   = the discriminating test inside a card */
+  .rcard.note-card { background: var(--paper); }
+  .rcard.lever { background: var(--paper); border-left: 3px solid var(--accent); }
+  .rcard.lever .rc-theme { color: var(--accent); }
+  .rcard.lever .rc-dot { background: var(--accent); }
+  .rcard .card-tip {
+    font-family: var(--serif); font-style: italic; font-size: 0.9rem; line-height: 1.6; color: var(--ink-mid);
+    margin-top: 14px; padding-left: 16px; border-left: 3px solid var(--accent);
+  }
+  .rcard .card-tip .tip-lead { font-weight: 600; font-style: normal; color: var(--accent); }
+
+  /* ─── Care card ─── */
+  .care-card {
+    border: 1px solid var(--border); border-radius: var(--radius); background: var(--paper);
+    padding: 26px 24px; margin-bottom: 22px;
+  }
+  .care-card .cc-kicker {
+    font-family: var(--sans); font-size: 0.8rem; letter-spacing: 0.09em; text-transform: uppercase;
+    margin-bottom: 12px; display: flex; align-items: center; gap: 8px; color: var(--ink);
+  }
+  .care-card .cc-kicker::before {
+    content: ""; width: 9px; height: 9px; border-radius: 2px; background: var(--care); flex-shrink: 0; display: inline-block;
+  }
+  .care-card .cc-body { font-size: 0.96rem; line-height: 1.7; color: var(--ink-mid); }
+  .care-card .cc-body p + p { margin-top: 12px; }
+  .care-card .cc-link {
+    display: inline-block; margin-top: 16px; font-family: var(--sans); font-weight: 600; font-size: 0.88rem;
+    color: var(--accent); text-decoration: none; border-bottom: 1.5px solid var(--accent);
+  }
+
   /* ─── Collapsible flagged sections ─── */
   .flagged-section { margin-bottom: 20px; }
   .flagged-toggle {
@@ -584,6 +618,13 @@
     line-height: 1.6;
     color: var(--ink);
     margin-bottom: 4px;
+  }
+  .fi-meta {
+    font-family: var(--sans);
+    font-size: 0.74rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
   }
 
   /* ─── Closing line ─── */
@@ -727,7 +768,7 @@
 
   /* ─── Print / Save-as-PDF ─── */
   @media print {
-    #bg-video, .site-header, #pause, #shareOverlay, .tipjar, .save-block, .follow-block { display: none !important; }
+    #bg-video, .site-header, #pause, #shareOverlay, .tipjar, .save-block, .follow-block, .site-footer { display: none !important; }
     html, body { background: #fff !important; }
     .stage { padding: 0 !important; min-height: 0 !important; }
     .panel { box-shadow: none !important; border-radius: 0 !important; max-width: 100% !important; }
@@ -780,6 +821,29 @@
   @media (max-width: 480px) { .disclaimer { padding: 16px 24px 28px; } }
   .disclaimer a { color: var(--ink-faint); }
   .disclaimer a:hover { color: var(--ink); }
+
+  /* ─── Site footer (About / Disclaimer / copyright) — lives outside the
+       card, scrolls with the page in normal flow, never fixed/floating ─── */
+  .site-footer {
+    margin-top: 32px;
+    padding: 0 16px 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    text-align: center;
+  }
+  .site-footer-links { display: flex; align-items: center; gap: 10px; }
+  .site-footer-link {
+    font-size: 0.9625rem;
+    color: var(--ink-mid);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    transition: color .18s;
+  }
+  .site-footer-link:hover { color: var(--accent); }
+  .site-footer-sep { color: var(--ink-faint); font-size: 0.85rem; }
+  .site-footer-copy { font-size: 0.825rem; color: var(--ink-faint); }
 
   /* ─── Motion toggle (pause background video) — lives in the header now ─── */
   .motion-toggle {
@@ -913,7 +977,16 @@
         <div class="r-kicker" id="rKicker"></div>
         <h2 class="r-head" id="rHead"></h2>
         <div class="r-sub" id="rSub"></div>
-        <div id="rCard"></div>
+
+        <div id="careCard" style="display:none"></div>
+
+        <!-- Interpretive layer. Order is deliberate:
+             what it is → why it persists → what your combination adds →
+             how to check this read is even right → the one thing to test. -->
+        <div id="synthesis"></div>
+        <div id="patternNotes"></div>
+        <div id="ruleOut"></div>
+
         <div id="flaggedStrong" class="flagged-section" style="display:none">
           <button class="flagged-toggle" onclick="toggleFlagged('strong')">
             What might need more attention <span class="arrow">▾</span>
@@ -932,8 +1005,9 @@
           </button>
           <div class="flagged-items" id="flaggedSkippedItems"></div>
         </div>
+        <div id="closingStep"></div>
         <div class="closing" id="closing" style="display:none">
-          This is a direction to think about, not a verdict. Over the next week, notice which of these keeps turning out to be true. Some of it may not be your nervous system at all. Sometimes staying ready is the right response to a hard situation.
+          One sitting is one reading, not a verdict. If you save this and come back in a few weeks, the second reading will tell you more than either one alone — what repeats across readings is what is worth trusting.
         </div>
         <div id="printNote" class="print-only"></div>
         <div class="check-other-block">
@@ -985,6 +1059,15 @@
 
   </div><!-- /panel -->
 </div><!-- /stage -->
+
+<footer class="site-footer">
+  <div class="site-footer-links">
+    <a href="/about" class="site-footer-link">About</a>
+    <span class="site-footer-sep">·</span>
+    <a href="/legal" class="site-footer-link">Disclaimer</a>
+  </div>
+  <p class="site-footer-copy">© nervuk.ai, 2026</p>
+</footer>
 
 <!-- Somatic pause overlay -->
 <div id="pause">
@@ -1038,7 +1121,7 @@ const SECTIONS = [
       {t:"I plan conversations in my head before they happen, even simple ones.", f:"do"},
       {t:"I prepare more than the situation needs.", f:"do"},
       {t:"I check the mood of the people around me, even when nothing is wrong.", f:"do"},
-      {t:"I say yes when I want to say no, and regret it later.", f:"do"},
+      {t:"I agree to things before anyone has actually asked me to.", f:"do"},
       {t:"I do extra work that nobody asked for, to prevent a problem.", f:"do"},
       {t:"I check things that I have already checked.", f:"do"}
     ]
@@ -1073,57 +1156,60 @@ const SECTIONS = [
 
 // ─── RESULTS CONTENT ───────────────────────────────────────────────────────────
 
-const RCARD_DO = `
-  <div class="rcard">
-    <div class="rc-theme"><span class="rc-dot"></span>a place to start</div>
-    <div class="rc-body">
-      You cannot think your way out of this. Noticing is what works. Over the next few days, when you catch yourself planning, preparing, or watching for problems, name it quietly: <b>this is guarding, not the task.</b> You do not have to stop. Naming it slowly separates the effort the situation really needs from the effort your system adds on top.
-    </div>
-  </div>`;
-
-const RCARD_BLOCK = `
-  <div class="rcard">
-    <div class="rc-theme"><span class="rc-dot"></span>a place to start</div>
-    <div class="rc-body">
-      Choose the smallest thing on your list — not the hard conversation, not the big task you have been avoiding. The small one. Do that one thing, once, and watch what your body does as you move toward it. The point is not to force yourself through everything. It is to feel, in one small case, that the thing you have been treating as risky mostly is not.
-    </div>
-  </div>`;
-
-const RCARD_DRAG = `
-  <div class="rcard">
-    <div class="rc-theme"><span class="rc-dot"></span>a place to start</div>
-    <div class="rc-body">
-      This rarely eases by trying to relax harder. What tends to help is the opposite of effort: short, frequent moments of arriving fully. One long breath out. Both feet on the floor. Half a minute of doing nothing on purpose. Not to relax, exactly — just to show your system, again and again, that this is a moment it is allowed to stop working.
-    </div>
-  </div>`;
-
-const RCARD_ALL = `
-  <div class="rcard">
-    <div class="rc-theme"><span class="rc-dot"></span>a place to start</div>
-    <div class="rc-body">
-      With this much running at once, the move is not to start three projects. It is to give your system more moments of real safety, more often, before you change any single habit. Short, frequent, ordinary: one full breath out, a real pause, half a minute of doing nothing. The habits tend to loosen on their own once the baseline drops.
-    </div>
-  </div>`;
+// Each channel carries four interpretive fields, in the order they are shown:
+//
+//   origin   — what is actually happening. Not a restatement of the items:
+//              the shape of the pattern and what marks it out.
+//   maintain — why it does not wear off on its own. This is the layer that
+//              makes the read worth more than a mirror. Mechanism claims are
+//              restricted to well-supported ones: negative reinforcement of
+//              safety behaviour, avoidance sustained by immediate relief,
+//              and habituation to an unchanging signal. Nothing here leans on
+//              polyvagal anatomy, cortisol, or depletion models.
+//   look     — the discriminating test. The instrument's honest position is
+//              that some of this effort may be necessary and right; a read
+//              with no way to be wrong is worth little, so each channel gets
+//              a concrete way to check it.
+//   lever    — one step, framed to produce evidence rather than to be a
+//              relaxation exercise.
 
 const CHANNEL = {
   do: {
     short: "the effort you spend preventing problems",
     head:  "Most of your energy goes into preventing problems that have not arrived.",
     sub:   "Planning, preparing, watching, settling things before anything goes wrong. It feels responsible, even useful, which is exactly why it is hard to see as a leak. But the effort is going into safety rather than into the thing in front of you, and much of what it protects against never arrives.",
-    card:  RCARD_DO
+    origin: "This kind of effort does not feel like a problem from the inside. It feels like being conscientious, and a good part of the time it is. What marks out the rest is that it runs on a prediction rather than on the situation in front of you. The amount of preparing stays roughly level whether the thing is important or routine, because it is not really responding to the thing — it is responding to the possibility of something going wrong.",
+    maintain: "It keeps going because it appears to work. You prepare, you check, you read the room, and the bad outcome does not arrive. From the inside there is no way to tell whether it stayed away because you guarded or because it was never coming. Your system does not split that difference — the guarding takes the credit every time. That is why it gets slightly harder to drop each time you do it, and why the reassurance never quite lasts.",
+    look: "<span class=\"tip-lead\">How to check this read:</span> watch whether the effort scales. Effort a situation genuinely needs rises when the stakes rise and falls when they drop. Guarding tends to stay level — the same rehearsal before the difficult conversation and before the short email. If the amount does not move with the stakes, it is not tracking the situation.",
+    lever: "Pick one genuinely low-stakes thing this week and prepare for it a little less than feels comfortable. Send the message without the third read-through. Go into the routine call without the notes. Then write down what actually happened. You are not trying to stop guarding — you are collecting one piece of evidence about what the guarding was holding back, because that is the only thing the prediction responds to."
   },
   block: {
     short: "the things you stop yourself from doing",
     head:  "Your biggest leak is in what you stop yourself from doing.",
     sub:   "The rest you do not take, the help you do not ask for, the good thing you keep delaying. It costs twice: the energy it takes to keep saying no to yourself, and the loss of the thing you said no to. What you are avoiding is usually not dangerous. Your system simply treats moving toward it as a risk.",
-    card:  RCARD_BLOCK
+    origin: "This is not laziness and it is not weak will, and treating it as either tends to make it worse. Moving toward the thing is being handled as a risk, so your system does what it does with risk: it finds you something else to do. The relief when you turn away is real and it arrives immediately, which is why it is so convincing in the moment. Notice that the thing itself is rarely the problem. It is the approach to it that is being avoided.",
+    maintain: "It keeps going because the relief comes first and the cost comes late. The instant you turn away, something eases — reliably, every time. Immediate consequences teach far more strongly than delayed ones, and nothing is more immediate than that. The cost, meanwhile, is spread thin across the rest of the day, arrives without a label, and never gets connected back to the thing you avoided. So the ledger looks fine each individual time, and the pile grows anyway.",
+    look: "<span class=\"tip-lead\">How to check this read:</span> compare the two costs directly. Next time you finally do one of these, note how long it actually took, and set that against how long you spent not doing it. If the task keeps turning out smaller than the avoiding, the problem is not the task. It is the estimate you are working from — and an estimate only updates when it gets tested against what happens.",
+    lever: "Choose the smallest thing on your list — not the hard conversation, not the big one you have been circling. The small one. Do it once, and pay attention to two things: what your body does as you move toward it, and how it compares to what you expected. The point is not to force yourself through everything. It is to get one clear case on record where the thing you were treating as risky turned out not to be."
   },
   drag: {
     short: "the cost of never fully resting",
     head:  "Your leak is not something you do. It is the cost of never fully resting.",
     sub:   "A system that stays half-ready uses energy even when you are doing nothing. No action is attached to it, so you cannot see where it goes. You only feel the result: tired, for no reason you can name.",
-    card:  RCARD_DRAG
+    origin: "This one has no behaviour attached to it, which is what makes it the hardest of the three to see. Nothing is happening, and something is still running. Most people in this position do not feel tense — they feel normal, and only catch the effort in the moment it briefly stops. That is not a failure of attention. A signal that never changes stops being reported; you are not missing it, it has simply stopped being news.",
+    maintain: "It keeps going because there is nothing in it to catch. The other two patterns at least involve doing something, and something being done can be noticed and interrupted. A raised baseline has no such moment. It also moves the reference point: after long enough at one level, that level becomes what \u201cfine\u201d feels like, so there is no contrast left to notice it by. The cost still arrives \u2014 but the cause never arrives with it.",
+    look: "<span class=\"tip-lead\">How to check this read:</span> see whether it lifts when the demand does. Load that belongs to a situation drops when the situation drops — a real day off, a few days away, the week after the deadline passes. A baseline setting travels with you. If you are still half-ready on the third day of a holiday, with nothing to be ready for, it is not the situation you are responding to.",
+    lever: "This rarely eases by trying to relax harder. What tends to help is short and frequent rather than long and deliberate: one full breath out, both feet on the floor, half a minute of doing nothing on purpose. Do it several times a day rather than once properly. And each time, notice what it feels like the moment it drops — you are rebuilding a reference point for \u201coff\u201d, which is what makes the raised setting visible again."
   }
+};
+
+// The all-three case is not a fourth channel — it is a statement about level
+// rather than about any one habit, so it gets its own read.
+const ALL_READ = {
+  origin: "The useful thing here is that these three are not independent findings. Guarding, holding back, and never fully resting are what one system does when it is running on the assumption that something needs handling. You are not looking at three habits to work through in turn. You are looking at one level showing up in three places — which is better news than it sounds, because it means there is one thing underneath rather than three.",
+  maintain: "At this level the pattern stops being visible, and that is what keeps it going. Any one of these on its own stands out against a calmer background, so you can catch it. When all three are running there is no calmer background to catch it against. It stops looking like something you are doing and starts looking like how things are. That is usually the point at which it needs something from outside — a change of setting, another person, sometimes a professional — rather than more effort applied from inside.",
+  look: "<span class=\"tip-lead\">How to check this read:</span> the question is not which of the three is biggest. It is whether the level ever drops. Over the next week, watch for any moment when all three are quiet at once — an hour, an evening, one morning. If you find even one, note what was different about it, because that is your best available clue. If you cannot find one at all, that is the single most useful thing this tool can tell you, and it is worth taking to someone.",
+  lever: "With this much running at once, the move is not to start three projects. It is to give your system more moments of genuine stopping, more often, before changing any single habit. Short, frequent, ordinary: one full breath out, a real pause, half a minute of doing nothing. Habits tend to loosen on their own once the baseline drops, and they tend to resist while it stays up — so the baseline is where the leverage is."
 };
 
 // ─── STATE ───────────────────────────────────────────────────────────────────
@@ -1279,13 +1365,73 @@ function selectTag(val) {
 //                      the share-card pool.
 //   1.6 and 0.6 are ratio comparisons between channels, not absolute cut-offs,
 //   so they are deliberately left unchanged by the rescale.
+//
+// Ranking rule: endorsed channels always outrank unendorsed ones, regardless
+// of raw total. Otherwise a pile of skips/Rarely (1pt each) could out-total a
+// single real Sometimes-or-stronger answer and "win" a channel that never
+// actually cleared the signal bar. The "strong second pattern" callout is
+// gated the same way: a second-place channel only gets named if it is itself
+// endorsed, not just numerically close to the top one.
 
 const ENDORSED = 2;
 const STRONG   = 3;
 
+// A channel counts as PRESENT — strong enough to carry a combination read —
+// at two strong answers, or three endorsed ones. Deliberately a higher bar
+// than chanEndorsed (a single "Sometimes"), because a combination claim about
+// two channels is a bigger claim than naming the top one and needs more under
+// it. LOW is the mirror: nothing strong and at most one endorsement, which is
+// what licenses saying an area came out clear.
+function isPresent(strongN, endorsedN) { return strongN >= 2 || endorsedN >= 3; }
+function isLow(strongN, endorsedN)     { return strongN === 0 && endorsedN <= 1; }
+
+function noteCard(theme, body) {
+  return `<div class="rcard note-card">
+    <div class="rc-theme"><span class="rc-dot" style="background:var(--ink-faint)"></span>${theme}</div>
+    <div class="rc-body">${body}</div>
+  </div>`;
+}
+
+// Two cards, always in this order: what the pattern actually is, then why it
+// does not wear off on its own. The second is the one that earns the page —
+// without it the result is a mirror, and a mirror does not tell anyone
+// anything they did not already type in.
+// If secondShort is given without secondOrigin, a pairwise note below is
+// already covering the interaction, so only a pointer line is added here.
+function renderSynthesis(origin, maintain, secondOrigin, secondShort) {
+  let body = `<p>${origin}</p>`;
+  if (secondOrigin) {
+    body += `<p><b>Alongside that:</b> there is a strong second pattern — ${secondShort}. ${secondOrigin}</p>`;
+  } else if (secondShort) {
+    body += `<p><b>Alongside that:</b> there is a strong second pattern — ${secondShort}. How the two feed each other is picked up just below.</p>`;
+  }
+  return `<div class="rcard">
+      <div class="rc-theme"><span class="rc-dot"></span>What this looks like</div>
+      <div class="rc-body">${body}</div>
+    </div>
+    <div class="rcard note-card">
+      <div class="rc-theme"><span class="rc-dot" style="background:var(--ink-faint)"></span>Why it doesn't wear off</div>
+      <div class="rc-body"><p>${maintain}</p></div>
+    </div>`;
+}
+
+// The instrument's stated position is that some of this effort may be
+// necessary and right. A read with no way of being wrong is worth little, so
+// the discriminating test is given its own card rather than left as a caveat.
+function renderRuleOut(look) {
+  return `<div class="rcard">
+    <div class="rc-theme"><span class="rc-dot"></span>Before you take this as true</div>
+    <div class="rc-body"><p>Not everything this tool flags is a leak. Sometimes a situation really is asking this much, and effort that matches a real demand is not a pattern to fix — it is a correct response to circumstances. There is a way to tell the difference.</p></div>
+    <div class="card-tip">${look}</div>
+  </div>`;
+}
+
 function showResults() {
   const totals = {do:0, block:0, drag:0};
   const chanEndorsed = {do:false, block:false, drag:false};
+  const chanStrongN   = {do:0, block:0, drag:0};
+  const chanEndorsedN = {do:0, block:0, drag:0};
+  const chanSkipN     = {do:0, block:0, drag:0};
   const strongItems  = []; // Often / Almost always
   const someItems    = []; // Sometimes
   const skippedItems = [];
@@ -1298,21 +1444,40 @@ function showResults() {
       const pts = POINTS[s.val];
       totals[item.f] += pts;
 
-      if (s.val === 'skip') { skippedItems.push({text:item.t, ch:item.f, si, val:s.val}); return; }
-      if (pts >= ENDORSED) { anyEndorsed = true; chanEndorsed[item.f] = true; }
-      if (pts >= STRONG)        strongItems.push({text:item.t, ch:item.f, si, val:s.val});
+      if (s.val === 'skip') { chanSkipN[item.f]++; skippedItems.push({text:item.t, ch:item.f, si, val:s.val}); return; }
+      if (pts >= ENDORSED) { anyEndorsed = true; chanEndorsed[item.f] = true; chanEndorsedN[item.f]++; }
+      if (pts >= STRONG)        { chanStrongN[item.f]++; strongItems.push({text:item.t, ch:item.f, si, val:s.val}); }
       else if (pts >= ENDORSED) someItems.push({text:item.t, ch:item.f, si, val:s.val});
     });
   });
 
-  const arr = [['do', totals.do], ['block', totals.block], ['drag', totals.drag]]
-    .sort((a, b) => b[1] - a[1]);
+  const present = {}, low = {};
+  ['do','block','drag'].forEach(k => {
+    present[k] = isPresent(chanStrongN[k], chanEndorsedN[k]);
+    low[k]     = isLow(chanStrongN[k], chanEndorsedN[k]);
+  });
+  const presentCount = ['do','block','drag'].filter(k => present[k]).length;
+
+  // Rank endorsed channels ahead of unendorsed ones, regardless of raw total.
+  // Skips (1pt) and Rarely (1pt) must never let an unendorsed channel outrank
+  // a channel that actually had a Sometimes-or-stronger answer in it — a
+  // channel with five skips (total 5) is not a bigger leak than a channel
+  // with one real "Sometimes" (total 2).
+  const chanPairs = [['do', totals.do], ['block', totals.block], ['drag', totals.drag]];
+  const arr = [
+    ...chanPairs.filter(([k]) => chanEndorsed[k]).sort((a, b) => b[1] - a[1]),
+    ...chanPairs.filter(([k]) => !chanEndorsed[k]).sort((a, b) => b[1] - a[1])
+  ];
   const [topKey, topVal] = arr[0];
   const [secKey, secVal] = arr[1];
   const thrVal = arr[2][1];
   const allThreeEndorsed = chanEndorsed.do && chanEndorsed.block && chanEndorsed.drag;
 
-  let kicker = '', head = '', sub = '', card = '', showClosing = false;
+  let kicker = '', head = '', sub = '', showClosing = false;
+  let synthesis = '', ruleOut = '', lever = '', careHtml = '';
+  const notes = [];
+
+  const FRAMING = `<p>What follows is a pattern psychology describes well, and what your answers suggest about how it is working in you. The pattern is established. Whether it is yours is for you to test — and further down there is a way to check.</p>`;
 
   // Branch 0 — no signal. Nothing was answered above "Rarely". Skips alone
   // cannot reach this bar: a skip is a weak lean, not an endorsement.
@@ -1320,13 +1485,19 @@ function showResults() {
     kicker = '';
     head = "Nothing here stood out — and that is worth knowing too.";
     sub = `<p>Either today is not the day to feel it, or your energy is not leaking much in these directions right now. Both are information. Come back another time and see whether anything reads differently.</p>`;
+    // A null result is only useless if nothing is wrong. If someone arrived
+    // here tired, "none of these" is a real finding that points elsewhere —
+    // say so rather than letting the empty result read as a failed run.
+    notes.push(noteCard("If you came here tired", "<p>Then this is more useful than it looks. It suggests the tiredness is not mainly coming from the three costs this tool can see — guarding, holding back, or never fully resting. That points the search somewhere else: sleep, physical health, mood, or a situation that is genuinely asking a lot of you right now. None of those are things this tool can measure, and all of them are more likely if this one came back empty.</p>"));
   }
   // Branch "everywhere" — all three genuinely endorsed and fairly even
   else if (allThreeEndorsed && thrVal > 0 && topVal <= thrVal * 1.6) {
     kicker = 'where it goes';
     head = "Your energy is going in all three directions at once.";
-    sub = `<p>Guarding, holding back, and never fully resting — all at the same time. When all three appear together, the cause is usually not one habit. It is the level your whole system is running at: tense as a starting point. The quiet good news is that there is one thing underneath, not three separate ones to work on.</p>`;
-    card = RCARD_ALL;
+    sub = `<p>Guarding, holding back, and never fully resting — all at the same time. When all three appear together, the cause is usually not one habit. It is the level your whole system is running at: tense as a starting point.</p>` + FRAMING;
+    synthesis = renderSynthesis(ALL_READ.origin, ALL_READ.maintain);
+    ruleOut = renderRuleOut(ALL_READ.look);
+    lever = ALL_READ.lever;
     showClosing = true;
   }
   // One channel leads (with an optional close second named)
@@ -1334,33 +1505,112 @@ function showResults() {
     const C = CHANNEL[topKey];
     kicker = 'where it goes';
     head = C.head;
-    sub = `<p>${C.sub}</p>`;
-    card = C.card;
-    if (secVal > 0 && secVal >= topVal * 0.6) {
-      sub += `<p>There is a strong second pattern too: ${CHANNEL[secKey].short}. Worth keeping in mind alongside the first.</p>`;
-    }
+    sub = `<p>${C.sub}</p>` + FRAMING;
+    const secondStrong = chanEndorsed[secKey] && secVal > 0 && secVal >= topVal * 0.6;
+    // When a pairwise note below will already cover how the two channels
+    // interact, don't also unpack the second channel here — one pointer line
+    // is enough, and the interaction read is the more useful of the two.
+    const pairNoteWillFire = presentCount === 2 && present[topKey] && present[secKey];
+    synthesis = renderSynthesis(
+      C.origin,
+      C.maintain,
+      secondStrong && !pairNoteWillFire ? CHANNEL[secKey].origin : null,
+      secondStrong ? CHANNEL[secKey].short : null
+    );
+    ruleOut = renderRuleOut(C.look);
+    lever = C.lever;
     showClosing = true;
+
+    // ── Combination reads ───────────────────────────────────────────────────
+    // The part a single-channel verdict cannot give. A pair of channels
+    // running together often means something neither one means alone, so
+    // these fire only when exactly two are PRESENT — with three, the pairwise
+    // notes would all fire at once and say less than one statement about
+    // level; with one, there is no combination to read.
+    if (presentCount === 2) {
+      if (present.do && present.block) {
+        notes.push(noteCard("Preparing may be how you avoid", "<p>These two often turn out to be one move rather than two. Preparing is the most respectable way there is to not begin: it produces effort, it feels like progress, and it postpones the moment of actually doing the thing. Worth checking whether your preparing clusters around the same tasks you are avoiding. If it does, you are not looking at two patterns. You are looking at one with a good cover story.</p>"));
+      } else if (present.do && present.drag) {
+        notes.push(noteCard("The guarding is not switching off", "<p>Watching for problems is meant to be episodic — it comes on when something is coming, and drops when it passes. Appearing alongside a raised baseline usually means the off-switch has stopped working, rather than that there is more to watch for. Worth checking against a specific case: think of the last thing you were braced for, and ask whether the bracing actually ended when the thing did.</p>"));
+      } else if (present.block && present.drag) {
+        notes.push(noteCard("What you are not doing may be part of the load", "<p>Something avoided does not stop costing you. It stays partly loaded — remembered, worked around, checked for. So it is worth testing whether some of your background load is not a setting at all, but the weight of specific unfinished things. There is a cheap test: finish one avoided item this week and see whether the baseline moves at all in the days after. If it does, your list is heavier than your system.</p>"));
+      }
+    } else if (presentCount === 3) {
+      notes.push(noteCard("All three are running, even though one leads", "<p>One area came out clearly on top, and that is where the read above is aimed. But all three are present. That matters for what you do next: when all three are running, changing a single habit tends not to hold, because the level underneath keeps regenerating it. Start with the lead, and treat any lasting change in it as evidence about the level rather than about that one habit.</p>"));
+    }
+
+    // The baseline came out clear. Genuinely good news, and specific: it
+    // means the effort is attached to situations rather than running
+    // underneath everything, which is a much better position to work from.
+    if (low.drag && (present.do || present.block)) {
+      notes.push(noteCard("Your baseline came out relatively clear", "<p>Worth noticing what is not here. The \u201cnever fully at rest\u201d answers stayed low, which suggests the effort is attached to particular situations rather than running underneath everything. That is the better version of this. It usually means you are looking at a habit tied to circumstances rather than a setting your whole system is holding — and habits tied to circumstances move more easily.</p>"));
+    }
+
+    // Load with no visible behavioural driver. This is the one combination
+    // where the honest answer is that the explanation may sit outside this
+    // instrument entirely, so it says that plainly rather than leaving the
+    // rule-out buried in the static disclaimer.
+    if (present.drag && low.do && low.block) {
+      notes.push(noteCard("This one is worth looking at outside this tool", "<p>A raised baseline without a matching pattern of guarding or avoiding has no obvious behavioural driver. That does not make the tiredness less real — it makes the other explanations more relevant, not less. Sleep, pain, illness, medication, low mood, or a situation that is genuinely demanding right now can all produce exactly this, and none of them are visible to a set of questions like these. If it has lasted months, that is worth a conversation with a doctor before it is a habit to work on.</p>"));
+    }
+  }
+
+  // Skips, when there are enough of them to be a pattern rather than noise.
+  if (skippedItems.length >= 4) {
+    notes.push(noteCard("What you skipped", "<p>You passed over several of these. Skipping is not a wrong answer and it is not counted as agreement. But if the ones you moved past cluster in one area, that clustering is worth a look on its own — they are listed below.</p>"));
+  }
+
+  // ── Care read ───────────────────────────────────────────────────────────
+  // Not a crisis gate: this instrument has no acute-risk items, nothing is
+  // suppressed, and the tip jar stays visible. It is a proportionate note for
+  // when a great deal landed at once.
+  //
+  // Triggered on total intensity (46 of a possible 72) rather than a count of
+  // strong items, so that two channels answered at the top of the scale reach
+  // it while three channels answered "Sometimes" do not. A count-based trigger
+  // treats those two cases the same, and they are not the same.
+  const loadTotal = totals.do + totals.block + totals.drag;
+  if (loadTotal >= 46) {
+    careHtml = `<div class="care-card">
+      <div class="cc-kicker">Before you read on</div>
+      <div class="cc-body">
+        <p>A lot landed here, and much of it near the top of the scale. That is worth naming before anything else on this page: running at this level is expensive, and it is more than one sitting with a set of questions is built to hold.</p>
+        <p>This is not a warning sign about you, and nothing below becomes less true. It is a note that at this weight, this kind of thing tends to move better with someone alongside you than as a solo project — and that tiredness at this level is worth ruling out physically as well.</p>
+      </div>
+      <a class="cc-link" href="https://www.findahelpline.com" target="_blank" rel="noopener">Find someone to talk to</a>
+    </div>`;
   }
 
   // render
   document.getElementById('rKicker').textContent = kicker;
   document.getElementById('rHead').textContent = head;
   document.getElementById('rSub').innerHTML = sub;
-  document.getElementById('rCard').innerHTML = card;
+  document.getElementById('synthesis').innerHTML = synthesis;
+  document.getElementById('patternNotes').innerHTML = notes.join('');
+  document.getElementById('ruleOut').innerHTML = ruleOut;
+  document.getElementById('closingStep').innerHTML = lever
+    ? `<div class="rcard lever">
+         <div class="rc-theme"><span class="rc-dot"></span>One thing to test</div>
+         <div class="rc-body"><p>${lever}</p></div>
+       </div>`
+    : '';
+  const careEl = document.getElementById('careCard');
+  careEl.innerHTML = careHtml;
+  careEl.style.display = careHtml ? 'block' : 'none';
 
   document.getElementById('closing').style.display = showClosing ? 'block' : 'none';
 
   // Share-card feature picks are drawn from the strongest answers only.
   lastStrongItems = strongItems;
 
-  buildFlaggedSection('flaggedStrong',  'flaggedStrongItems',  strongItems);
-  buildFlaggedSection('flaggedSome',    'flaggedSomeItems',    someItems);
-  buildFlaggedSection('flaggedSkipped', 'flaggedSkippedItems', skippedItems);
+  buildFlaggedSection('flaggedStrong',  'flaggedStrongItems',  strongItems, true);
+  buildFlaggedSection('flaggedSome',    'flaggedSomeItems',    someItems, false);
+  buildFlaggedSection('flaggedSkipped', 'flaggedSkippedItems', skippedItems, false);
 
   showScreen('screen-results');
 }
 
-function buildFlaggedSection(wrapId, listId, items) {
+function buildFlaggedSection(wrapId, listId, items, withMeta) {
   const wrap = document.getElementById(wrapId);
   const list = document.getElementById(listId);
   // Clear, don't just hide: copyResults() and the print output query these
@@ -1380,12 +1630,16 @@ function buildFlaggedSection(wrapId, listId, items) {
     items: bySi.get(si)
   }));
 
+  // withMeta: label each item with its answer. Only the strong list needs
+  // this — it mixes "Often" and "Almost always", and the difference matters.
+  // In the other two lists the section header already says it.
   list.innerHTML = groups.map(g => `
     <div class="flagged-group">
       <div class="fg-title"><span class="fg-swatch"></span>${g.theme}</div>
       ${g.items.map(it => `
         <div class="flagged-item">
           <div class="fi-text">${it.text}</div>
+          ${withMeta && SCALE_LABEL[it.val] ? `<div class="fi-meta">${SCALE_LABEL[it.val]}</div>` : ''}
         </div>`).join('')}
     </div>`).join('');
 }
@@ -1421,7 +1675,8 @@ function openShareCard() {
   sharePicked = null;
   featureEl.classList.remove('show');
   if (picks.length) {
-    picksEl.innerHTML = picks.map((p, i) => `<button class="share-pick" data-i="${i}" onclick="pickShareFeature(${i})">Feature a line</button>`).join('');
+    const label = p => p.length > 42 ? p.slice(0, 39).trim() + '…' : p;
+    picksEl.innerHTML = picks.map((p, i) => `<button class="share-pick" data-i="${i}" onclick="pickShareFeature(${i})">${label(p)}</button>`).join('');
     picksEl._picks = picks;
   } else {
     picksEl.innerHTML = '';
@@ -1467,18 +1722,35 @@ function copyShareLink() {
 function copyResults() {
   const head = document.getElementById('rHead').textContent.trim();
   const sub  = document.getElementById('rSub').innerText.trim();
-  const cardEl = document.getElementById('rCard');
-  const cardText = cardEl ? cardEl.innerText.trim() : '';
+  // innerText preserves the line breaks between cards; textContent is a
+  // fallback so a missing implementation degrades rather than throws.
+  const grab = id => {
+    const el = document.getElementById(id);
+    if (!el) return '';
+    return (el.innerText || el.textContent || '').trim();
+  };
   const note = (document.getElementById('resultNote').value || '').trim();
   let txt = 'Where your energy goes — a self-inquiry at nervuk.ai\n\n' + head;
   if (sub) txt += '\n\n' + sub;
-  if (cardText) txt += '\n\n' + cardText;
-  const strong = [...document.querySelectorAll('#flaggedStrongItems .fi-text')].map(e => '• ' + e.textContent.trim());
+  // Order matches the page: care read, synthesis, combination notes,
+  // discriminating test. The lever is appended after the flagged lists below,
+  // so the copied version keeps the same arc as the screen.
+  ['careCard', 'synthesis', 'patternNotes', 'ruleOut'].forEach(id => {
+    const t = grab(id);
+    if (t) txt += '\n\n' + t;
+  });
+  const strong = [...document.querySelectorAll('#flaggedStrongItems .flagged-item')].map(e => {
+    const t = e.querySelector('.fi-text').textContent.trim();
+    const m = e.querySelector('.fi-meta');
+    return '• ' + t + (m ? ' — ' + m.textContent.trim() : '');
+  });
   if (strong.length) txt += '\n\nWhat happens most often:\n' + strong.join('\n');
   const some = [...document.querySelectorAll('#flaggedSomeItems .fi-text')].map(e => '• ' + e.textContent.trim());
   if (some.length) txt += '\n\nWhat happens sometimes:\n' + some.join('\n');
   const skipped = [...document.querySelectorAll('#flaggedSkippedItems .fi-text')].map(e => '• ' + e.textContent.trim());
   if (skipped.length) txt += '\n\nSkipped:\n' + skipped.join('\n');
+  const leverText = grab('closingStep');
+  if (leverText) txt += '\n\n' + leverText;
   if (note) txt += '\n\nMy note: ' + note;
   txt += '\n\nnervuk.ai/energy.html';
 

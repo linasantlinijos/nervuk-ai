@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>The bigger picture — nervuk.ai</title>
+<title>A map of your capacity — nervuk.ai</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,500;0,7..72,600;1,7..72,400&family=Hanken+Grotesk:wght@500&display=swap" rel="stylesheet">
@@ -588,10 +588,33 @@
   .disclaimer a { color: var(--ink-faint); }
   .disclaimer a:hover { color: var(--ink); }
 
+  /* ─── Site footer (About / Disclaimer / copyright) — lives outside the
+       card, scrolls with the page in normal flow, never fixed/floating ─── */
+  .site-footer {
+    margin-top: 32px;
+    padding: 0 16px 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    text-align: center;
+  }
+  .site-footer-links { display: flex; align-items: center; gap: 10px; }
+  .site-footer-link {
+    font-size: 0.9625rem;
+    color: var(--ink-mid);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    transition: color .18s;
+  }
+  .site-footer-link:hover { color: var(--accent); }
+  .site-footer-sep { color: var(--ink-faint); font-size: 0.85rem; }
+  .site-footer-copy { font-size: 0.825rem; color: var(--ink-faint); }
+
   /* ─── Print-only elements / PDF ─── */
   .print-only { display: none; }
   @media print {
-    #bg-video, .site-header, #pause, .tipjar, .save-block, .follow-block, #shareOverlay { display: none !important; }
+    #bg-video, .site-header, #pause, .tipjar, .save-block, .follow-block, #shareOverlay, .site-footer { display: none !important; }
     html, body { background: #fff !important; }
     .stage { padding: 0 !important; min-height: 0 !important; }
     .panel { box-shadow: none !important; border-radius: 0 !important; max-width: 100% !important; }
@@ -717,7 +740,7 @@
         <p class="lead">Your energy goes to six places: your mind and nervous system, your body, the people and situation around you, your daily habits, things from your past, and your relationship with yourself. You answer a few short questions about each one. At the end you get a simple picture of where most of your energy is going, and one clear thing you can do about it.</p>
         <p class="note">There is no right order and no wrong answer. Go through the six areas in any order, answer what is true for you, and skip anything you would rather not look at today. It's not about today or even this week — look at the long term. There is no score and no test result. This only shows you what you told it.</p>
         <div class="meta-row">
-          <span><span class="mdot"></span> 6 areas, 29 short questions</span>
+          <span><span class="mdot"></span> 6 areas, about 35 short questions</span>
         </div>
         <p class="section-list-label">The six areas</p>
         <ul class="section-list" id="introRoomList"></ul>
@@ -891,6 +914,15 @@
   </div><!-- /panel -->
 </div><!-- /stage -->
 
+<footer class="site-footer">
+  <div class="site-footer-links">
+    <a href="/about" class="site-footer-link">About</a>
+    <span class="site-footer-sep">·</span>
+    <a href="/legal" class="site-footer-link">Disclaimer</a>
+  </div>
+  <p class="site-footer-copy">© nervuk.ai, 2026</p>
+</footer>
+
 <!-- Somatic pause overlay -->
 <div id="pause">
   <div class="breath-wrap">
@@ -961,9 +993,13 @@ const ROOMS = [
       { id: "body3", text: "Pain or a health problem gets in the way of my daily life.", leak: "a health problem or pain getting in the way of daily life" },
       // Safety feeder, not a capacity load: excluded from this area's density
       // (safetyOnly) so it never inflates the slice, but still read directly by
-      // the medical trigger via isLandsHard. Reworded to an impact/degree form so
-      // the shared five-point scale reads naturally.
-      { id: "body4", text: "I have physical symptoms I have been worried about but not had checked.", leak: "physical symptoms you have not had checked yet", safetyOnly: true },
+      // the medical trigger via isLandsHard and by the soft trigger at the
+      // "sometimes" point. Phrased as a degree of worry, not as the existence of
+      // a symptom, so the shared five-point frequency scale actually fits it —
+      // an existence statement forces someone with one genuinely worrying
+      // unchecked symptom to answer "Sometimes", which used to silence the
+      // safety trigger entirely.
+      { id: "body4", text: "Physical symptoms I have not had checked are worrying me.", leak: "physical symptoms you have not had checked yet", safetyOnly: true },
       { id: "body5", text: "I have been skipping basics like proper meals, movement or rest.", leak: "skipping basics like meals, movement or rest" }
     ]
   },
@@ -1152,6 +1188,10 @@ if (typeof module !== "undefined" && module.exports) {
   }
 
   // ── §1 / §2 Bands (display vocabulary only — never surfaced as numbers) ──
+  // UNUSED as of v7.1: nothing in the copy or map layer calls any of the four
+  // below. The wheel words (amountWord / steadinessWord) superseded them. Kept
+  // only so the exported surface the jsdom suite asserts on stays stable —
+  // delete both these and their export line once that assertion is dropped.
   function densityBand(d) {
     if (d == null) return null;
     if (d < 0.25) return "quiet";
@@ -1222,7 +1262,7 @@ if (typeof module !== "undefined" && module.exports) {
     const coreVeryShaky = coreSteadiness != null && coreSteadiness <= 0.2; // slider near "not steady"
     const onCrisisPath = onCarePath && ((veryHeavyCount >= 4 && coreVeryShaky) || allVeryHeavy);
 
-    return { fires, disarm, onCarePath, onCrisisPath, triggerA, triggerB };
+    return { fires, disarm, onCarePath, onCrisisPath, triggerA, triggerB, coreVeryShaky, allVeryHeavy };
   }
 
   // ── §6 Medical triggers ────────────────────────────────────────────────
@@ -1230,10 +1270,14 @@ if (typeof module !== "undefined" && module.exports) {
     const illnessLands = isLandsHard(markerVals, "body", "body3");
     const signalsLands = isLandsHard(markerVals, "body", "body4");
     const nrsLands = isLandsHard(markerVals, "body", "body2");
+    // body4 is the designated safety feeder, so it fails loud rather than
+    // quiet: the top two points are a hard rule-out, and the midpoint still
+    // earns the soft note. Anything below that is no real signal, as elsewhere.
+    const signalsQuiet = isQuietTier(markerVals, "body", "body4");
     const hard = illnessLands || signalsLands;
     const bodyDensity = roomStats.body.density;
-    const soft = !hard && ((bodyDensity != null && bodyDensity >= 0.5) || nrsLands);
-    return { hard, soft, illnessLands, signalsLands, nrsLands };
+    const soft = !hard && (signalsQuiet || (bodyDensity != null && bodyDensity >= 0.5) || nrsLands);
+    return { hard, soft, illnessLands, signalsLands, nrsLands, signalsQuiet };
   }
 
   // ── §3 Mismatch reads (cap 2 total; reverse capped at 1) ──────────────
@@ -1274,11 +1318,16 @@ if (typeof module !== "undefined" && module.exports) {
   }
 
   // ── §4 Fog (Channel E) ─────────────────────────────────────────────────
-  function computeFog(roomStats) {
+  function computeFog(roomStats, felt) {
     const roomsFogged = ROOMS.filter(r => roomStats[r.id].fogged).map(r => r.id);
     const totalCanttell = ROOMS.reduce((s, r) => s + roomStats[r.id].canttellCount, 0);
-    const globalFire = totalCanttell >= 4 || roomsFogged.length > 0;
-    return { roomsFogged, totalCanttell, globalFire };
+    // Slider-level "not sure" counts too. Someone who could not rate half the
+    // areas has answered "not sure" several times in the plain sense of the
+    // words, and the fog card is written for exactly that person — it used to
+    // stay silent for them because only marker-level answers were counted.
+    const feltFogCount = ROOMS.filter(r => (felt || {})[r.id] === "fog").length;
+    const globalFire = totalCanttell >= 4 || roomsFogged.length > 0 || feltFogCount >= 3;
+    return { roomsFogged, totalCanttell, feltFogCount, globalFire };
   }
 
   // ── §7 Connection layer (pathways) ─────────────────────────────────────
@@ -1358,21 +1407,33 @@ if (typeof module !== "undefined" && module.exports) {
   function computeChronicityRead(eligibleRoomIds, chronicity) {
     const answers = eligibleRoomIds.map(rid => (chronicity || {})[rid]).filter(v => v && v !== "skip");
     const total = answers.length;
+    // Deliberate asymmetry, do not "fix" in either direction: "last year or two"
+    // counts as old for this descriptive read, but pathway 2 and the doors
+    // routing require "most of my life". Describing a two-year-old pattern as
+    // long-standing is safe; routing someone to therapy-orientation on that
+    // basis is a bigger claim, so that gate stays stricter.
     const oldCount = answers.filter(v => v === "year" || v === "always").length;
     const seasonCount = answers.filter(v => v === "season").length;
     const mixedCount = answers.filter(v => v === "mixed").length;
     const canttellCount = answers.filter(v => v === "canttell").length;
 
+    // "Hard to say" is not a timing answer, it is the absence of one. Only
+    // directional answers can support a directional read.
+    const directionalCount = oldCount + seasonCount + mixedCount;
+
     let family = null;
-    if (total > 0) {
+    if (directionalCount > 0) {
       // A direct "a mix of both" answer for any area, or old- and
       // recent-leaning areas both present, is itself the finding — it
       // doesn't get forced to whichever side happens to have more areas.
       if (mixedCount > 0 || (oldCount > 0 && seasonCount > 0)) family = "mixed";
       else if (oldCount > 0) family = "old";
-      else if (seasonCount > 0) family = "situational";
-      else family = "mixed"; // only "hard to say" answers — no directional read
+      else family = "situational";
     }
+    // else: every answer was "hard to say", so family stays null and the timing
+    // card does not render. Saying "some of this is recent and some is
+    // long-standing" here would be inventing a finding the person never gave —
+    // the fog card already covers not being able to tell.
     return { family, softNote: canttellCount >= 2, total, oldCount, seasonCount, mixedCount, canttellCount };
   }
 
@@ -1447,12 +1508,23 @@ if (typeof module !== "undefined" && module.exports) {
   // Which of the five outer domains is taking the most, by the person's own
   // slider — not by marker count, since areas have different numbers of
   // markers and a count-based ranking would systematically favour the ones
-  // with more items. Ties break on CARE_DOMAINS' fixed declared order.
-  function computeBiggestLeakArea(felt) {
+  // with more items. Where the slider was not given ("not sure", or the area's
+  // general question was left), the area's marker density stands in, on the
+  // same 0..1 scale — otherwise someone who could not rate any area gets no
+  // leak card at all, which is precisely the person the card is for.
+  // Ties break on CARE_DOMAINS' fixed declared order.
+  function effectiveLoad(roomId, felt, roomStats) {
+    const v = (felt || {})[roomId];
+    if (typeof v === "number") return v;
+    const d = roomStats && roomStats[roomId] ? roomStats[roomId].density : null;
+    return (d != null) ? d : null;
+  }
+
+  function computeBiggestLeakArea(felt, roomStats) {
     let best = null, bestVal = -1;
     CARE_DOMAINS.forEach(id => {
-      const v = (felt || {})[id];
-      if (typeof v === "number" && v > bestVal) { bestVal = v; best = id; }
+      const v = effectiveLoad(id, felt, roomStats);
+      if (v != null && v > bestVal) { bestVal = v; best = id; }
     });
     return best;
   }
@@ -1480,7 +1552,7 @@ if (typeof module !== "undefined" && module.exports) {
 
     let mismatches = [];
     let pathways = [];
-    let fog = computeFog(roomStats);
+    let fog = computeFog(roomStats, felt);
     let chronEligible = [];
     let chronRead = { family: null, softNote: false, total: 0 };
     let routing = { type: "situational" };
@@ -1492,7 +1564,7 @@ if (typeof module !== "undefined" && module.exports) {
       chronEligible = computeChronicityEligibility(roomStats, felt);
       chronRead = computeChronicityRead(chronEligible, chronicity);
       routing = computeRouting(medical, pathways, fog, markerVals);
-      biggestLeakArea = computeBiggestLeakArea(felt);
+      biggestLeakArea = computeBiggestLeakArea(felt, roomStats);
     }
 
     return {
@@ -1510,7 +1582,7 @@ if (typeof module !== "undefined" && module.exports) {
     computeCareGate, computeMedical, computeMismatches, computeFog,
     computePathways, computeChronicityEligibility, computeChronicityRead,
     computeRouting, isNothingLanded, computeAll,
-    computeRoomLeak, computeAllRoomLeaks, computeBiggestLeakArea
+    computeRoomLeak, computeAllRoomLeaks, computeBiggestLeakArea, effectiveLoad
   };
 });
 
@@ -1535,8 +1607,14 @@ if (typeof module !== "undefined" && module.exports) {
   const ROOM_NAME = {}; BP6.ROOMS.forEach(r => { ROOM_NAME[r.id] = r.short; });
   const ROOM_NAME_LOWER = {}; BP6.ROOMS.forEach(r => { ROOM_NAME_LOWER[r.id] = r.short.charAt(0).toLowerCase() + r.short.slice(1); });
 
+  // Safety line for the switch-off pathway. The marker behind it names drinking
+  // among its examples, and the surrounding advice is "add before you subtract",
+  // which is right but silent on the one case where doing it alone can be
+  // unsafe. One clause closes that, without assuming the habit is a substance.
+  const SUBSTANCE_LINE = " If the habit is alcohol or another substance and cutting down has been hard, a doctor can help with that part — it is not a thing to push through alone.";
+
   // Medical rule-out line kept because it is a safety line, reworded plainly.
-  const APNEA_LINE = " Sleep that never restores can also have simple physical causes, such as sleep apnea. These are easy for a doctor to check.";
+  const APNEA_LINE = " Sleep that never restores can also have simple physical causes, such as sleep apnea. These are straightforward for a doctor to check.";
 
   // ── Mismatch reads ─────────────────────────────────────────────────────────
   function reverseMismatchText(roomId) {
@@ -1572,11 +1650,16 @@ if (typeof module !== "undefined" && module.exports) {
   function leakSentence(roomId, leak) {
     if (leak.feltState === "unanswered") return "";
 
+    // The sentence this line is appended to now already says the area was
+    // sized from the specific answers, so this no longer repeats that framing —
+    // it just says what those answers were, in the same shape as any other area.
     if (leak.feltState === "fog") {
       if (leak.tier === "none") return "";
       const frags = leakFragments(roomId, leak.chosenIds);
       const joined = joinFragments(frags, leak.moreCount, leak.tier);
-      return `But specific things here did match: ${joined}. Worth trusting those over the general sense.`;
+      return leak.tier === "lands"
+        ? `Most of it ${leakVerb(roomId)} ${joined}.`
+        : `A little of it ${roomId === "core" ? "shows up as" : "comes from"} ${joined}.`;
     }
 
     // feltState === "known"
@@ -1646,11 +1729,11 @@ if (typeof module !== "undefined" && module.exports) {
     3: {
       hyper: {
         title: "The way you switch off is doing a job",
-        body: () => "Your system has trouble slowing down on its own, and the habit you use to switch off is doing that job for you. This is why simply removing the habit rarely works. It is more useful to add another way to come down first — movement, a long out-breath, a bath, company — and only then reduce the habit."
+        body: () => "Your system has trouble slowing down on its own, and the habit you use to switch off is doing that job for you. This is why simply removing the habit rarely works. It is more useful to add another way to come down first — movement, a long out-breath, a bath, company — and only then reduce the habit." + SUBSTANCE_LINE
       },
       hypo: {
         title: "The way you switch off is doing a job",
-        body: () => "Your system has been running low and flat, and the habit you use to switch off is the easiest comfort still within reach. That is not a character flaw, it is a reasonable choice by a tired system. Adding one small source of energy or contact usually works better than removing the habit first."
+        body: () => "Your system has been running low and flat, and the habit you use to switch off is the easiest comfort still within reach. That is not a character flaw, it is a reasonable choice by a tired system. Adding one small source of energy or contact usually works better than removing the habit first." + SUBSTANCE_LINE
       }
     },
     4: {
@@ -1742,12 +1825,21 @@ if (typeof module !== "undefined" && module.exports) {
   // gently outward, but the page around it stays whole (map, tip, share all
   // remain). The crisis version is for the genuinely severe combination and
   // foregrounds reaching a person now.
-  function careCardHtml(isCrisis) {
+  // `care` is the care-gate object; only its coreVeryShaky flag is read. The
+  // crisis gate has two independent triggers, and one of them (everything very
+  // heavy at once) fires without any steadiness signal — so the steadiness
+  // sentence has to be conditional, or the card tells a person they said
+  // something they did not say.
+  function careCardHtml(isCrisis, care) {
+    const shaky = !!(care && care.coreVeryShaky);
     if (isCrisis) {
+      const opener = shaky
+        ? "Almost everything you looked at came back heavy at once, and you said you do not feel steady underneath it. That is a lot for anyone to be carrying alone."
+        : "Almost everything you looked at came back heavy at once. That is a lot for anyone to be carrying alone.";
       return `<div class="care-card crisis">
         <div class="cc-kicker">Please read this first</div>
         <div class="cc-body">
-          <p>Almost everything you looked at came back heavy at once, and you said you do not feel steady underneath it. That is a lot for anyone to be carrying alone.</p>
+          <p>${opener}</p>
           <p>A map of it is not the useful thing right now. Reaching one person is — someone you trust, a doctor, or a therapist. You do not have to sort out which part is which before you do that.</p>
           <p>If any of this feels like more than you can hold, you can talk to someone straight away, any time of day.</p>
           <a class="cc-link" href="https://www.findahelpline.com" target="_blank" rel="noopener">findahelpline.com →</a>
@@ -1778,9 +1870,16 @@ if (typeof module !== "undefined" && module.exports) {
     </div>`;
   }
   function medicalSoftNoteHtml(med) {
-    const line = med.nrsLands
-      ? "Waking up still tired is worth mentioning at a check-up. It often has simple physical causes, not only stress ones."
-      : "Your body came back heavy, though nothing specific enough to point at. If anything there is new or getting worse, mention it at a check-up.";
+    // Ranked: the unchecked-symptoms signal is the most specific and the most
+    // actionable, so it speaks first when it is present at all.
+    let line;
+    if (med.signalsQuiet) {
+      line = "You said physical symptoms you have not had checked are on your mind. Getting them looked at is worth doing on its own, whatever the rest of this page says.";
+    } else if (med.nrsLands) {
+      line = "Waking up still tired is worth mentioning at a check-up. It often has simple physical causes, not only stress ones.";
+    } else {
+      line = "Your body came back heavy, though nothing specific enough to point at. If anything there is new or getting worse, mention it at a check-up.";
+    }
     return `<div class="rcard medical"><div class="rc-theme"><span class="rc-dot"></span>Worth mentioning to a doctor</div><div class="rc-body"><p>${line}</p></div></div>`;
   }
 
@@ -1858,8 +1957,10 @@ if (typeof module !== "undefined" && module.exports) {
 // ─── MAP — instrument 09 v7 ──────────────────────────────────────────────────
 // A pie chart. Capacity is treated as one finite whole, split five ways — each
 // area's slice size is the share of your total load it is taking, driven by the
-// slider you moved for that area. Your relationship with yourself sits in the
-// centre as the container holding all of it, not as a sixth competing slice.
+// slider you moved for that area, or, where you could not move it, by your
+// answers to that area's specific statements. Your relationship with yourself
+// sits in the centre as the container holding all of it, not as a sixth
+// competing slice.
 //
 // v7 changes:
 //   • Larger wheel (~70%): tighter, near-square viewBox and a much bigger outer
@@ -1924,6 +2025,19 @@ if (typeof module !== "undefined" && module.exports) {
     return `M ${CX} ${CY} L ${x1.toFixed(1)} ${y1.toFixed(1)} A ${OUTER_R} ${OUTER_R} 0 ${large} 1 ${x2.toFixed(1)} ${y2.toFixed(1)} Z`;
   }
   function esc(s) { return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
+
+  // One hatch pattern per area, in that area's own colour. Used for slices
+  // sized from marker density rather than from the slider: the stripe says
+  // "read a different way", the colour still says which area this is. The
+  // separate grey `notSure` pattern stays for areas with nothing to go on.
+  function hatchDefs() {
+    return Object.keys(AREA_COLOR).map(id =>
+      `<pattern id="hatch-${id}" width="7" height="7" patternTransform="rotate(45)" patternUnits="userSpaceOnUse">`
+      + `<rect width="7" height="7" fill="${AREA_COLOR[id]}" fill-opacity="0.16"/>`
+      + `<line x1="0" y1="0" x2="0" y2="7" stroke="${AREA_COLOR[id]}" stroke-width="3.2" stroke-opacity="0.75"/>`
+      + `</pattern>`
+    ).join("");
+  }
   // Splits a "One small step: ..." suggestion into a bold, accent-colored
   // lead-in plus the regular italic rest — same pattern as BP6COPY's
   // tipLeadHtml, duplicated here since this module escapes its own strings.
@@ -1937,17 +2051,45 @@ if (typeof module !== "undefined" && module.exports) {
   function wheelData(result) {
     const felt = result.felt || {};
     const chron = result._chronicity || {};
+    const stats = result.roomStats || {};
     let anyKnown = false;
     const rows = WEDGES.map(id => {
       const v = felt[id];
-      const known = typeof v === "number";
+      // Three states, not two. A slider answer sizes the slice directly. Where
+      // there is no slider answer but the specific statements were answered,
+      // the area's marker density sizes it instead — the tool already tells
+      // these people their specific answers are the more reliable ones, so the
+      // picture has to act on that rather than showing them an empty slice.
+      const sliderKnown = typeof v === "number";
+      const density = stats[id] ? stats[id].density : null;
+      let source, value;
+      if (sliderKnown)          { source = "slider";  value = v; }
+      else if (density != null) { source = "density"; value = density; }
+      else                      { source = "none";    value = 0; }
+      const known = source !== "none";
       if (known) anyKnown = true;
-      const value = known ? v : 0;
       const weight = Math.max(value, FLOOR);
-      return { id, known, value, weight, older: chron[id] === "always" || chron[id] === "year" };
+      return {
+        id, known, source, value, weight,
+        fogged: v === "fog",
+        older: chron[id] === "always" || chron[id] === "year"
+      };
     });
     const total = rows.reduce((s, r) => s + r.weight, 0);
-    return { rows, total, anyKnown };
+
+    // Core is sized the same way: its slider is steadiness (high = less steady),
+    // and its marker density runs the same direction, so density substitutes
+    // cleanly when the slider was not given.
+    const coreFelt = felt.core;
+    const coreDensity = stats.core ? stats.core.density : null;
+    let coreSource, coreValue;
+    if (typeof coreFelt === "number")  { coreSource = "slider";  coreValue = coreFelt; }
+    else if (coreDensity != null)      { coreSource = "density"; coreValue = coreDensity; }
+    else                               { coreSource = "none";    coreValue = null; }
+    if (coreSource !== "none") anyKnown = true;
+    const core = { source: coreSource, value: coreValue, known: coreSource !== "none", fogged: coreFelt === "fog" };
+
+    return { rows, total, anyKnown, core };
   }
 
   function amountWord(known, value) {
@@ -1971,13 +2113,22 @@ if (typeof module !== "undefined" && module.exports) {
     const wd = wheelData(result);
     const row = wd.rows.find(r => r.id === id);
     let sentence;
-    if (!row.known) {
-      sentence = "You did not answer enough here to show.";
+    if (row.source === "none") {
+      // Nothing to build a slice from, so nothing to say — and no leak line
+      // either, since claiming "most of it goes into X" under a sentence that
+      // says you did not answer would contradict itself.
+      return "You did not answer enough here to show.";
+    }
+    if (row.source === "density") {
+      sentence = row.fogged
+        ? "You could not say how much this area is taking, so this is sized from your specific answers instead: "
+        : "You did not answer the general question here, so this is sized from your specific answers instead: ";
+      sentence += `using up ${amountWord(true, row.value)} of your energy.`;
     } else {
       sentence = `Using up ${amountWord(true, row.value)} of your energy.`;
-      if (row.older) sentence += " You said this has been going on for a long time.";
-      else if ((result._chronicity || {})[id] === "mixed") sentence += " You said some of this is recent and some is longer-standing.";
     }
+    if (row.older) sentence += " You said this has been going on for a long time.";
+    else if ((result._chronicity || {})[id] === "mixed") sentence += " You said some of this is recent and some is longer-standing.";
     const leak = result.leaks && result.leaks[id];
     if (leak) {
       const leakLine = BP6COPY.leakSentence(id, leak);
@@ -1987,12 +2138,21 @@ if (typeof module !== "undefined" && module.exports) {
   }
 
   function coreSentence(result) {
-    const coreFelt = result.felt ? result.felt.core : undefined;
-    const coreKnown = typeof coreFelt === "number";
-    const coreWord = steadinessWord(coreKnown, coreFelt);
-    let sentence = coreKnown
-      ? `You feel ${coreWord} inside yourself right now.`
-      : "You did not answer enough here to show.";
+    const wd = wheelData(result);
+    const core = wd.core;
+    let sentence;
+    if (core.source === "none") {
+      return "You did not answer enough here to show.";
+    }
+    if (core.source === "density") {
+      // Deliberately does not put a steadiness word in their mouth: they said
+      // they could not tell. The circle is still sized, from the statements.
+      sentence = core.fogged
+        ? "You could not say how steady you feel, so this is sized from your specific answers instead."
+        : "You did not answer the general question here, so this is sized from your specific answers instead.";
+    } else {
+      sentence = `You feel ${steadinessWord(true, core.value)} inside yourself right now.`;
+    }
     const coreLeak = result.leaks && result.leaks.core;
     if (coreLeak) {
       const line = BP6COPY.leakSentence("core", coreLeak);
@@ -2042,8 +2202,13 @@ if (typeof module !== "undefined" && module.exports) {
       angle = end;
       const isSel = row.id === selectedId;
 
-      const fill = row.known ? AREA_COLOR[row.id] : "url(#notSure)";
-      const op = row.known ? (isSel ? 0.98 : 0.88) : 1;
+      // Solid = you rated it. Hatched in the area's own colour = sized from
+      // your specific answers because the general question had no answer.
+      // Grey hatch = nothing to go on. Size still means one thing only: load.
+      const fill = row.source === "slider" ? AREA_COLOR[row.id]
+                 : row.source === "density" ? `url(#hatch-${row.id})`
+                 : "url(#notSure)";
+      const op = row.source === "slider" ? (isSel ? 0.98 : 0.88) : 1;
       wedges += `<path class="wedge" data-area="${row.id}" role="button" tabindex="0" `
         + `aria-label="${esc(WHEEL_LABEL[row.id])}" d="${wedgePath(start, end)}" fill="${fill}" fill-opacity="${op}"/>`;
       // white separators
@@ -2068,15 +2233,22 @@ if (typeof module !== "undefined" && module.exports) {
     // render as an HTML overlay (buildWheelLabelOverlay), not inline SVG —
     // same reasoning as the outer labels: constant, legible size regardless
     // of device, and the min circle radius above is sized to fit it.
-    const coreFelt = result.felt ? result.felt.core : undefined;
-    const coreKnown = typeof coreFelt === "number";
-    const coreR = coreKnown ? CORE_R_MIN + coreFelt * (CORE_R_MAX - CORE_R_MIN) : CORE_R_MIN;
+    const coreState = wd.core;
+    const coreR = coreState.known
+      ? CORE_R_MIN + coreState.value * (CORE_R_MAX - CORE_R_MIN)
+      : CORE_R_MIN;
     const coreSel = selectedId === "core";
+    const coreFill = coreState.source === "slider" ? "var(--care)"
+                   : coreState.source === "density" ? "url(#hatch-core)"
+                   : "var(--care)";
+    const coreFillOp = coreState.source === "slider" ? 0.5
+                     : coreState.source === "density" ? 1
+                     : 0;
 
     let core = `<circle cx="${CX}" cy="${CY}" r="${coreR + 9}" fill="#ffffff" pointer-events="none"/>`;
     core += `<circle class="core-hit" data-area="core" role="button" tabindex="0" aria-label="Your relationship with yourself" `
-      + `cx="${CX}" cy="${CY}" r="${coreR}" fill="var(--care)" fill-opacity="${coreKnown ? 0.5 : 0}" `
-      + `stroke="var(--ink)" stroke-width="${coreSel ? 3.5 : 1.5}" ${coreKnown ? "" : 'stroke-dasharray="4 4"'}/>`;
+      + `cx="${CX}" cy="${CY}" r="${coreR}" fill="${coreFill}" fill-opacity="${coreFillOp}" `
+      + `stroke="var(--ink)" stroke-width="${coreSel ? 3.5 : 1.5}" ${coreState.known ? "" : 'stroke-dasharray="4 4"'}/>`;
 
     const fallbackNote = !wd.anyKnown
       ? `<text x="${CX}" y="${VB_H - 16}" text-anchor="middle" class="wl-note" pointer-events="none">You did not answer enough to show a real shape yet</text>`
@@ -2088,6 +2260,7 @@ if (typeof module !== "undefined" && module.exports) {
           <rect width="8" height="8" fill="var(--paper-tint)"/>
           <line x1="0" y1="0" x2="0" y2="8" stroke="var(--ink-faint)" stroke-width="1.6" stroke-opacity="0.55"/>
         </pattern>
+        ${hatchDefs()}
       </defs>
       ${wedges}${selOutline}${core}${labels}${fallbackNote}
     </svg>`;
@@ -2128,9 +2301,15 @@ if (typeof module !== "undefined" && module.exports) {
     // Center: "INNER SELF" kicker + the steadiness word, same reasoning as
     // the outer labels above — HTML instead of SVG so size and contrast are
     // set once in CSS, not scaled down by the wheel's own viewBox.
-    const coreFelt = result.felt ? result.felt.core : undefined;
-    const coreKnown = typeof coreFelt === "number";
-    const coreWordRaw = steadinessWord(coreKnown, coreFelt) || "not answered";
+    // Slider answered → the steadiness word. Sized from statements instead →
+    // say so plainly rather than naming a steadiness they said they could not
+    // name. Nothing at all → not answered.
+    const coreState = wd.core;
+    const coreWordRaw = coreState.source === "slider"
+      ? (steadinessWord(true, coreState.value) || "not answered")
+      : coreState.source === "density"
+        ? (coreState.fogged ? "not sure" : "not rated")
+        : "not answered";
     const coreWordCap = coreWordRaw.charAt(0).toUpperCase() + coreWordRaw.slice(1);
     const coreLeftPct = (CX / VB_W) * 100;
     const coreTopPct = (CY / VB_H) * 100;
@@ -2149,13 +2328,19 @@ if (typeof module !== "undefined" && module.exports) {
     wd.rows.forEach(row => {
       const room = BP6.ROOMS.find(r => r.id === row.id);
       const sentence = areaSentence(result, row.id);
-      rows += `<div class="ml-row"><span class="ml-swatch" style="background:${AREA_COLOR[row.id]}; opacity:${row.known ? 0.88 : 0.25}"></span><span class="ml-name">${esc(room.short)}</span><span class="ml-sentence">${esc(sentence)}</span></div>`;
+      const swatchOp = row.source === "slider" ? 0.88 : row.source === "density" ? 0.5 : 0.25;
+      rows += `<div class="ml-row"><span class="ml-swatch" style="background:${AREA_COLOR[row.id]}; opacity:${swatchOp}"></span><span class="ml-name">${esc(room.short)}</span><span class="ml-sentence">${esc(sentence)}</span></div>`;
     });
-    const coreKnown = typeof (result.felt ? result.felt.core : undefined) === "number";
-    rows += `<div class="ml-row core"><span class="ml-swatch" style="background:var(--care); opacity:${coreKnown ? 0.6 : 0.2}"></span><span class="ml-name">Your relationship with yourself</span><span class="ml-sentence">${esc(coreSentence(result))}</span></div>`;
+    const coreOp = wd.core.source === "slider" ? 0.6 : wd.core.source === "density" ? 0.4 : 0.2;
+    rows += `<div class="ml-row core"><span class="ml-swatch" style="background:var(--care); opacity:${coreOp}"></span><span class="ml-name">Your relationship with yourself</span><span class="ml-sentence">${esc(coreSentence(result))}</span></div>`;
 
     let note = `<div class="ml-note">The size of each slice is how much of your energy that area is taking, compared with the others. It is a share of the whole, not a set amount.</div>`;
-    if (wd.rows.some(r => !r.known)) note += `<div class="ml-note">Striped slices are areas you did not answer.</div>`;
+    // Two different stripes now mean two different things, so they get two
+    // different notes — and only when they are actually on the page.
+    const anyDensity = wd.rows.some(r => r.source === "density") || wd.core.source === "density";
+    const anyNone = wd.rows.some(r => r.source === "none");
+    if (anyDensity) note += `<div class="ml-note">Slices in coloured stripes are areas where you could not answer the general question. They are sized from your answers to the specific statements instead.</div>`;
+    if (anyNone) note += `<div class="ml-note">Slices in grey stripes are areas you did not answer.</div>`;
     return `<div class="map-legend">${rows}${note}</div>`;
   }
 
@@ -2551,10 +2736,21 @@ function showResults() {
     renderWheel(result, result.biggestLeakArea || "core");
     mapLegendPrint.innerHTML = BP6MAP.buildLegend(result);
     careCard.style.display = "block";
-    careCard.innerHTML = BP6COPY.careCardHtml(isCrisis);
+    careCard.innerHTML = BP6COPY.careCardHtml(isCrisis, result.care);
 
-    nonCareReads.style.display = "block";
-    renderNonCareReads(result);
+    // The crisis card says a map is not the useful thing right now and names
+    // one next step: reach a person. Rendering the interpretive cards under it
+    // — and in particular a second "One next step" card that can point at
+    // another instrument — argued with that on the same screen. On crisis the
+    // care card is the only read; the wheel, the flagged lists and the save
+    // block stay, so the person still gets the result they worked for.
+    if (isCrisis) {
+      nonCareReads.style.display = "none";
+      clearNonCareReads();
+    } else {
+      nonCareReads.style.display = "block";
+      renderNonCareReads(result);
+    }
 
     tipjarBlock.style.display = isCrisis ? "none" : "block";
   } else {
@@ -2618,6 +2814,18 @@ function selectWheelArea(areaId) {
   });
 })();
 
+// Empties every interpretive card. Used on the crisis path so nothing can
+// survive from an earlier render into either the page or the copied text.
+function clearNonCareReads() {
+  ["medicalCard", "mismatchCards", "connectionCards", "leakCard", "fogCard", "timeReadCard", "leverCard"]
+    .forEach(id => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.innerHTML = "";
+      el.style.display = "none";
+    });
+}
+
 function renderNonCareReads(result) {
   const medicalCard = document.getElementById("medicalCard");
   if (result.medical.hard) {
@@ -2631,9 +2839,17 @@ function renderNonCareReads(result) {
     medicalCard.innerHTML = "";
   }
 
-  document.getElementById("mismatchCards").innerHTML = result.mismatches.map(BP6COPY.mismatchCardHtml).join("");
-  document.getElementById("connectionCards").innerHTML = result.pathways.map(BP6COPY.pathwayCardHtml).join("");
-  document.getElementById("leakCard").innerHTML = BP6COPY.energyLeakCardHtml(result);
+  // display is set explicitly, not just innerHTML: a previous crisis render may
+  // have hidden these, and the person can go back, change answers and return.
+  const mismatchEl = document.getElementById("mismatchCards");
+  mismatchEl.innerHTML = result.mismatches.map(BP6COPY.mismatchCardHtml).join("");
+  mismatchEl.style.display = "block";
+  const connectionEl = document.getElementById("connectionCards");
+  connectionEl.innerHTML = result.pathways.map(BP6COPY.pathwayCardHtml).join("");
+  connectionEl.style.display = "block";
+  const leakEl = document.getElementById("leakCard");
+  leakEl.innerHTML = BP6COPY.energyLeakCardHtml(result);
+  leakEl.style.display = "block";
 
   const fogCard = document.getElementById("fogCard");
   if (result.fog.globalFire) {
@@ -2668,7 +2884,11 @@ function renderFlagged(result) {
     const skippedItems = [];
     room.markers.forEach(m => {
       const v = state.markers[room.id][m.id];
-      if (BP6.isLandsHard(state.markers, room.id, m.id)) {
+      // The reverse-coded anchor ("I still mostly feel like myself") means LESS
+      // load when endorsed. Listing it here inverted its meaning: the healthiest
+      // possible answer appeared under what needs the most attention. The engine
+      // excludes it everywhere; this list has to as well.
+      if (!m.reverse && BP6.isLandsHard(state.markers, room.id, m.id)) {
         // isLandsHard covers both "Often" and "Very much" (the top two points
         // on the 5-point scale) — show which one was actually chosen rather
         // than flattening both into one label.
@@ -2768,6 +2988,9 @@ function openShareCard() {
   document.getElementById("shareHeadline").textContent = BP6COPY.headline(result);
   document.getElementById("shareMapWrap").innerHTML = BP6MAP.buildMapSVG(result) + BP6MAP.buildWheelLabelOverlay(result) + BP6MAP.buildLegend(result);
 
+  // Deliberately NOT filtered the way the attention list is: as a line to
+  // feature on a card you might send someone, "I still mostly feel like myself"
+  // is a fine thing to choose. It is only in an attention list that it inverts.
   const landed = [];
   APP_ROOMS.forEach(room => room.markers.forEach(m => {
     if (BP6.isLandsHard(state.markers, room.id, m.id)) landed.push(m.text);

@@ -202,13 +202,28 @@
       margin-bottom: 18px;
     }
     .foot-link {
-      font-size: .875rem;
-      color: var(--ink-faint);
+      font-size: .9625rem;
+      color: var(--ink-mid);
       text-decoration: underline;
       text-underline-offset: 3px;
       transition: color .18s;
     }
     .foot-link:hover { color: var(--accent); }
+
+    /* ─── Site footer (About / Disclaimer / copyright) ─── */
+    .site-footer {
+      margin-top: 28px;
+      padding-top: 20px;
+      border-top: 1px solid var(--line);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      text-align: center;
+    }
+    .site-footer-links { display: flex; align-items: center; gap: 10px; }
+    .site-footer-sep { color: var(--ink-faint); font-size: 0.9rem; }
+    .site-footer-copy { font-size: 0.85rem; color: var(--ink-faint); }
 
     /* ─── Motion toggle (pause background video) — lives in the header now ─── */
     .motion-toggle {
@@ -333,6 +348,15 @@
       <div class="why">
         <p>Your nervous system may still be protecting you from things that ended years ago. That protection costs something every day: energy that vanishes, feelings we can't read, closeness we flinch from, vacations that don't restore. See where it's happening, and the rest gets easier.</p>
       </div>
+
+      <footer class="site-footer">
+        <div class="site-footer-links">
+          <a href="/about" class="foot-link">About</a>
+          <span class="site-footer-sep">·</span>
+          <a href="/legal" class="foot-link">Disclaimer</a>
+        </div>
+        <p class="site-footer-copy">© nervuk.ai, 2026</p>
+      </footer>
     </div>
   </main>
 </body>
