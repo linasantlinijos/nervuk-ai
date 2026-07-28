@@ -26,65 +26,90 @@
     margin:0;
     padding:0;
     min-height:100%;
-    background:var(--ink);
+    background:var(--paper);
     font-family:'Literata', Georgia, serif;
     color:var(--ink);
+    overflow-x:hidden;
   }
 
-  /* fixed video background */
-  .bg-video{
+  /* video background — sits in normal document flow like index.html;
+     no fixed header on top of it, so header + content scroll together */
+  .bg{
     position:fixed;
     inset:0;
+    background:var(--paper);
+    z-index:0;
+    overflow:hidden;
+  }
+
+  .page{
+    position:relative;
+    z-index:2;
+    min-height:100dvh;
+    display:flex;
+    justify-content:center;
+    padding:clamp(32px, 6vh, 64px) 24px 48px;
+  }
+
+  .content{
     width:100%;
-    height:100%;
-    object-fit:cover;
-    z-index:-2;
-  }
-  .bg-fallback{
-    position:fixed;
-    inset:0;
-    background:#dfe3e0;
-    z-index:-3;
-  }
-  .bg-scrim{
-    position:fixed;
-    inset:0;
-    background:rgba(17,17,17,0.28);
-    z-index:-1;
+    max-width:760px;
   }
 
-  .topbar{
-    max-width:760px;
-    margin:0 auto;
-    padding:32px 24px 18px;
+  /* top bar — normal document flow, scrolls up with the page
+     (unlike index.html's fixed desktop header) */
+  .about-header{
     display:flex;
     align-items:center;
     justify-content:space-between;
+    padding-bottom:28px;
+    margin-bottom:8px;
   }
+  .wordmark-group{ display:flex; align-items:center; }
   .wordmark{
     font-family:'Hanken Grotesk', sans-serif;
-    font-weight:600;
-    font-size:17px;
-    letter-spacing:0.01em;
-    color:#111;
-    text-decoration:none;
-  }
-  .nav-back{
-    font-family:'Hanken Grotesk', sans-serif;
     font-weight:500;
-    font-size:14px;
-    color:#111;
+    font-size:1.0625rem;
+    color:var(--ink);
     text-decoration:none;
-    opacity:0.82;
-    transition:opacity 0.22s ease;
   }
-  .nav-back:hover{opacity:1;}
-
-  main{
-    max-width:760px;
-    margin:0 auto;
-    padding:8px 24px 72px;
+  .beta-divider{
+    width:1px; height:13px;
+    background:rgba(17,17,17,0.2);
+    margin-left:13px;
   }
+  .beta-tag{
+    font-family:'Hanken Grotesk', sans-serif;
+    font-size:12.5px;
+    font-weight:500;
+    letter-spacing:0.01em;
+    color:rgba(0,0,0,0.925);
+    margin-left:13px;
+  }
+  .header-right{ display:flex; align-items:center; gap:16px; }
+  .nav-link{
+    font-family:'Hanken Grotesk', sans-serif;
+    font-size:0.9rem;
+    font-weight:500;
+    color:var(--ink-faint);
+    text-decoration:none;
+    transition:color 0.18s;
+  }
+  .nav-link:hover{ color:var(--ink); }
+  .motion-toggle{
+    width:32px; height:32px;
+    border-radius:50%;
+    border:none;
+    background:rgba(162,157,149,0.42);
+    color:#fff;
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer;
+    padding:0;
+    flex-shrink:0;
+    transition:background 0.18s;
+  }
+  .motion-toggle:hover{ background:rgba(162,157,149,0.62); }
+  .motion-toggle svg{ width:12px; height:12px; fill:currentColor; }
 
   .card{
     background:var(--card);
@@ -221,45 +246,38 @@
     padding:0 2px;
   }
 
-  footer.page-foot{
-    max-width:760px;
-    margin:0 auto;
-    padding:0 24px 40px;
-    text-align:center;
-  }
-  footer.page-foot a{
-    color:#fff;
-    opacity:0.85;
-  }
-  footer.page-foot span{
-    font-family:'Hanken Grotesk', sans-serif;
-    font-size:13px;
-    color:#fff;
-    opacity:0.75;
-  }
-
   @media (max-width:520px){
     .card{padding:40px 22px 36px;border-radius:12px;}
-    .topbar{padding:24px 18px 14px;}
-    main{padding:8px 18px 56px;}
+    .about-header{padding-bottom:22px;}
+    .page{padding:24px 18px 48px;}
   }
 </style>
 </head>
 <body>
 
-<div class="bg-fallback"></div>
-<video class="bg-video" autoplay muted loop playsinline poster="">
-  <source src="raw25.mp4" type="video/mp4">
-</video>
-<div class="bg-scrim"></div>
-
-<div class="topbar">
-  <a class="wordmark" href="/">nervuk</a>
-  <a class="nav-back" href="/">All instruments</a>
+<div class="bg" aria-hidden="true">
+  <video id="bg-video" autoplay loop muted playsinline
+    style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;">
+    <source src="raw25.mp4" type="video/mp4">
+  </video>
 </div>
 
-<main>
-  <div class="card">
+<main class="page">
+  <div class="content">
+
+    <header class="about-header">
+      <span class="wordmark-group">
+        <a href="index.html" class="wordmark">nervuk.ai</a>
+        <span class="beta-divider" aria-hidden="true"></span>
+        <span class="beta-tag">Beta</span>
+      </span>
+      <span class="header-right">
+        <a href="index.html" class="nav-link">All instruments</a>
+        <button id="motion-toggle" class="motion-toggle" type="button" aria-label="Pause background video" aria-pressed="false"></button>
+      </span>
+    </header>
+
+    <div class="card">
 
     <h1>I love my <em>nervukai</em></h1>
 
@@ -291,7 +309,7 @@
       If you're in a crisis right now, these aren't the right thing. <a href="https://findahelpline.com" target="_blank" rel="noopener">findahelpline.com</a> lists free lines in most countries.
     </div>
 
-    <p class="tip-line">The tools are free. If something here helped — there's a <a href="https://nervuk.ai/tip-jar.html">tip jar</a>. Only if it did. </p>
+    <p class="tip-line">The tools are free. If something here helped — there's a tip jar. Only if it did. <a href="https://nervuk.ai/tip-jar.html">Visit the tip jar</a>.</p>
 
     <div class="follow">
       <p class="follow-label">New tools appear now and then. Follow nervuk.ai here</p>
@@ -308,10 +326,49 @@
       </div>
     </div>
 
-    <p class="signed">Feel free to reach out on Nervuk.ai's social media channels for feedback, ideas, or potential collaborations.<br> <br> Linas</p>
+    <p class="signed">You can also write to me there — feedback, ideas, or if you want to build something together.<br>Linas</p>
+
+    </div>
 
   </div>
 </main>
+
+<script>
+(function() {
+  var video = document.getElementById('bg-video');
+  var btn = document.getElementById('motion-toggle');
+  if (!video || !btn) return;
+
+  var iconPause = '<svg viewBox="0 0 24 24"><rect x="6" y="5" width="4" height="14"></rect><rect x="14" y="5" width="4" height="14"></rect></svg>';
+  var iconPlay  = '<svg viewBox="0 0 24 24"><polygon points="7,5 19,12 7,19"></polygon></svg>';
+
+  var prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var stored = localStorage.getItem('nervuk-motion');
+  var paused = stored ? stored === 'paused' : prefersReduced;
+
+  function render() {
+    if (paused) {
+      video.pause();
+      btn.innerHTML = iconPlay;
+      btn.setAttribute('aria-label', 'Play background video');
+      btn.setAttribute('aria-pressed', 'true');
+    } else {
+      video.play().catch(function(){});
+      btn.innerHTML = iconPause;
+      btn.setAttribute('aria-label', 'Pause background video');
+      btn.setAttribute('aria-pressed', 'false');
+    }
+  }
+
+  btn.addEventListener('click', function() {
+    paused = !paused;
+    localStorage.setItem('nervuk-motion', paused ? 'paused' : 'playing');
+    render();
+  });
+
+  render();
+})();
+</script>
 
 </body>
 </html>
