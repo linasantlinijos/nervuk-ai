@@ -585,8 +585,8 @@
     text-align: left;
     cursor: pointer;
     font-family: var(--sans);
-    font-size: 0.82rem;
-    font-weight: 500;
+    font-size: 1.07rem;
+    font-weight: 700;
     color: var(--ink-faint);
     display: flex;
     justify-content: space-between;
@@ -620,17 +620,6 @@
     color: var(--ink);
     margin-bottom: 4px;
   }
-  .fi-tag {
-    display: inline-block;
-    font-size: 0.8rem;
-    padding: 2px 8px;
-    border-radius: 12px;
-    color: #fff;
-    margin-bottom: 4px;
-  }
-  .fi-tag.lands { background: var(--tag-lands); }
-  .fi-tag.quiet { background: var(--tag-quiet); }
-  .fi-tag.skip  { background: var(--tag-lands); }
   .fi-note {
     font-size: 0.82rem;
     color: var(--ink-faint);
@@ -1002,7 +991,7 @@
         <div id="rCard"></div>
         <div id="flaggedLands" class="flagged-section" style="display:none">
           <button class="flagged-toggle" onclick="toggleFlagged('lands')">
-            What you marked most strongly <span class="arrow">▾</span>
+            This might need more attention <span class="arrow">▾</span>
           </button>
           <div class="flagged-items" id="flaggedLandsItems"></div>
         </div>
@@ -1710,7 +1699,6 @@ function buildFlaggedSection(wrapId, listId, items, tagClass) {
       ${g.items.map(it => `
         <div class="flagged-item">
           <div class="fi-text">${it.text}</div>
-          <span class="fi-tag ${tagClass}">${SCALE_LABEL[it.val] || ''}</span>
         </div>`).join('')}
     </div>`).join('');
 }
