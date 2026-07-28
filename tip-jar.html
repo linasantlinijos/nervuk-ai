@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tip jar — nervuk.ai</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@400;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  /* ---- Design tokens (from Tip Jar redesign handoff) ---- */
+  :root{
+    /* Accent — default dark green. Curated alternates from the handoff:
+       teal-navy #1d4e5c · navy #2b3a55 · olive/brass #5c4b1d */
+    --accent: #1f5d46;
+    --accent-wash: oklch(0.97 0.02 165 / 0.4);
+
+    --page-bg: oklch(0.965 0.008 85);
+    --card-bg: oklch(0.995 0.004 85);
+    --border: oklch(0.88 0.008 85);
+    --address-bg: oklch(0.98 0.004 85);
+    --text-primary: oklch(0.22 0.01 85);
+    --text-mono: oklch(0.4 0.01 85);
+    --card-shadow: 0 30px 70px -35px oklch(0.2 0.02 85 / 0.35);
+
+    /* Corner-style token: "soft" (default). "Sharp" alternates in comments below each rule. */
+    --r-card: 28px;    /* sharp: 8px */
+    --r-button: 12px;  /* sharp: 4px */
+    --r-address: 14px; /* sharp: 4px */
+    --r-copy: 8px;     /* sharp: 3px */
+    --r-qr: 14px;      /* sharp: 4px */
+  }
+
+  *{ box-sizing: border-box; }
+
+  html, body{
+    margin: 0;
+    padding: 0;
+    min-height: 100%;
+  }
+
+  body{
+    min-height: 100vh;
+    width: 100%;
+    background: var(--page-bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: clamp(20px, 6vw, 96px) clamp(16px, 4vw, 24px);
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+
+  a{ color: inherit; text-decoration: none; }
+
+  .card{
+    width: 100%;
+    max-width: 760px;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--r-card);
+    padding: clamp(28px, 6vw, 64px);
+    box-shadow: var(--card-shadow);
+  }
+
+  .eyebrow{
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    color: var(--accent);
+    margin: 0 0 18px;
+  }
+
+  h1{
+    font-family: 'Source Serif 4', Georgia, serif;
+    /* Reference file wraps the visible text in a font-weight: normal inner span,
+       so it renders at normal weight despite the h1's own 700 — implemented
+       to match that actual rendered result. Flag if 700 was intended instead. */
+    font-weight: 400;
+    font-size: 30px;
+    line-height: 1.16;
+    color: var(--text-primary);
+    margin: 0 0 52px;
+    max-width: 600px;
+    text-wrap: pretty;
+  }
+
+  .row-grid{
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 32px;
+    margin: 0 0 40px;
+  }
+
+  .label{
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0 0 18px;
+  }
+
+  .btn{
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--accent);
+    color: #fff;
+    font-weight: 600;
+    font-size: 16px;
+    padding: 16px 24px;
+    border-radius: var(--r-button);
+    transition: filter 0.15s ease;
+  }
+  .btn:hover{ filter: brightness(0.92); }
+
+  .divider{
+    border-top: 1px solid var(--border);
+    margin: 0 0 40px;
+  }
+
+  .block{ margin: 0 0 40px; }
+  .block:last-child{ margin-bottom: 0; }
+
+  .qr{
+    width: 128px;
+    height: 128px;
+    border-radius: var(--r-qr);
+    display: block;
+    margin: 0 0 16px;
+  }
+
+  .address-row{
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    background: var(--address-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--r-address);
+    padding: 14px 16px;
+  }
+
+  .address-text{
+    flex: 1;
+    min-width: 0;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: var(--text-mono);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .copy-btn{
+    flex-shrink: 0;
+    background: #fff;
+    color: var(--accent);
+    border: 1px solid var(--accent);
+    font-weight: 600;
+    font-size: 14px;
+    padding: 9px 16px;
+    border-radius: var(--r-copy);
+    cursor: pointer;
+    transition: background 0.15s ease;
+  }
+  .copy-btn:hover{ background: var(--accent-wash); }
+
+  [role="status"]{
+    position: absolute;
+    width: 1px; height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+  }
+
+  a:focus-visible, button:focus-visible{
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .btn, .copy-btn{ transition: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="card">
+  <div class="eyebrow">TIP JAR</div>
+  <h1>If something here helped — there&rsquo;s a tip jar. Only if it did.</h1>
+
+  <div class="row-grid">
+    <div>
+      <div class="label">Card</div>
+      <a class="btn" href="https://buy.stripe.com/aFafZbaV4aOUdkt6Ufgw000" target="_blank" rel="noopener">Pay by card <span>→</span></a>
+    </div>
+    <div>
+      <div class="label">Bitcoin — Lightning</div>
+      <a class="btn" href="https://bitcointipjar.com/tip?ln=sparingleo466%40walletofsatoshi.com&name=nervukai&amounts=1000%2C2500%2C5000%2C10000%2C1000%2C2500%2C5000%2C10000" target="_blank" rel="noopener">Open Lightning tip jar <span>→</span></a>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="block">
+    <div class="label">Bitcoin — onchain</div>
+    <img class="qr" src="data:image/png;base64,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" alt="QR code for the Bitcoin onchain address below">
+    <div class="address-row">
+      <span class="address-text" id="btc-addr" title="bc1q8vt83hp44zd876ek2ehdt6ydp7r9wrwlfky7qn">bc1q8vt83hp44zd876ek2ehdt6ydp7r9wrwlfky7qn</span>
+      <button class="copy-btn" data-copy-target="btc-addr">Copy</button>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="block">
+    <div class="label">Stablecoins</div>
+    <a class="btn" href="https://nowpayments.io/donation/nervukai" target="_blank" rel="noopener">Open stablecoin options <span>→</span></a>
+  </div>
+</div>
+
+<p role="status" id="copy-status"></p>
+
+<script>
+(function(){
+  var buttons = document.querySelectorAll('.copy-btn');
+  var status = document.getElementById('copy-status');
+
+  buttons.forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var target = document.getElementById(btn.getAttribute('data-copy-target'));
+      var text = target.textContent.trim();
+
+      function markCopied(){
+        var original = btn.textContent;
+        btn.textContent = 'Copied';
+        status.textContent = 'Copied to clipboard';
+        setTimeout(function(){
+          btn.textContent = original;
+        }, 1500);
+      }
+
+      if(navigator.clipboard && navigator.clipboard.writeText){
+        navigator.clipboard.writeText(text).then(markCopied).catch(function(){
+          fallbackCopy(text, markCopied);
+        });
+      } else {
+        fallbackCopy(text, markCopied);
+      }
+    });
+  });
+
+  function fallbackCopy(text, done){
+    var ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.select();
+    try{ document.execCommand('copy'); }catch(e){}
+    document.body.removeChild(ta);
+    done();
+  }
+})();
+</script>
+
+</body>
+</html>
