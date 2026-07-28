@@ -69,6 +69,13 @@
     }
     .header-right { display: flex; align-items: center; gap: 10px; }
 
+    /* On narrow / mobile viewports the header scrolls away with the page
+       instead of staying pinned, so it (and the pause button inside it)
+       travels with the list rather than sitting fixed above it. */
+    @media (max-width: 680px) {
+      .header { position: absolute; }
+    }
+
     .wordmark {
       font-family: 'Hanken Grotesk', system-ui, sans-serif;
       font-weight: 500;
@@ -209,7 +216,7 @@
       height: 32px;
       border-radius: 50%;
       border: none;
-      background: #A29D95;
+      background: rgba(162,157,149,0.42);
       color: #fff;
       display: flex;
       align-items: center;
@@ -219,7 +226,7 @@
       flex-shrink: 0;
       transition: background .18s;
     }
-    .motion-toggle:hover { background: #8f8a82; }
+    .motion-toggle:hover { background: rgba(162,157,149,0.62); }
     .motion-toggle svg { width: 12px; height: 12px; fill: currentColor; }
   </style>
 </head>

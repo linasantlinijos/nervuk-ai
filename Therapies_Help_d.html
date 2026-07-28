@@ -101,6 +101,13 @@
   }
   .nav-back:hover { color: #111111; }
 
+  /* On narrow / mobile viewports the header scrolls away with the page
+     instead of staying pinned, so it (and the pause button inside it)
+     travels with the card rather than sitting fixed above it. */
+  @media (max-width: 680px) {
+    .site-header { position: absolute; }
+  }
+
   /* ─── Stage / panel ─── */
   .stage {
     position: relative;
