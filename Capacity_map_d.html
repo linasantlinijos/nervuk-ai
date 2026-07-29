@@ -673,6 +673,58 @@
   }
   .motion-toggle:hover { background: rgba(162,157,149,0.62); }
   .motion-toggle svg { width: 12px; height: 12px; fill: currentColor; }
+  /* Mobile-only: first-page descriptions +8%; the paragraph after the lead,
+     the meta-row stat line, "The six areas" label, and the six list items
+     all go fully black (were --ink-faint). Placed at the end of the
+     stylesheet so these overrides win the cascade tiebreak against the
+     base rules above, which share the same specificity. */
+  @media (max-width: 680px) {
+    .lead {
+      font-size: calc(1rem * 1.08);
+    }
+  }
+  /* Applies at all widths (not just mobile), except the first paragraph
+     (.lead), which keeps its original desktop size. */
+  .note {
+    font-size: calc(0.95rem * 1.08);
+    color: var(--ink);
+  }
+  .meta-row,
+  .section-list-label,
+  .section-list li {
+    color: var(--ink);
+  }
+
+  /* Mobile-only: results-page text +8% — the four intro paragraphs above the
+     wheel (.r-sub covers both RESULTS_INTRO and frameworkNote), the card
+     descriptions (not their titles), the flagged-section toggles (also made
+     black + bold), the check-other-instruments link, and the save block.
+     Same end-of-stylesheet placement, same reason. */
+  @media (max-width: 680px) {
+    .r-sub {
+      font-size: calc(1rem * 1.08);
+    }
+    .rcard .rc-body {
+      font-size: calc(0.92rem * 1.08);
+    }
+    .care-card .cc-body {
+      font-size: calc(0.96rem * 1.08);
+    }
+    .flagged-toggle {
+      font-size: calc(0.82rem * 1.08);
+      color: var(--ink);
+      font-weight: 700;
+    }
+    .check-other-link {
+      font-size: calc(0.88rem * 1.08);
+    }
+    .save-label {
+      font-size: calc(0.95rem * 1.08);
+    }
+    .save-hint {
+      font-size: calc(0.83rem * 1.08);
+    }
+  }
 </style>
 </head>
 <body>
