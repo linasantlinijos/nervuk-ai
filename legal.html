@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>A few honest notes — nervuk.ai</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;1,9..144,400&family=Hanken+Grotesk:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#f8f8f6;
+    --ink:#111;
+    --ink-soft:#4a4a46;
+    --ink-faint:#7d7d77;
+    --verdigris:#2a6654;
+    --hairline:#e2e2dc;
+    --serif:"Fraunces",Georgia,serif;
+    --ui:"Hanken Grotesk",-apple-system,system-ui,sans-serif;
+  }
+
+  *{box-sizing:border-box;}
+
+  html{-webkit-text-size-adjust:100%;}
+
+  body{
+    margin:0;
+    min-height:100vh;
+    background-color:#0c0c0a;
+    color:var(--ink);
+    font-family:var(--serif);
+    font-weight:400;
+    line-height:1.62;
+    font-size:1.075rem;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  .bg-video{
+    position:fixed;
+    inset:0;
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    z-index:-1;
+  }
+
+  .stage{
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    padding:3.2rem 1.25rem;
+  }
+
+  .card{
+    width:100%;
+    max-width:39rem;
+    height:fit-content;
+    background:#fff;
+    border-radius:14px;
+    box-shadow:0 24px 60px -20px rgba(0,0,0,0.35);
+  }
+
+  .wrap{
+    padding:2.6rem 2.6rem 3.2rem;
+  }
+
+  .back{
+    font-family:var(--ui);
+    font-size:0.8rem;
+    letter-spacing:0.02em;
+    color:var(--verdigris);
+    text-decoration:none;
+    display:inline-block;
+    margin-bottom:3.4rem;
+    transition:opacity .25s ease;
+  }
+  .back:hover{opacity:0.62;}
+  .back::before{content:"← ";}
+
+  header{
+    margin-bottom:3.2rem;
+  }
+
+  h1{
+    font-family:var(--serif);
+    font-weight:400;
+    font-size:2.4rem;
+    line-height:1.12;
+    letter-spacing:-0.01em;
+    margin:0 0 1rem;
+  }
+
+  .lede{
+    color:var(--ink-soft);
+    font-size:1.15rem;
+    line-height:1.55;
+    margin:0;
+    max-width:32rem;
+  }
+
+  section{
+    margin-top:2.9rem;
+  }
+
+  .eyebrow{
+    font-family:var(--ui);
+    font-weight:600;
+    font-size:0.72rem;
+    letter-spacing:0.11em;
+    text-transform:uppercase;
+    color:var(--ink-faint);
+    margin:0 0 0.7rem;
+  }
+
+  h2{
+    font-family:var(--serif);
+    font-weight:500;
+    font-size:1.32rem;
+    line-height:1.25;
+    margin:0 0 0.55rem;
+    letter-spacing:-0.005em;
+    color:var(--verdigris);
+  }
+
+  p{
+    margin:0 0 1rem;
+    color:var(--ink-soft);
+  }
+  p:last-child{margin-bottom:0;}
+
+  a.inline{
+    color:var(--verdigris);
+    text-decoration:none;
+    border-bottom:1px solid rgba(42,102,84,0.32);
+    transition:border-color .25s ease;
+  }
+  a.inline:hover{border-color:var(--verdigris);}
+
+  .divider{
+    height:1px;
+    background:var(--hairline);
+    border:0;
+    margin:3.4rem 0 0;
+  }
+
+  footer{
+    margin-top:3rem;
+    font-family:var(--ui);
+    font-size:0.82rem;
+    line-height:1.6;
+    color:var(--ink-faint);
+  }
+  footer p{
+    color:var(--ink-faint);
+    margin:0 0 0.4rem;
+    font-family:var(--ui);
+  }
+
+  ::selection{background:var(--verdigris);color:var(--paper);}
+
+  *:focus-visible{
+    outline:2px solid var(--verdigris);
+    outline-offset:3px;
+    border-radius:2px;
+  }
+
+  @media (max-width:560px){
+    h1{font-size:2rem;}
+    .lede{font-size:1.08rem;}
+    body{font-size:1.02rem;}
+    .stage{padding:1.4rem 0.9rem;}
+    .card{border-radius:10px;}
+    .wrap{padding:2rem 1.4rem 2.6rem;}
+  }
+
+  @media (prefers-reduced-motion:reduce){
+    *{transition:none !important;}
+  }
+</style>
+</head>
+<body>
+  <video class="bg-video" autoplay muted loop playsinline>
+    <source src="https://nervuk.ai/raw25.mp4" type="video/mp4">
+  </video>
+
+  <div class="stage">
+  <div class="card">
+  <main class="wrap">
+    <a class="back" href="/">nervuk.ai</a>
+
+    <header>
+      <h1>A few notes</h1>
+      <p class="lede">These are tools for noticing, not for treating.</p>
+    </header>
+
+    <section>
+      <p class="eyebrow">What this is</p>
+      <h2>Instruments, not medicine</h2>
+      <p>nervuk.ai gives you small instruments for self-reflection. Each one points at a place your capacity tends to leak — energy, attention, rest, closeness, contact with your own feelings — takes what you tell it, and reads that against a pattern psychology and neurosciences have described. What comes back is an interpretation offered for you to weigh. Everything on this site is offered for information and reflection, and nothing more.</p>
+    </section>
+
+    <section>
+      <p class="eyebrow">Not a diagnosis</p>
+      <h2>They don't diagnose or treat anything</h2>
+      <p>Nothing here diagnoses, treats, or prevents any physical or mental health condition — and nothing here is meant to. An instrument can name a felt experience back to you. It can't tell you what's wrong. If a result ever reads like a verdict about who you are, that isn't what it is.</p>
+    </section>
+
+    <section>
+      <p class="eyebrow">Not a substitute</p>
+      <h2>They don't replace a professional</h2>
+      <p>These tools, and anything else you read on nervuk.ai, are not a substitute for a doctor, therapist, pharmacist, or other licensed professional. If something an instrument surfaces stays with you, treat it as a nudge toward a real person, not away from one. Please don't delay, set aside, or stop professional care because of anything you read here.</p>
+    </section>
+
+    <section>
+      <p class="eyebrow">On psychedelics</p>
+      <h2>Information, never an invitation</h2>
+      <p>Some pages on nervuk.ai discuss psychedelics. That material exists for education and harm-reduction context only. Nothing on this site encourages, instructs, or endorses obtaining or using any illegal substance. Reading about something is not a recommendation to do it, and we don't make one.</p>
+      <p>While psychedelics are increasingly approved for medical use in certain jurisdictions, their possession and use remain criminal offenses in many countries. Nothing here is legal advice, and nothing here changes what the law in your country says.</p>
+      <p>The safety part matters just as much. These substances can interact dangerously with medications — including common antidepressants — and with heart conditions and mental health conditions, including some a person doesn't know they have. General information on a website cannot account for your body, your history, or your prescriptions. Only a medical professional who knows you can.</p>
+    </section>
+
+    <section>
+      <p class="eyebrow">No relationship is formed</p>
+      <h2>Using nervuk.ai doesn't make anyone your therapist</h2>
+      <p>Using this site doesn't create a professional, medical, or treatment relationship between you and nervuk.ai or anyone behind it.</p>
+    </section>
+
+    <section>
+      <p class="eyebrow">If today is hard</p>
+      <h2>If you're in crisis right now</h2>
+      <p>If you're thinking about harming yourself, or things feel like too much right now, you deserve a person, not a webpage.</p>
+      <p>Please reach one: your local emergency number, or a trained listener through <a class="inline" href="https://findahelpline.com" target="_blank" rel="noopener">findahelpline.com</a>, which lists free, confidential lines for most countries. And if you or someone near you is having a frightening reaction to any substance, call emergency services straight away — that's what they're for. nervuk.ai will still be here another day.</p>
+    </section>
+
+    <section>
+      <p class="eyebrow">What a result is</p>
+      <h2>A hypothesis about you, not a finding</h2>
+      <p>The instruments don't just hand your answers back. They read what you told them against patterns that psychology and neurosciences have described and studied, and then suggest how one of those patterns might be working in you. The pattern is established. Whether it's yours is a question, not an answer — something to test against your own life.</p>
+      <p>So two things are worth holding onto. An interpretation can be wrong, and this one is drawn from a short set of answers given in a single sitting, which is a narrow slice of a person. And even a pattern that fits describes something happening; it never explains who you are. Take what's useful and leave the rest.</p>
+    </section>
+
+    <section>
+      <p class="eyebrow">Your privacy</p>
+      <h2>Nothing you type is kept</h2>
+      <p>nervuk.ai works in a single sitting, with no account and no login. What you type into an instrument is used to build your result in that session and is not saved by us afterwards — no human reads it, and closing the tab lets it go. Like nearly every website, our hosting keeps standard technical logs (such as IP addresses) needed to run the site securely. If how nervuk.ai handles your words ever changes, this page will say so plainly before it does.</p>
+    </section>
+
+    <section>
+      <p class="eyebrow">The tip jar</p>
+      <h2>Tips are gifts, not purchases</h2>
+      <p>Everything on nervuk.ai is free. If you leave a tip, it's a voluntary gift that helps keep the site running — it doesn't buy a product or a service, it doesn't create any obligation on our side, and it isn't refundable. Please only give what you'd be glad to have given.</p>
+    </section>
+
+    <section>
+      <p class="eyebrow">No guarantees</p>
+      <h2>Offered as is</h2>
+      <p>nervuk.ai is provided free of charge, as is, with no warranty of any kind. To the fullest extent permitted by law, we're not liable for decisions made, or actions taken or not taken, based on anything on this site. Nothing on this page limits any rights the law doesn't allow us to limit.</p>
+    </section>
+
+    <section>
+      <p class="eyebrow">The law</p>
+      <h2>Governed by Lithuanian law</h2>
+      <p>nervuk.ai is operated from Lithuania, and these notes are governed by the laws of the Republic of Lithuania. If you live in the European Union, this doesn't take away any protections that the mandatory consumer laws of your own country give you — those apply regardless of what's written here.</p>
+    </section>
+
+    <hr class="divider">
+
+    <footer>
+      <p>This page may change as nervuk.ai grows; the version you're reading is the one that applies.</p>
+      <p>Last updated 29 July 2026</p>
+    </footer>
+  </main>
+  </div>
+  </div>
+</body>
+</html>
