@@ -842,6 +842,8 @@
         <div id="careCard" style="display:none"></div>
         <div class="results-back"><button class="btn-ghost" onclick="resultsBack()">← Back to the areas</button></div>
 
+<div class="r-sub" id="frameworkNote" style="display:none"><p>What follows is a pattern that psychology and neuroscience describe well, and what your answers suggest about how it works in you. The pattern itself is well established in research. Whether it fits you is something only you can test — there is a way to check it further down.</p></div>
+
         <div id="nonCareReads">
           <div id="medicalCard" style="display:none"></div>
           <div id="mismatchCards"></div>
@@ -850,6 +852,7 @@
           <div id="fogCard" style="display:none"></div>
           <div id="timeReadCard" style="display:none"></div>
         </div>
+        
 
         <div id="flaggedLands" class="flagged-section" style="display:none">
           <button class="flagged-toggle" onclick="toggleFlagged('lands')">What might need the most attention <span class="arrow">▾</span></button>
@@ -2691,6 +2694,7 @@ function showResults() {
   const insightCaption = document.getElementById("insightCaption");
   const careCard = document.getElementById("careCard");
   const nonCareReads = document.getElementById("nonCareReads");
+  const frameworkNote = document.getElementById("frameworkNote");
   const tipjarBlock = document.getElementById("tipjarBlock");
 
   // Fixed, literal title — always says plainly what the page is.
@@ -2713,6 +2717,7 @@ function showResults() {
     mapWrap.style.display = "none";
     careCard.style.display = "none";
     nonCareReads.style.display = "none";
+    frameworkNote.style.display = "none";
     tipjarBlock.style.display = "block"; // tip + share stay
   } else if (isCare) {
     // Heavy load (and, as a strict subset, crisis). The wheel, tip, and share
@@ -2746,9 +2751,11 @@ function showResults() {
     // block stay, so the person still gets the result they worked for.
     if (isCrisis) {
       nonCareReads.style.display = "none";
+      frameworkNote.style.display = "none";
       clearNonCareReads();
     } else {
       nonCareReads.style.display = "block";
+      frameworkNote.style.display = "block";
       renderNonCareReads(result);
     }
 
@@ -2765,6 +2772,7 @@ function showResults() {
     insightCaption.style.display = "block";
     careCard.style.display = "none";
     nonCareReads.style.display = "block";
+    frameworkNote.style.display = "block";
     tipjarBlock.style.display = "block";
     renderNonCareReads(result);
   }
@@ -2939,10 +2947,15 @@ function copyResults() {
   const head = document.getElementById("rHead").textContent.trim();
   const careEl = document.getElementById("careCard");
   const nonCareEl = document.getElementById("nonCareReads");
+  const frameworkEl = document.getElementById("frameworkNote");
   let body = "";
   if (careEl.style.display !== "none") body += careEl.innerText.trim();
   if (nonCareEl.style.display !== "none") {
     const t = nonCareEl.innerText.trim();
+    if (t) body += (body ? "\n\n" : "") + t;
+  }
+  if (frameworkEl.style.display !== "none") {
+    const t = frameworkEl.innerText.trim();
     if (t) body += (body ? "\n\n" : "") + t;
   }
   const note = (document.getElementById("resultNote").value || "").trim();
