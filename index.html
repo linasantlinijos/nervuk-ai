@@ -76,6 +76,17 @@
       .header { position: absolute; }
     }
 
+    /* On narrow / mobile viewports, instrument descriptions (not titles)
+       get slightly larger, fully black, and bold — easier to read at a glance
+       on a phone screen. */
+    @media (max-width: 680px) {
+      .item-desc {
+        font-size: calc(.9375rem * 1.05);
+        color: var(--ink);
+        font-weight: 600;
+      }
+    }
+
     .wordmark {
       font-family: 'Hanken Grotesk', system-ui, sans-serif;
       font-weight: 500;
