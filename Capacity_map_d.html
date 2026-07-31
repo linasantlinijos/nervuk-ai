@@ -789,7 +789,8 @@
         <div class="instrument-meta">
                   </div>
         <h1>A map of your capacity</h1>
-        <p class="lead">Your energy goes to six places: your mind and nervous system, your body, the people and situation around you, your daily habits, things from your past, and your relationship with yourself. You answer a few short questions about each one. At the end you get a simple picture of where most of your energy is going, and one clear thing you can do about it.</p>
+        <p class="lead">Living takes energy — working, sleeping, eating, being around people. That part is normal, and this tool does not ask about it. It asks about the extra energy: what you spend on top of normal life because something is not working well. A rested body takes almost no extra. A body that is tense, sore, or running on bad sleep takes a lot.</p>
+        <p class="lead">That extra energy goes to six places: your mind and nervous system, your body, the people and situation around you, your daily habits, things from your past, and your relationship with yourself. You answer a few short questions about each one. At the end you get a simple picture of where most of the extra is going, and one clear thing you can do about it.</p>
         <p class="note">There is no right order and no wrong answer. Go through the six areas in any order, answer what is true for you, and skip anything you would rather not look at today. It's not about today or even this week — look at the long term. There is no score and no test result. This only shows you what you told it.</p>
         <div class="meta-row">
           <span><span class="mdot"></span> 6 areas, about 35 short questions</span>
@@ -805,7 +806,7 @@
       <div class="hub-body">
         <div class="hub-kicker">Choose any order</div>
         <h2>Where do you want to look?</h2>
-        <p class="hub-lead">Each area starts with one general question, then a few short statements. You come back to this screen after each area. You can do them in any order, and you can stop at any point.</p>
+        <p class="hub-lead">Each area has a few short statements, then one question about how much extra it has cost you overall. You come back to this screen after each area. You can do them in any order, and you can stop at any point.</p>
         <div class="room-grid" id="roomGrid"></div>
         <div class="hub-footer">
           <button class="btn-ghost" id="hubBack" onclick="hubBack()">← Back</button>
@@ -1019,8 +1020,8 @@ const ROOMS = [
     title: "Mind and nervous system",
     short: "Mind and nerves",
     desc: "How alert or switched-off you feel, how well rest works for you, how clearly you can think, and how quickly you calm down after something upsets you.",
-    gestureQ: "Over the last few months, how much of your energy has this area used up?",
-    loLabel: "Very little",
+    gestureQ: "Over the last few months, how much extra energy has this area taken?",
+    loLabel: "Almost none",
     hiLabel: "A lot",
     isCore: false,
     suggestion: "One small step: build in a wind-down window before bed — even ten quiet minutes with no screen counts.",
@@ -1036,8 +1037,8 @@ const ROOMS = [
     title: "Body",
     short: "Body",
     desc: "Physical tension, how well you sleep, any pain or illness, and whether you are doing the basics like eating, moving and resting.",
-    gestureQ: "Over the last few months, how much of your energy has this area used up?",
-    loLabel: "Very little",
+    gestureQ: "Over the last few months, how much extra energy has this area taken?",
+    loLabel: "Almost none",
     hiLabel: "A lot",
     isCore: false,
     suggestion: "One small step: pick one basic — food, movement or rest — and protect it for a week before adding anything else.",
@@ -1062,8 +1063,8 @@ const ROOMS = [
     title: "People and situation",
     short: "People and situation",
     desc: "The people and conditions around you — work, home, money, the news — and how much effort it takes to deal with them.",
-    gestureQ: "Over the last few months, how much of your energy has this area used up?",
-    loLabel: "Very little",
+    gestureQ: "Over the last few months, how much extra energy has this area taken?",
+    loLabel: "Almost none",
     hiLabel: "A lot",
     isCore: false,
     suggestion: "One small step: name the one situation costing the most, and change one concrete thing about it, even a small one.",
@@ -1080,8 +1081,8 @@ const ROOMS = [
     title: "What you do day to day",
     short: "Daily habits",
     desc: "Your daily habits: what you put off, what you use to relax or numb out, what you say yes to, and how you keep yourself busy.",
-    gestureQ: "Over the last few months, how much of your energy have your habits used up?",
-    loLabel: "Very little",
+    gestureQ: "Over the last few months, how much extra energy have your habits taken?",
+    loLabel: "Almost none",
     hiLabel: "A lot",
     isCore: false,
     suggestion: "One small step: swap the habit you use to switch off for something that gives similar relief without the cost, even once this week.",
@@ -1098,8 +1099,8 @@ const ROOMS = [
     title: "Things from your past",
     short: "Your past",
     desc: "Things that happened earlier and still affect you now — strong reactions, patterns that repeat, subjects you avoid, and moments when you do not feel like your current self.",
-    gestureQ: "Over the last few months, how much of your energy has this area used up?",
-    loLabel: "Very little",
+    gestureQ: "Over the last few months, how much extra energy has this area taken?",
+    loLabel: "Almost none",
     hiLabel: "A lot",
     isCore: false,
     suggestion: "One small step: this kind of pattern usually responds better to the right support than to willpower alone — worth naming it to a therapist, even briefly.",
@@ -1672,13 +1673,13 @@ if (typeof module !== "undefined" && module.exports) {
 
   // ── Mismatch reads ─────────────────────────────────────────────────────────
   function reverseMismatchText(roomId) {
-    return `You said <b>${ROOM_NAME_LOWER[roomId]}</b> is using up a lot of your energy, but none of the specific items there matched you. That does not mean you are wrong. It usually means the real cause is something this list does not name. It is worth writing down, in your own words, what is actually heavy there.`;
+    return `You said <b>${ROOM_NAME_LOWER[roomId]}</b> is taking a lot of extra energy, but none of the specific items there matched you. That does not mean you are wrong. It usually means the real cause is something this list does not name. It is worth writing down, in your own words, what is actually heavy there.`;
   }
   function habituatedMismatchText(roomId) {
     return `In <b>${ROOM_NAME_LOWER[roomId]}</b> you marked several specific things as true, but you said the area is not using much energy. Usually this means you have got used to it. Things you have lived with for a long time stop feeling like a cost, even when they still are one.`;
   }
   function fogGestureMismatchText(roomId) {
-    return `You could not say how much <b>${ROOM_NAME_LOWER[roomId]}</b> is taking from you, but several specific things there matched you. Not being able to answer the general question is common when an area is close or long-standing. The specific answers are the more reliable ones here.`;
+    return `You could not say how much extra energy <b>${ROOM_NAME_LOWER[roomId]}</b> is taking from you, but several specific things there matched you. Not being able to answer the general question is common when an area is close or long-standing. The specific answers are the more reliable ones here.`;
   }
 
   // ── Leak lines: what specifically is behind each area's slice ──────────────
@@ -1744,7 +1745,7 @@ if (typeof module !== "undefined" && module.exports) {
     return `<span class="tip-lead">${suggestion.slice(0, idx + 1)}</span> ${suggestion.slice(idx + 2)}`;
   }
 
-  // ── Where most of your energy is going: the single biggest-leak card ───────
+  // ── Where most of the extra is going: the single biggest-leak card ───────
   function energyLeakCardHtml(result) {
     const areaId = result.biggestLeakArea;
     if (!areaId) return "";
@@ -1754,15 +1755,15 @@ if (typeof module !== "undefined" && module.exports) {
     let body;
 
     if (leak.mismatch === "reverse" || leak.tier === "none") {
-      body = `<b>${name}</b> is using up the most of your energy right now, though nothing specific stood out among the statements there. It may be something this list does not name — worth writing down, in your own words, what is actually heavy there.`;
+      body = `<b>${name}</b> is taking the most extra energy right now, though nothing specific stood out among the statements there. It may be something this list does not name — worth writing down, in your own words, what is actually heavy there.`;
     } else {
       const frags = leakFragments(areaId, leak.chosenIds);
       const joined = joinFragments(frags, leak.moreCount, leak.tier);
-      body = `<b>${name}</b> is where most of your energy is going right now. Most of it goes into ${joined}.`;
+      body = `<b>${name}</b> is where most of the extra energy is going right now. Most of it goes into ${joined}.`;
     }
 
     const tip = room.suggestion ? `<div class="card-tip">${tipLeadHtml(room.suggestion)}</div>` : "";
-    return `<div class="rcard leak"><div class="rc-theme"><span class="rc-dot"></span>Where most of your energy is going</div><div class="rc-body"><p>${body}</p></div>${tip}</div>`;
+    return `<div class="rcard leak"><div class="rc-theme"><span class="rc-dot"></span>Where most of the extra is going</div><div class="rc-body"><p>${body}</p></div>${tip}</div>`;
   }
 
   // ── Pathways: two things that tend to go together ─────────────────────────
@@ -1815,7 +1816,7 @@ if (typeof module !== "undefined" && module.exports) {
       hyper: "The habit you use to switch off is doing a real job for you.",
       hypo: "The habit you use to switch off is the easiest comfort you have left."
     },
-    4: "Acting like you are fine is using up a lot of your energy.",
+    4: "Acting like you are fine is taking a lot of extra energy.",
     5: "This looks like low energy, not laziness.",
     6: "You have been managing everything except your relationship with yourself.",
     7: "Your health and your stress load are affecting each other."
@@ -1892,7 +1893,7 @@ if (typeof module !== "undefined" && module.exports) {
   // interconnectedness subtitle, the print-only legend note about slice
   // size, and the closing line that used to sit at the bottom of the page.
   const RESULTS_INTRO = `<p>This is a picture of what you are carrying right now, not a picture of who you are.</p>
-    <p>The size of each slice is how much of your energy that area is taking, compared with others. It is a share of the whole, not a set amount.</p>
+    <p>The size of each slice is how much of your extra energy that area is taking, compared with others. It is a share of the whole, not a set amount.</p>
     <p>All these areas affect one another. Changes in one area can boost your capacity in another.</p>`;
 
   // The interpretive line — the single sharpest read the answers support. Shown
@@ -1909,7 +1910,7 @@ if (typeof module !== "undefined" && module.exports) {
   }
 
   function nothingLandedSub() {
-    return "Either today is not the day for this, or these six areas are not where your energy is going. Both are useful answers. You can come back another time and see whether anything has changed.";
+    return "Either today is not the day for this, or these six areas are not where your extra energy is going. Both are useful answers. You can come back another time and see whether anything has changed.";
   }
 
   // ── Care path ──────────────────────────────────────────────────────────────
@@ -2213,11 +2214,11 @@ if (typeof module !== "undefined" && module.exports) {
     }
     if (row.source === "density") {
       sentence = row.fogged
-        ? "You could not say how much this area is taking, so this is sized from your specific answers instead: "
+        ? "You could not say how much extra energy this area is taking, so this is sized from your specific answers instead: "
         : "You did not answer the general question here, so this is sized from your specific answers instead: ";
-      sentence += `using up ${amountWord(true, row.value)} of your energy.`;
+      sentence += `using up ${amountWord(true, row.value)} of your extra energy.`;
     } else {
-      sentence = `Using up ${amountWord(true, row.value)} of your energy.`;
+      sentence = `Using up ${amountWord(true, row.value)} of your extra energy.`;
     }
     if (row.older) sentence += " You said this has been going on for a long time.";
     else if ((result._chronicity || {})[id] === "mixed") sentence += " You said some of this is recent and some is longer-standing.";
@@ -2346,7 +2347,7 @@ if (typeof module !== "undefined" && module.exports) {
       ? `<text x="${CX}" y="${VB_H - 16}" text-anchor="middle" class="wl-note" pointer-events="none">You did not answer enough to show a real shape yet</text>`
       : "";
 
-    return `<svg viewBox="0 0 ${VB_W} ${VB_H}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="A circle split into five areas, sized by how much of your energy each one is using. Your relationship with yourself sits in the centre. Tap an area for detail.">
+    return `<svg viewBox="0 0 ${VB_W} ${VB_H}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="A circle split into five areas, sized by how much extra energy each one is using. Your relationship with yourself sits in the centre. Tap an area for detail.">
       <defs>
         <pattern id="notSure" width="8" height="8" patternTransform="rotate(45)" patternUnits="userSpaceOnUse">
           <rect width="8" height="8" fill="var(--paper-tint)"/>
@@ -2426,7 +2427,7 @@ if (typeof module !== "undefined" && module.exports) {
     const coreOp = wd.core.source === "slider" ? 0.6 : wd.core.source === "density" ? 0.4 : 0.2;
     rows += `<div class="ml-row core"><span class="ml-swatch" style="background:var(--care); opacity:${coreOp}"></span><span class="ml-name">Your relationship with yourself</span><span class="ml-sentence">${esc(coreSentence(result))}</span></div>`;
 
-    let note = `<div class="ml-note">The size of each slice is how much of your energy that area is taking, compared with the others. It is a share of the whole, not a set amount.</div>`;
+    let note = `<div class="ml-note">The size of each slice is how much of your extra energy that area is taking, compared with the others. It is a share of the whole, not a set amount.</div>`;
     // Two different stripes now mean two different things, so they get two
     // different notes — and only when they are actually on the page.
     const anyDensity = wd.rows.some(r => r.source === "density") || wd.core.source === "density";
@@ -2447,6 +2448,11 @@ if (typeof module !== "undefined" && module.exports) {
 
 const APP_ROOMS = BP6.ROOMS;
 
+// Shown above the gesture question (asked last, after the area's statements)
+// for every room except core, whose question is about steadiness, not energy,
+// and was never ambiguous in the same way.
+const EXTRA_NOTE = "Extra means on top of normal life — energy spent because something here is not working well.";
+
 // ─── STATE ───────────────────────────────────────────────────────────────────
 const state = {
   markers: {},     // roomId -> { markerId: 'notatall'|'rarely'|'sometimes'|'often'|'verymuch'|'canttell'|'skip' }
@@ -2458,7 +2464,7 @@ APP_ROOMS.forEach(r => { state.markers[r.id] = {}; });
 
 let visited = {}; // roomId -> true once a room's flow has been completed or skipped
 let currentRoomId = null;
-let stepIndex = 0; // 0 = gesture step, 1..N = marker steps
+let stepIndex = 0; // 0..N-1 = marker steps, N (= markers.length) = gesture step, asked last
 
 // ─── SCREEN HELPERS ──────────────────────────────────────────────────────────
 function showScreen(id, noAnim) {
@@ -2556,24 +2562,37 @@ function renderRoomStep() {
   goback.classList.add("show"); // always available: step 0 goes back to hub
 
   const qDesc = document.getElementById("qDesc");
-  if (stepIndex === 0) {
-    document.getElementById("qLead").textContent = "About this area";
-    document.getElementById("qText").textContent = room.gestureQ;
-    // The description explains what the area covers, so the general question
-    // is answerable without guessing what it means.
-    qDesc.textContent = room.desc;
-    qDesc.style.display = "block";
-    gestureBlock.style.display = "block";
-    markerBlock.style.display = "none";
-    renderGestureStep(room);
-  } else {
-    const marker = room.markers[stepIndex - 1];
+  if (stepIndex < room.markers.length) {
+    const marker = room.markers[stepIndex];
     document.getElementById("qLead").textContent = "How much does this sound like you?";
     document.getElementById("qText").textContent = marker.text;
-    qDesc.style.display = "none";
+    if (stepIndex === 0) {
+      // The description explains what the area covers, shown once on the
+      // first statement so the rest of the area is read in context.
+      qDesc.textContent = room.desc;
+      qDesc.style.display = "block";
+    } else {
+      qDesc.style.display = "none";
+    }
     gestureBlock.style.display = "none";
     markerBlock.style.display = "block";
     renderMarkerStep(room, marker);
+  } else {
+    document.getElementById("qLead").textContent = "Looking at the whole area";
+    document.getElementById("qText").textContent = room.gestureQ;
+    // Asked last, after the area's statements have already defined what
+    // "this area" covers — so this general question is answerable without
+    // guessing. The standing note below clarifies "extra" specifically,
+    // except for core, whose question is about steadiness, not energy.
+    if (!room.isCore) {
+      qDesc.textContent = EXTRA_NOTE;
+      qDesc.style.display = "block";
+    } else {
+      qDesc.style.display = "none";
+    }
+    gestureBlock.style.display = "block";
+    markerBlock.style.display = "none";
+    renderGestureStep(room);
   }
 }
 
@@ -2592,7 +2611,7 @@ function skipRestOfRoom() {
 function advance() {
   const room = currentRoom();
   if (stepIndex >= room.markers.length) {
-    // finished last marker
+    // finished the gesture step, which is now last
     visited[currentRoomId] = true;
     maybeAskChronThenHub();
     return;
@@ -2702,7 +2721,7 @@ function renderMarkerStep(room, marker) {
 
 function selectTag(val) {
   const room = currentRoom();
-  const marker = room.markers[stepIndex - 1];
+  const marker = room.markers[stepIndex];
   state.markers[room.id][marker.id] = val;
   document.querySelectorAll("#markerTags .tag").forEach(t => t.classList.remove("on"));
   document.querySelector(`#markerTags .tag[data-v="${val}"]`).classList.add("on");
@@ -2712,7 +2731,7 @@ function selectTag(val) {
 
 function toggleSkipMarker() {
   const room = currentRoom();
-  const marker = room.markers[stepIndex - 1];
+  const marker = room.markers[stepIndex];
   const btn = document.getElementById("skipMarkerBtn");
   const isOn = btn.classList.contains("on");
   if (isOn) {
