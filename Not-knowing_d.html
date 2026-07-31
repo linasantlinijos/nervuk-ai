@@ -754,7 +754,6 @@
     <div class="breath-ring"></div>
     <div class="breath-dot"></div>
   </div>
-  <div class="pause-kicker" id="pauseKicker"></div>
   <div class="pause-text" id="pauseText"></div>
   <button id="pauseContinue" onclick="closePause()">Continue</button>
 </div>
@@ -799,8 +798,6 @@ const SECTIONS = [
     title: "How the not-knowing feels",
     short: "How it feels",
     color: "#2a6654",
-    kicker: "Before we start",
-    pause: "Notice how your body feels right now. You don't need to change anything.",
     meaning: "The wanting may be there, but you can't reach it. This looks less like having no desires and more like having no access to them. Something sits between you and what you want.",
     look: "<span class=\"tip-lead\">Look for:</span> whether this happens all the time, or only when something matters or other people can see. If it comes and goes, it is probably there for a reason.",
     origin: "The clearest signal is in the moment itself \u2014 the blank that arrives when you are asked. A blank that arrives that fast is a response, not proof that there is nothing there. Something is getting there before the answer does.",
@@ -818,8 +815,6 @@ const SECTIONS = [
     title: "When you were young",
     short: "When you were young",
     color: "#6b5a7a",
-    kicker: "Going back",
-    pause: "Let your shoulders drop, if they want to. The next questions go back to when you were a child.",
     meaning: "Your not-knowing looks learned. When you were young, wanting was met with dismissal or with a cost, and you may have stopped wanting. It may be old protection still running in a life that no longer needs it.",
     look: "<span class=\"tip-lead\">Look for:</span> whether the danger you are still protecting yourself from belongs to then or to now. Often it belongs to then.",
     origin: "The clearest signal reaches back a long way. If saying what you wanted once got you ignored, laughed at, or treated as a problem, then not letting yourself want anything is quicker and easier than wanting something and then having to give it up. Learned early enough, that stops feeling like something you do. It starts feeling like a fact about you.",
@@ -839,8 +834,6 @@ const SECTIONS = [
     title: "Wanting now",
     short: "Wanting now",
     color: "#4a6b7c",
-    kicker: "Back to now",
-    pause: "Take one slow breath. The next questions are about now.",
     meaning: "Your not-knowing still seems to be doing a job. It protects you from something happening now — someone's reaction, or being seen to want something. Being vague is buying you safety today.",
     look: "<span class=\"tip-lead\">Try:</span> saying the risk out loud — \"If I admitted I wanted ___, then ___.\" It usually gets clearer once you have named what you are afraid of.",
     origin: "The clearest signal is in the present, not the past. This one is still doing a job today. Staying vague is protecting you from something specific and current \u2014 someone's reaction, or simply being seen to want something. That is not a leftover from before. It is something you are still doing now.",
@@ -859,8 +852,6 @@ const SECTIONS = [
     title: "What repeats",
     short: "What repeats",
     color: "#96792f",
-    kicker: "Stepping back",
-    pause: "Notice your jaw and your hands. See if a pattern is starting to show.",
     meaning: "There seems to be a repeating exit here. You leave just as things start to matter. This may be less about not knowing and more about a point you keep reaching and backing away from.",
     look: "<span class=\"tip-lead\">Look for:</span> two or three things you walked away from, and whether they all ended at the same kind of moment.",
     origin: "The clearest signal is in the timing. You do not lose interest at random. You lose it as things start to matter. This is a pattern that has been described many times: when something pulls you and frightens you at the same time, the fear grows faster than the pull as you get closer. So you leave right at the point where it would have mattered \u2014 and from the inside it feels like the wanting simply went away on its own.",
@@ -877,8 +868,6 @@ const SECTIONS = [
     title: "Your body",
     short: "Your body",
     color: "#3d8a70",
-    kicker: "Your body",
-    pause: "Feel your feet on the floor. Wanting shows up in the body before you have words for it.",
     meaning: "Wanting seems to be cut off close to the body. Thinking harder will not help here. You are asking \u201cwhat do I want?\u201d of a channel that has gone quiet.",
     look: "<span class=\"tip-lead\">Try:</span> small yes-or-no choices first — what you move towards, what you move away from. Feeling usually has to come back before knowing does.",
     origin: "The clearest signal sits close to the body. Wanting usually starts as a small pull toward something, and the words come afterwards to explain it. If that early signal is faint, asking yourself harder cannot produce it. You are asking a part of you that is not saying much at the moment.",
@@ -895,8 +884,6 @@ const SECTIONS = [
     title: "Needing other people",
     short: "Needing people",
     color: "#5c6f8a",
-    kicker: "Other people",
-    pause: "Let your eyes soften. The next questions are about needing other people.",
     meaning: "Your not-knowing is tied to being uncomfortable with needing people. Wanting involves someone else — to see it, to give it, or to refuse it. That may be the unsafe part, more than the want itself.",
     look: "<span class=\"tip-lead\">Look for:</span> whether you know what you want right up until another person is involved. If it only goes blank when someone else is there, this is about people, not about preference.",
     origin: "The clearest signal is about other people, not about preference. Something you want stays safe while it stays private. Say it out loud and someone can give it to you, refuse it, or think less of you for wanting it. If needing people has gone badly before, the cheapest protection is not to want where anyone can see.",
@@ -913,8 +900,6 @@ const SECTIONS = [
     title: "What you didn't get",
     short: "What you didn't get",
     color: "#7a5c3a",
-    kicker: "Slowly here",
-    pause: "If something has come up, let it be here for a moment. This part is tender. You can stop at any time.",
     meaning: "The not-knowing may be protecting a loss. Sometimes \u201cI don't know what I want\u201d is closer to \u201cI can't yet afford to feel what I didn't get.\u201d Go slowly here, and not alone if it feels heavy.",
     look: "<span class=\"tip-lead\">For now:</span> you do not need to open this. It is enough for today to notice that it is there, and that it is closed for a reason.",
     origin: "The clearest signal here is in the part that hurts most. Sometimes \u201cI don't know what I want\u201d is another way of saying \u201cI can't yet afford to feel what I didn't get.\u201d The not-knowing is doing real work there \u2014 keeping something at a distance because it has been too heavy to carry alone. That is not a fault. It is what a person does when something is too heavy and there is no help.",
@@ -930,8 +915,6 @@ const SECTIONS = [
     title: "Being in charge of your life",
     short: "Being in charge",
     color: "#1f4d40",
-    kicker: "Nearly done",
-    pause: "One breath in, one breath out. These last questions are about what would change if you did know.",
     meaning: "Knowing what you want would make you responsible for it. Not knowing keeps that open. This is common and it is not a failing, but it is worth seeing clearly.",
     look: "<span class=\"tip-lead\">Try:</span> one small thing you want this week — say it and act on it — just to see how being in charge feels before you use it on anything big.",
     origin: "The clearest signal is about what knowing would cost you. The moment you know what you want, it becomes yours to act on, and yours to be wrong about. Not knowing keeps all of that open. This is not laziness. It is a way of not being responsible for how your life turns out.",
@@ -1133,7 +1116,7 @@ function startInstrument() {
   sectionIndex = 0;
   itemIndex = 0;
   finished = false;
-  openSectionPause(0);
+  renderStep();
 }
 
 function currentSection() { return APP_SECTIONS[sectionIndex]; }
@@ -1267,28 +1250,24 @@ function nextSection() {
 }
 
 // ─── SOMATIC PAUSE ───────────────────────────────────────────────────────────
-let pauseTimer = null;
 let pauseMode = "section";
 
-function showPause(kicker, text, delay) {
+function showPause(text, isFinal) {
   const btn = document.getElementById("pauseContinue");
-  document.getElementById("pauseKicker").textContent = kicker;
   document.getElementById("pauseText").textContent = text;
-  btn.classList.remove("ready");
+  btn.textContent = isFinal ? "See results" : "Continue";
+  btn.classList.add("ready"); // continue is available immediately — no held delay
   document.getElementById("pause").classList.add("show");
-  clearTimeout(pauseTimer);
-  pauseTimer = setTimeout(() => btn.classList.add("ready"), delay);
 }
 
 function openSectionPause(si) {
   pauseMode = "section";
-  const s = APP_SECTIONS[si];
-  showPause(s.kicker, s.pause, si === 0 ? 3200 : 4000);
+  showPause("End of this part", false);
 }
 
 function openFinalPause() {
   pauseMode = "final";
-  showPause("One moment", "Take one slow breath before you look at the result.", 3200);
+  showPause("End of this part", true);
 }
 
 function closePause() {

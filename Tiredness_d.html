@@ -1101,7 +1101,6 @@
     <div class="breath-ring"></div>
     <div class="breath-dot"></div>
   </div>
-  <div class="pause-kicker" id="pauseKicker"></div>
   <div class="pause-text" id="pauseText"></div>
   <button id="pauseContinue" onclick="closePause()">Continue</button>
 </div>
@@ -1126,8 +1125,6 @@
 const SECTIONS = [
   {
     theme: "What rest does",
-    kicker: "Before we start",
-    pause: "Notice how your body feels right now — tired, restless, heavy, fine. You don't need to change anything. Just notice.",
     items: [
       {t:"A full night of sleep doesn't make this tiredness go away.", f:"stuck"},
       {t:"I can rest for days — a quiet weekend, a holiday — and still wake up tired.", f:"stuck"},
@@ -1140,8 +1137,6 @@ const SECTIONS = [
   },
   {
     theme: "When you get tired",
-    kicker: "Looking closer",
-    pause: "Let your shoulders drop, if they will. Notice whether that was easy, or whether they came back up on their own.",
     items: [
       {t:"I get very tired around certain people or situations, even without physical effort.", f:"stuck"},
       {t:"Small, everyday things make me much more tired than they should.", f:"stuck"},
@@ -1154,8 +1149,6 @@ const SECTIONS = [
   },
   {
     theme: "What your body is doing",
-    kicker: "Into the body",
-    pause: "One slow breath. Notice where your body is tight — jaw, stomach, hands. You don't need to relax it.",
     items: [
       {t:"There's tension in my jaw, shoulders, or stomach that never fully goes away.", f:"stuck"},
       {t:"Even when nothing is wrong, part of me stays alert, as if waiting for something.", f:"stuck"},
@@ -1165,8 +1158,6 @@ const SECTIONS = [
   },
   {
     theme: "How long it lasts",
-    kicker: "Stepping back",
-    pause: "Notice whether there's a difference for you between feeling sleepy and feeling empty.",
     items: [
       {t:"Hours after a stressful moment — a difficult meeting or conversation — my body is still tense. Sometimes until the next day.", f:"stuck"},
       {t:"I get tense before situations that, afterwards, seem unimportant.", f:"stuck"},
@@ -1176,8 +1167,6 @@ const SECTIONS = [
   },
   {
     theme: "Other possible causes",
-    kicker: "Take your time",
-    pause: "The last few are about your health, not about worrying you. Read them slowly.",
     items: [
       {t:"This tiredness is new. I haven't always felt like this.", f:"medical"},
       {t:"Along with the tiredness, I have other physical symptoms — pain, weight change, feeling cold, or getting sick often.", f:"medical"},
@@ -1197,9 +1186,10 @@ let lastLandedItems = [];   // populated in showResults(); read by openShareCard
 function buildSteps() {
   steps = [];
   SECTIONS.forEach((sec, si) => {
-    steps.push({type:"pause", si});
+    if (si > 0) steps.push({type:"pause", si}); // no pause before the first section — nothing has ended yet
     sec.items.forEach((_, qi) => steps.push({type:"q", si, qi}));
   });
+  steps.push({type:"pause", si: SECTIONS.length}); // final pause, after the last section, before results
 }
 
 // ─── NAVIGATION ──────────────────────────────────────────────────────────────
@@ -1249,17 +1239,13 @@ function endHere() {
 
 // ─── PAUSE OVERLAY ───────────────────────────────────────────────────────────
 
-let pauseTimer = null;
-
 function openPause(si) {
-  const sec = SECTIONS[si];
-  document.getElementById('pauseKicker').textContent = sec.kicker;
-  document.getElementById('pauseText').textContent = sec.pause;
+  const isFinal = si === SECTIONS.length;
+  document.getElementById('pauseText').textContent = "End of this part";
   const btn = document.getElementById('pauseContinue');
-  btn.classList.remove('ready');
+  btn.textContent = isFinal ? 'See results' : 'Continue';
+  btn.classList.add('ready'); // continue is available immediately — no held delay
   document.getElementById('pause').classList.add('show');
-  clearTimeout(pauseTimer);
-  pauseTimer = setTimeout(() => btn.classList.add('ready'), 3200);
 }
 
 function closePause() {

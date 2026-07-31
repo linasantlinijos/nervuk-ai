@@ -1164,7 +1164,6 @@
     <div class="breath-ring"></div>
     <div class="breath-dot"></div>
   </div>
-  <div class="pause-kicker" id="pauseKicker"></div>
   <div class="pause-text" id="pauseText"></div>
   <button id="pauseContinue" onclick="closePause()">Continue</button>
 </div>
@@ -1198,8 +1197,6 @@ const SECTIONS = [
   {
     kind: 'felt',
     theme: "How it feels",
-    kicker: "Before we start",
-    pause: "Before we start, take one slow breath and notice how you feel right now, without trying to change anything. The next questions are about the last few months, not about one bad day.",
     items: [
       {t:"My body stays tense, even when I know I am safe.", f:"body"},
       {t:"I feel that this is my fault, or that something is wrong with me.", f:"mind", fit:true, shame:true},
@@ -1212,8 +1209,6 @@ const SECTIONS = [
   {
     kind: 'felt',
     theme: "What helps and what doesn't",
-      kicker: "Keep going",
-    pause: "Let your shoulders drop, if they can. Was that easy? Or did they slowly tighten again?",
     items: [
       {t:"I understand why I feel this way, but my body still feels the same.", f:"body"},
       {t:"The same painful things happen again in my close relationships, even when I see them coming.", f:"relationship"},
@@ -1227,8 +1222,6 @@ const SECTIONS = [
     kind: 'choice',
     theme: "What you have already tried",
     frame: "",
-    kicker: "A few facts",
-    pause: "The next part is about what you have already tried. There are no right answers here.",
     items: [
       {
         key: 'current', multi: false,
@@ -1268,8 +1261,6 @@ const SECTIONS = [
     kind: 'felt',
     theme: "Right now",
     frame: "Thinking about the last two weeks",
-    kicker: "The last few",
-    pause: "The last few questions are about the last two weeks, not about the long pattern. You can stop at any time.",
     items: [
       {t:"I have thoughts of not wanting to be alive.", f:"acute", strong:true},
       {t:"I feel more overwhelmed than able to cope.", f:"acute"},
@@ -1298,9 +1289,10 @@ let lastLandedItems = [];   // populated in showResults(); read by openShareCard
 function buildSteps() {
   steps = [];
   SECTIONS.forEach((sec, si) => {
-    steps.push({type: 'pause', si});
+    if (si > 0) steps.push({type: 'pause', si}); // no pause before the first section — nothing has ended yet
     sec.items.forEach((_, qi) => steps.push({type: 'q', si, qi, kind: sec.kind}));
   });
+  steps.push({type: 'pause', si: SECTIONS.length}); // final pause, after the last section, before results
 }
 
 // ─── NAVIGATION ──────────────────────────────────────────────────────────────
@@ -1342,18 +1334,13 @@ function goBack() {
 function endHere() { showResults(); }
 
 // ─── PAUSE OVERLAY ───────────────────────────────────────────────────────────
-let pauseTimer = null;
-
 function openPause(si) {
-  const sec = SECTIONS[si];
-  const kick = document.getElementById('pauseKicker');
-  if (kick) kick.textContent = sec.kicker || '';
-  document.getElementById('pauseText').textContent = sec.pause;
+  const isFinal = si === SECTIONS.length;
+  document.getElementById('pauseText').textContent = "End of this part";
   const cont = document.getElementById('pauseContinue');
-  cont.classList.remove('ready');
+  cont.textContent = isFinal ? 'See results' : 'Continue';
+  cont.classList.add('ready'); // continue is available immediately — no held delay
   document.getElementById('pause').classList.add('show');
-  clearTimeout(pauseTimer);
-  pauseTimer = setTimeout(() => { cont.classList.add('ready'); }, 3200);
 }
 
 function closePause() {

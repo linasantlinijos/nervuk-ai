@@ -295,8 +295,19 @@
     line-height: 1.65;
     color: rgba(255,255,255,0.88);
     max-width: 480px;
+    margin-bottom: 12px;
+  }
+  .pause-sub {
+    font-family: var(--serif);
+    font-style: italic;
+    font-weight: 400;
+    font-size: clamp(0.95rem, 2.4vw, 1.05rem);
+    line-height: 1.5;
+    color: rgba(255,255,255,0.6);
+    max-width: 480px;
     margin-bottom: 40px;
   }
+  .pause-sub:empty { display: none; margin-bottom: 0; }
 
   #pauseContinue {
     background: transparent;
@@ -1124,8 +1135,8 @@
     <div class="breath-ring"></div>
     <div class="breath-dot"></div>
   </div>
-  <div class="pause-kicker" id="pauseKicker"></div>
   <div class="pause-text" id="pauseText"></div>
+  <div class="pause-sub" id="pauseSub"></div>
   <button id="pauseContinue" onclick="closePause()">Continue</button>
 </div>
 
@@ -1165,7 +1176,6 @@ const SECTIONS = [
   {
     theme: "Effort spent preventing problems",
     kicker: "Getting started",
-    pause: "Before we start, notice how much effort is in your body right now — in your hands, your face, your breathing. You do not need to change anything. Just notice.",
     items: [
       {t:"I plan conversations in my head before they happen, even simple ones.", f:"do"},
       {t:"I prepare more than the situation needs.", f:"do"},
@@ -1178,7 +1188,7 @@ const SECTIONS = [
   {
     theme: "Things you stop yourself from doing",
     kicker: "Looking closer",
-    pause: "If you are holding something tight, let it loosen for a moment. Notice whether that was easy, or whether the tightness came back by itself.",
+    pause: "End of this part",
     items: [
       {t:"I wait until everything is finished before I let myself rest.", f:"block"},
       {t:"I delay something that would be good for me.", f:"block"},
@@ -1191,7 +1201,7 @@ const SECTIONS = [
   {
     theme: "Never fully at rest",
     kicker: "Slowing down",
-    pause: "Take one slow breath. Notice whether some part of you is still ready for something, even now.",
+    pause: "End of this part",
     items: [
       {t:"I only notice I am tense when I finally relax.", f:"drag"},
       {t:"Part of me stays alert even in my free time.", f:"drag"},
@@ -1271,9 +1281,10 @@ let lastStrongItems = []; // populated in showResults(); read by openShareCard()
 function buildSteps() {
   steps = [];
   SECTIONS.forEach((sec, si) => {
-    steps.push({type:"pause", si});
+    if (si > 0) steps.push({type:"pause", si}); // no pause before the first section — nothing has ended yet
     sec.items.forEach((_, qi) => steps.push({type:"q", si, qi}));
   });
+  steps.push({type:"pause", si: SECTIONS.length}); // final pause, after the last section, before results
 }
 
 // ─── NAVIGATION ──────────────────────────────────────────────────────────────
@@ -1322,17 +1333,15 @@ function endHere() {
 
 // ─── PAUSE OVERLAY ───────────────────────────────────────────────────────────
 
-let pauseTimer = null;
-
 function openPause(si) {
-  const sec = SECTIONS[si];
-  document.getElementById('pauseKicker').textContent = sec.kicker;
-  document.getElementById('pauseText').textContent = sec.pause;
+  const isFinal = si === SECTIONS.length;
+  const text = isFinal ? "End of this part" : SECTIONS[si].pause;
+  document.getElementById('pauseText').textContent = text;
+  document.getElementById('pauseSub').textContent = '';
   const btn = document.getElementById('pauseContinue');
-  btn.classList.remove('ready');
+  btn.textContent = isFinal ? 'See results' : 'Continue';
+  btn.classList.add('ready'); // continue is available immediately — no held delay
   document.getElementById('pause').classList.add('show');
-  clearTimeout(pauseTimer);
-  pauseTimer = setTimeout(() => btn.classList.add('ready'), 3200);
 }
 
 function closePause() {

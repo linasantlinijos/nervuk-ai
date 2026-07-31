@@ -984,7 +984,6 @@
     <div class="breath-ring"></div>
     <div class="breath-dot"></div>
   </div>
-  <div class="pause-kicker" id="pauseKicker">Before we look</div>
   <div class="pause-text" id="pauseText"></div>
   <button id="pauseContinue" onclick="closePause()">Continue</button>
 </div>
@@ -2750,15 +2749,12 @@ function selectChronChip(roomId, optId) {
 function finishChronicity() { showScreen("screen-hub"); renderHub(); }
 
 // ─── SOMATIC PAUSE ───────────────────────────────────────────────────────────
-let pauseTimer = null;
 function openPause() {
-  document.getElementById("pauseKicker").textContent = "One moment";
-  document.getElementById("pauseText").textContent = "Take one slow breath before you look at the result.";
+  document.getElementById("pauseText").textContent = "End of this part";
   const btn = document.getElementById("pauseContinue");
-  btn.classList.remove("ready");
+  btn.textContent = "See results";
+  btn.classList.add("ready"); // continue is available immediately — no held delay
   document.getElementById("pause").classList.add("show");
-  clearTimeout(pauseTimer);
-  pauseTimer = setTimeout(() => btn.classList.add("ready"), 3200);
 }
 function closePause() {
   document.getElementById("pause").classList.remove("show");
